@@ -40,13 +40,6 @@ export const work = defineType({
       initialValue: false,
     }),
     defineField({
-      name: 'priority',
-      title: 'Sort Priority',
-      type: 'number',
-      description: 'Lower number = higher position. Used when multiple items share the same year.',
-      initialValue: 50,
-    }),
-    defineField({
       name: 'layoutSize',
       title: 'Layout Size',
       type: 'string',

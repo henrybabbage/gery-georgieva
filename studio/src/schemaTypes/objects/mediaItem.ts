@@ -32,13 +32,6 @@ export const mediaItem = defineType({
       hidden: ({parent}: {parent: {mediaType?: string}}) => parent?.mediaType !== 'video',
     }),
     defineField({
-      name: 'orientation',
-      title: 'Orientation',
-      type: 'string',
-      options: {list: ['horizontal', 'vertical', 'square']},
-      initialValue: 'horizontal',
-    }),
-    defineField({
       name: 'isAudiencePhoto',
       title: 'Audience Photo',
       type: 'boolean',

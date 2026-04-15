@@ -94,15 +94,15 @@ export default async function ExhibitionPage({params}: Props) {
         </section>
       )}
 
-      {exhibition.pressRelease && (
+      {exhibition.externalDocumentationLink && (
         <p className="mt-6 text-sm">
           <a
-            href={exhibition.pressRelease}
+            href={exhibition.externalDocumentationLink}
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-2 opacity-50"
           >
-            Press release ↗
+            External documentation ↗
           </a>
         </p>
       )}

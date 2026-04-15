@@ -38,10 +38,10 @@ export default async function WorkPage({params}: Props) {
       {/* Gallery placeholder — swap in MediaGallery component */}
       {work.gallery && work.gallery.length > 0 && (
         <div className="space-y-2 mb-8">
-          {work.gallery.map((item: {orientation?: string}, i: number) => (
+          {work.gallery.map((_item: unknown, i: number) => (
             <div
               key={i}
-              className={`bg-[#e8e7e3] ${stegaClean(item.orientation) === 'vertical' ? 'aspect-[9/16] max-w-sm' : 'aspect-video'}`}
+              className="bg-[#e8e7e3] aspect-video"
             />
           ))}
         </div>

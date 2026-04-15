@@ -54,7 +54,7 @@ export const exhibition = defineType({
       type: 'array',
       of: [{type: 'mediaItem'}],
     }),
-    defineField({name: 'pressRelease', title: 'Press Release URL', type: 'url'}),
+    defineField({name: 'externalDocumentationLink', title: 'External Documentation Link', type: 'url'}),
   ],
   preview: {
     select: {title: 'title', venue: 'venue', year: 'year'},

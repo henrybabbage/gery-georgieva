@@ -7,7 +7,6 @@ export type MediaItem = {
   image?: SanityImageSource & {asset?: {_ref?: string}}
   videoUrl?: string
   videoFile?: {asset?: {_ref?: string}}
-  orientation?: 'horizontal' | 'vertical' | 'square'
   isAudiencePhoto?: boolean
   caption?: string
   credit?: string
@@ -21,7 +20,6 @@ export type WorkCard = {
   year?: number
   medium?: string
   isFeature?: boolean
-  priority?: number
   layoutSize?: 'full' | 'half' | 'float'
   coverImage?: SanityImageSource
 }
@@ -44,7 +42,6 @@ export type EphemeraCard = {
   category?: string
   layoutSize?: 'full' | 'half' | 'float'
   isFeature?: boolean
-  priority?: number
   firstImage?: SanityImageSource
 }
 
@@ -62,7 +59,7 @@ export type ExhibitionDetail = ExhibitionCard & {
   endDate?: string
   exhibitionType?: string
   description?: unknown[]
-  pressRelease?: string
+  externalDocumentationLink?: string
   relatedWorks?: WorkCard[]
   installationImages?: MediaItem[]
 }

@@ -9,7 +9,6 @@ const mediaItemFields = /* groq */ `
   image { ..., asset-> },
   videoUrl,
   videoFile { asset-> },
-  orientation,
   isAudiencePhoto,
   caption,
   credit
@@ -23,7 +22,6 @@ const workCardFields = /* groq */ `
   year,
   medium,
   isFeature,
-  priority,
   layoutSize,
   coverImage { ..., asset-> }
 `
@@ -34,14 +32,13 @@ const workCardFields = /* groq */ `
 
 export const streamQuery = defineQuery(`
   *[_type in ["work", "ephemera"] && defined(slug.current)]
-  | order(isFeature desc, year desc, priority asc) {
+  | order(isFeature desc, year desc) {
     _id,
     _type,
     title,
     "slug": slug.current,
     year,
     isFeature,
-    priority,
     layoutSize,
     coverImage { ..., asset-> },
     "firstImage": images[0] { ..., asset-> }
@@ -54,7 +51,7 @@ export const streamQuery = defineQuery(`
 
 export const archiveQuery = defineQuery(`
   *[_type == "work" && defined(slug.current) && year < 2015]
-  | order(year desc, priority asc) {
+  | order(year desc) {
     ${workCardFields}
   }
 `)
@@ -115,7 +112,7 @@ export const exhibitionQuery = defineQuery(`
     endDate,
     exhibitionType,
     description,
-    pressRelease,
+    externalDocumentationLink,
     relatedWorks[]-> {
       ${workCardFields}
     },
@@ -146,7 +143,7 @@ export const ephemeraQuery = defineQuery(`
     year,
     category,
     description,
-    images[] { ${mediaItemFields} },
+    media[] { ${mediaItemFields} },
     relatedWork[]-> {
       _id,
       title,

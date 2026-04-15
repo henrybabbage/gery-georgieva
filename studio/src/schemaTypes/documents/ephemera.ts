@@ -41,8 +41,8 @@ export const ephemera = defineType({
       of: [{type: 'block'}],
     }),
     defineField({
-      name: 'images',
-      title: 'Images',
+      name: 'media',
+      title: 'Media',
       type: 'array',
       of: [{type: 'mediaItem'}],
     }),
@@ -64,12 +64,6 @@ export const ephemera = defineType({
       title: 'Featured',
       type: 'boolean',
       initialValue: false,
-    }),
-    defineField({
-      name: 'priority',
-      title: 'Sort Priority',
-      type: 'number',
-      initialValue: 50,
     }),
     defineField({
       name: 'relatedWork',
