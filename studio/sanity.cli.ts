@@ -18,6 +18,7 @@ export default defineCliConfig({
   studioHost: 'gery-georgieva',
   deployment: {
     autoUpdates: true,
+    appId: 'bvklsfiu2iu2rl3fss55rkkw',
   },
   typegen: {
     path: './src/**/*.{ts,tsx,js,jsx}',
