@@ -1,0 +1,111 @@
+import {notFound} from 'next/navigation'
+import Link from 'next/link'
+import {stegaClean} from '@sanity/client/stega'
+import {sanityFetch} from '@/sanity/lib/live'
+import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
+import type {Metadata} from 'next'
+
+type Props = {params: Promise<{slug: string}>}
+
+export async function generateStaticParams() {
+  const {data} = await sanityFetch({
+    query: exhibitionSlugQuery,
+    perspective: 'published',
+    stega: false,
+  })
+  return data ?? []
+}
+
+export async function generateMetadata({params}: Props): Promise<Metadata> {
+  const {slug} = await params
+  const {data} = await sanityFetch({query: exhibitionQuery, params: {slug}, stega: false})
+  return {title: data?.title}
+}
+
+export default async function ExhibitionPage({params}: Props) {
+  const {slug} = await params
+  const {data: exhibition} = await sanityFetch({query: exhibitionQuery, params: {slug}})
+
+  if (!exhibition) notFound()
+
+  return (
+    <div className="px-5 py-8 max-w-3xl">
+      <p className="text-xs opacity-50 mb-6">
+        <Link href="/">← Work</Link>
+      </p>
+
+      <h1 className="text-lg font-normal mb-1">{exhibition.title}</h1>
+      <p className="text-sm opacity-50 mb-1">
+        {[exhibition.exhibitionType, exhibition.venue, exhibition.location, exhibition.year]
+          .filter(Boolean)
+          .join(', ')}
+      </p>
+      {exhibition.startDate && (
+        <p className="text-sm opacity-40 mb-6">
+          {exhibition.startDate}
+          {exhibition.endDate && ` — ${exhibition.endDate}`}
+        </p>
+      )}
+
+      {/* Installation images placeholder */}
+      {exhibition.installationImages && exhibition.installationImages.length > 0 && (
+        <div className="grid grid-cols-2 gap-2 mb-8">
+          {exhibition.installationImages.map((item: {isAudiencePhoto?: boolean}, i: number) => (
+            <div
+              key={i}
+              className={`bg-[#e8e7e3] aspect-video ${stegaClean(item.isAudiencePhoto) ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Works in this exhibition */}
+      {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
+        <section>
+          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Works</h2>
+          <ul className="space-y-1">
+            {exhibition.relatedWorks.map((work: {_id: string; slug: string; title: string; year?: number; medium?: string}) => (
+              <li key={work._id} className="text-sm">
+                <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
+                  {work.title}
+                </Link>
+                {work.year && <span className="opacity-50 ml-2">{work.year}</span>}
+                {work.medium && <span className="opacity-50 ml-2">{work.medium}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Research & ephemera</h2>
+          <ul className="space-y-1">
+            {exhibition.relatedEphemera.map((ep: {_id: string; slug: string; title: string; category?: string; year?: number}) => (
+              <li key={ep._id} className="text-sm">
+                <Link href={`/ephemera/${ep.slug}`} className="underline underline-offset-2">
+                  {ep.title}
+                </Link>
+                {ep.category && <span className="opacity-50 ml-2">{ep.category}</span>}
+                {ep.year && <span className="opacity-50 ml-2">{ep.year}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {exhibition.pressRelease && (
+        <p className="mt-6 text-sm">
+          <a
+            href={exhibition.pressRelease}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 opacity-50"
+          >
+            Press release ↗
+          </a>
+        </p>
+      )}
+    </div>
+  )
+}

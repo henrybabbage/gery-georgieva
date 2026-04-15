@@ -1,61 +1,37 @@
-import {MetadataRoute} from 'next'
-import {sanityFetch} from '@/sanity/lib/live'
-import {sitemapData} from '@/sanity/lib/queries'
+import {type MetadataRoute} from 'next'
 import {headers} from 'next/headers'
-
-/**
- * This file creates a sitemap (sitemap.xml) for the application. Learn more about sitemaps in Next.js here: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
- * Be sure to update the `changeFrequency` and `priority` values to match your application's content.
- */
+import {sanityFetch} from '@/sanity/lib/live'
+import {workSlugQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const allPostsAndPages = await sanityFetch({
-    query: sitemapData,
-  })
   const headersList = await headers()
-  const sitemap: MetadataRoute.Sitemap = []
-  const domain: string = headersList.get('host') as string
-  sitemap.push({
-    url: domain as string,
-    lastModified: new Date(),
-    priority: 1,
-    changeFrequency: 'monthly',
-  })
+  const host = headersList.get('host') ?? 'localhost:3000'
+  const base = `https://${host}`
 
-  if (allPostsAndPages != null && allPostsAndPages.data.length != 0) {
-    let priority: number
-    let changeFrequency:
-      | 'monthly'
-      | 'always'
-      | 'hourly'
-      | 'daily'
-      | 'weekly'
-      | 'yearly'
-      | 'never'
-      | undefined
-    let url: string
+  const [{data: works}, {data: exhibitions}] = await Promise.all([
+    sanityFetch({query: workSlugQuery, perspective: 'published', stega: false}),
+    sanityFetch({query: exhibitionSlugQuery, perspective: 'published', stega: false}),
+  ])
 
-    for (const p of allPostsAndPages.data) {
-      switch (p._type) {
-        case 'page':
-          priority = 0.8
-          changeFrequency = 'monthly'
-          url = `${domain}/${p.slug}`
-          break
-        case 'post':
-          priority = 0.5
-          changeFrequency = 'never'
-          url = `${domain}/posts/${p.slug}`
-          break
-      }
-      sitemap.push({
-        lastModified: p._updatedAt || new Date(),
-        priority,
-        changeFrequency,
-        url,
-      })
-    }
-  }
+  const staticRoutes: MetadataRoute.Sitemap = [
+    {url: base, lastModified: new Date(), priority: 1, changeFrequency: 'weekly'},
+    {url: `${base}/cv`, lastModified: new Date(), priority: 0.7, changeFrequency: 'monthly'},
+    {url: `${base}/archive`, lastModified: new Date(), priority: 0.5, changeFrequency: 'yearly'},
+  ]
 
-  return sitemap
+  const workRoutes: MetadataRoute.Sitemap = (works ?? []).map(({slug}: {slug: string}) => ({
+    url: `${base}/work/${slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
+  const exhibitionRoutes: MetadataRoute.Sitemap = (exhibitions ?? []).map(
+    ({slug}: {slug: string}) => ({
+      url: `${base}/exhibition/${slug}`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.6,
+    }),
+  )
+
+  return [...staticRoutes, ...workRoutes, ...exhibitionRoutes]
 }

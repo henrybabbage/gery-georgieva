@@ -9,7 +9,6 @@
  */
 
 import {PortableText, type PortableTextComponents, type PortableTextBlock} from 'next-sanity'
-import ResolvedLink from '@/app/components/ResolvedLink'
 import Image from '@/app/components/SanityImage'
 
 export default function CustomPortableText({
@@ -96,7 +95,12 @@ export default function CustomPortableText({
     },
     marks: {
       link: ({children, value: link}) => {
-        return <ResolvedLink link={link}>{children}</ResolvedLink>
+        const href = link?.href ?? link?.url ?? '#'
+        return (
+          <a href={href} target={link?.openInNewTab ? '_blank' : undefined} rel="noopener noreferrer">
+            {children}
+          </a>
+        )
       },
     },
   }

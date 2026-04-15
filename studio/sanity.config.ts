@@ -34,12 +34,13 @@ const homeLocation = {
 // path for different document types and used in the presentation tool.
 function resolveHref(documentType?: string, slug?: string): string | undefined {
   switch (documentType) {
-    case 'post':
-      return slug ? `/posts/${slug}` : undefined
-    case 'page':
-      return slug ? `/${slug}` : undefined
+    case 'work':
+      return slug ? `/work/${slug}` : undefined
+    case 'exhibition':
+      return slug ? `/exhibition/${slug}` : undefined
+    case 'ephemera':
+      return slug ? `/ephemera/${slug}` : undefined
     default:
-      console.warn('Invalid document type:', documentType)
       return undefined
   }
 }
@@ -47,7 +48,7 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
 // Main Sanity configuration
 export default defineConfig({
   name: 'default',
-  title: 'Sanity + Next.js Starter Template',
+  title: 'Gery Georgieva',
 
   projectId,
   dataset,
@@ -66,55 +67,65 @@ export default defineConfig({
         mainDocuments: defineDocuments([
           {
             route: '/',
-            filter: `_type == "settings" && _id == "siteSettings"`,
+            filter: `_type in ["work", "ephemera"]`,
           },
           {
-            route: '/:slug',
-            filter: `_type == "page" && slug.current == $slug || _id == $slug`,
+            route: '/work/:slug',
+            filter: `_type == "work" && slug.current == $slug`,
           },
           {
-            route: '/posts/:slug',
-            filter: `_type == "post" && slug.current == $slug || _id == $slug`,
+            route: '/exhibition/:slug',
+            filter: `_type == "exhibition" && slug.current == $slug`,
+          },
+          {
+            route: '/ephemera/:slug',
+            filter: `_type == "ephemera" && slug.current == $slug`,
+          },
+          {
+            route: '/cv',
+            filter: `_type == "cvEntry"`,
           },
         ]),
-        // Locations Resolver API allows you to define where data is being used in your application. https://www.sanity.io/docs/visual-editing/presentation-resolver-api#8d8bca7bfcd7
         locations: {
-          settings: defineLocations({
-            locations: [homeLocation],
-            message: 'This document is used on all pages',
-            tone: 'positive',
-          }),
-          page: defineLocations({
-            select: {
-              name: 'name',
-              slug: 'slug.current',
-            },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.name || 'Untitled',
-                  href: resolveHref('page', doc?.slug)!,
-                },
-              ],
-            }),
-          }),
-          post: defineLocations({
-            select: {
-              title: 'title',
-              slug: 'slug.current',
-            },
+          work: defineLocations({
+            select: {title: 'title', slug: 'slug.current'},
             resolve: (doc) => ({
               locations: [
                 {
                   title: doc?.title || 'Untitled',
-                  href: resolveHref('post', doc?.slug)!,
+                  href: resolveHref('work', doc?.slug)!,
                 },
-                {
-                  title: 'Home',
-                  href: '/',
-                } satisfies DocumentLocation,
+                homeLocation,
               ].filter(Boolean) as DocumentLocation[],
             }),
+          }),
+          exhibition: defineLocations({
+            select: {title: 'title', slug: 'slug.current'},
+            resolve: (doc) => ({
+              locations: [
+                {
+                  title: doc?.title || 'Untitled',
+                  href: resolveHref('exhibition', doc?.slug)!,
+                },
+              ].filter(Boolean) as DocumentLocation[],
+            }),
+          }),
+          ephemera: defineLocations({
+            select: {title: 'title', slug: 'slug.current'},
+            resolve: (doc) => ({
+              locations: [
+                {
+                  title: doc?.title || 'Untitled',
+                  href: resolveHref('ephemera', doc?.slug)!,
+                },
+                homeLocation,
+              ].filter(Boolean) as DocumentLocation[],
+            }),
+          }),
+          cvEntry: defineLocations({
+            locations: [{title: 'CV', href: '/cv'}],
+            message: 'This entry appears on the CV page.',
+            tone: 'positive',
           }),
         },
       },

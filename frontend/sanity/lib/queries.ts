@@ -1,101 +1,192 @@
 import {defineQuery} from 'next-sanity'
 
-export const settingsQuery = defineQuery(`*[_type == "settings"][0]`)
+// ---------------------------------------------------------------------------
+// Shared field fragments
+// ---------------------------------------------------------------------------
 
-const postFields = /* groq */ `
+const mediaItemFields = /* groq */ `
+  mediaType,
+  image { ..., asset-> },
+  videoUrl,
+  videoFile { asset-> },
+  orientation,
+  isAudiencePhoto,
+  caption,
+  credit
+`
+
+const workCardFields = /* groq */ `
   _id,
-  "status": select(_originalId in path("drafts.**") => "draft", "published"),
-  "title": coalesce(title, "Untitled"),
+  _type,
+  title,
   "slug": slug.current,
-  excerpt,
-  coverImage,
-  "date": coalesce(date, _updatedAt),
-  "author": author->{firstName, lastName, picture},
+  year,
+  medium,
+  isFeature,
+  priority,
+  layoutSize,
+  coverImage { ..., asset-> }
 `
 
-const linkReference = /* groq */ `
-  _type == "link" => {
-    "page": page->slug.current,
-    "post": post->slug.current
-  }
-`
+// ---------------------------------------------------------------------------
+// Home / Stream grid — work + ephemera interleaved
+// ---------------------------------------------------------------------------
 
-const linkFields = /* groq */ `
-  link {
-      ...,
-      ${linkReference}
-      }
-`
-
-export const getPageQuery = defineQuery(`
-  *[_type == 'page' && slug.current == $slug][0]{
+export const streamQuery = defineQuery(`
+  *[_type in ["work", "ephemera"] && defined(slug.current)]
+  | order(isFeature desc, year desc, priority asc) {
     _id,
     _type,
-    name,
-    slug,
-    heading,
-    subheading,
-    "pageBuilder": pageBuilder[]{
-      ...,
-      _type == "callToAction" => {
-        ...,
-        button {
-          ...,
-          ${linkFields}
-        }
-      },
-      _type == "infoSection" => {
-        content[]{
-          ...,
-          markDefs[]{
-            ...,
-            ${linkReference}
-          }
-        }
-      },
-    },
-  }
-`)
-
-export const sitemapData = defineQuery(`
-  *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {
+    title,
     "slug": slug.current,
-    _type,
-    _updatedAt,
+    year,
+    isFeature,
+    priority,
+    layoutSize,
+    coverImage { ..., asset-> },
+    "firstImage": images[0] { ..., asset-> }
   }
 `)
 
-export const allPostsQuery = defineQuery(`
-  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {
-    ${postFields}
+// ---------------------------------------------------------------------------
+// Archive — work only, pre-2015
+// ---------------------------------------------------------------------------
+
+export const archiveQuery = defineQuery(`
+  *[_type == "work" && defined(slug.current) && year < 2015]
+  | order(year desc, priority asc) {
+    ${workCardFields}
   }
 `)
 
-export const morePostsQuery = defineQuery(`
-  *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {
-    ${postFields}
-  }
-`)
+// ---------------------------------------------------------------------------
+// Work detail — with back-links to exhibitions and related ephemera
+// ---------------------------------------------------------------------------
 
-export const postQuery = defineQuery(`
-  *[_type == "post" && slug.current == $slug] [0] {
-    content[]{
-    ...,
-    markDefs[]{
-      ...,
-      ${linkReference}
+export const workQuery = defineQuery(`
+  *[_type == "work" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    medium,
+    dimensions,
+    description,
+    isFeature,
+    layoutSize,
+    coverImage { ..., asset-> },
+    gallery[] { ${mediaItemFields} },
+    relatedEphemera[]-> {
+      _id,
+      title,
+      "slug": slug.current,
+      category,
+      "firstImage": images[0] { ..., asset-> }
+    },
+    tags,
+    "exhibitions": *[_type == "exhibition" && references(^._id)] {
+      _id,
+      title,
+      "slug": slug.current,
+      year,
+      venue,
+      location
     }
-  },
-    ${postFields}
   }
 `)
 
-export const postPagesSlugs = defineQuery(`
-  *[_type == "post" && defined(slug.current)]
-  {"slug": slug.current}
+export const workSlugQuery = defineQuery(`
+  *[_type == "work" && defined(slug.current)] { "slug": slug.current }
 `)
 
-export const pagesSlugs = defineQuery(`
-  *[_type == "page" && defined(slug.current)]
-  {"slug": slug.current}
+// ---------------------------------------------------------------------------
+// Exhibition detail — with works resolved
+// ---------------------------------------------------------------------------
+
+export const exhibitionQuery = defineQuery(`
+  *[_type == "exhibition" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    venue,
+    location,
+    startDate,
+    endDate,
+    exhibitionType,
+    description,
+    pressRelease,
+    relatedWorks[]-> {
+      ${workCardFields}
+    },
+    installationImages[] { ${mediaItemFields} },
+    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {
+      _id,
+      title,
+      "slug": slug.current,
+      category,
+      year
+    }
+  }
+`)
+
+export const exhibitionSlugQuery = defineQuery(`
+  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }
+`)
+
+// ---------------------------------------------------------------------------
+// Ephemera detail
+// ---------------------------------------------------------------------------
+
+export const ephemeraQuery = defineQuery(`
+  *[_type == "ephemera" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    category,
+    description,
+    images[] { ${mediaItemFields} },
+    relatedWork[]-> {
+      _id,
+      title,
+      "slug": slug.current,
+      year,
+      medium
+    },
+    relatedExhibitions[]-> {
+      _id,
+      title,
+      "slug": slug.current,
+      year,
+      venue,
+      location
+    }
+  }
+`)
+
+export const ephemeraSlugQuery = defineQuery(`
+  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }
+`)
+
+// ---------------------------------------------------------------------------
+// CV
+// ---------------------------------------------------------------------------
+
+export const cvQuery = defineQuery(`
+  *[_type == "cvEntry"] | order(year desc) {
+    _id,
+    title,
+    year,
+    category,
+    role,
+    institution,
+    location,
+    description,
+    internalRef-> {
+      _id,
+      title,
+      "slug": slug.current
+    }
+  }
 `)
