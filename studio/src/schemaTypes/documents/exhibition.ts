@@ -1,10 +1,15 @@
 import {defineField, defineType} from 'sanity'
+import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
+import {Asterisk} from '@phosphor-icons/react'
 
 export const exhibition = defineType({
   name: 'exhibition',
   title: 'Exhibition',
   type: 'document',
+  icon: Asterisk,
+  orderings: [orderRankOrdering],
   fields: [
+    orderRankField({type: 'exhibition', hidden: true}),
     defineField({
       name: 'title',
       title: 'Title',
@@ -57,9 +62,19 @@ export const exhibition = defineType({
     defineField({name: 'externalDocumentationLink', title: 'External Documentation Link', type: 'url'}),
   ],
   preview: {
-    select: {title: 'title', venue: 'venue', year: 'year'},
-    prepare({title, venue, year}) {
-      return {title, subtitle: [venue, year].filter(Boolean).join(' — ')}
+    select: {
+      title: 'title',
+      venue: 'venue',
+      year: 'year',
+      installationImages: 'installationImages',
+    },
+    prepare({title, venue, year, installationImages}) {
+      const media = installationImages?.[0]
+      return {
+        title,
+        subtitle: [venue, year].filter(Boolean).join(' — '),
+        media: media || Asterisk,
+      }
     },
   },
 })

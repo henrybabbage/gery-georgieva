@@ -28,6 +28,7 @@ export type CvEntry = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   year: number
   category:
@@ -61,6 +62,7 @@ export type Exhibition = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year?: number
@@ -112,6 +114,7 @@ export type Ephemera = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year?: number
@@ -134,13 +137,17 @@ export type Ephemera = {
     _type: 'block'
     _key: string
   }>
+  images?: Array<
+    {
+      _key: string
+    } & MediaItem
+  >
   media?: Array<
     {
       _key: string
     } & MediaItem
   >
   layoutSize?: 'full' | 'half' | 'float'
-  isFeature?: boolean
   relatedWork?: Array<
     {
       _key: string
@@ -173,6 +180,7 @@ export type Work = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year: number
@@ -196,7 +204,6 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
-  isFeature?: boolean
   layoutSize?: 'full' | 'half' | 'float'
   coverImage?: {
     asset?: SanityImageAssetReference
@@ -210,6 +217,7 @@ export type Work = {
       _key: string
     } & MediaItem
   >
+  isFeature?: boolean
   relatedEphemera?: Array<
     {
       _key: string
@@ -534,7 +542,7 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: streamQuery
-// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(isFeature desc, year desc) {    _id,    _type,    title,    "slug": slug.current,    year,    isFeature,    layoutSize,    coverImage { ..., asset-> },    "firstImage": images[0] { ..., asset-> }  }
+// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(orderRank asc) {    _id,    _type,    title,    "slug": slug.current,    year,    layoutSize,    coverImage { ..., asset-> },    "firstImage": images[0] { ..., asset-> }  }
 export type StreamQueryResult = Array<
   | {
       _id: string
@@ -542,10 +550,30 @@ export type StreamQueryResult = Array<
       title: string
       slug: string
       year: number | null
-      isFeature: boolean | null
       layoutSize: 'float' | 'full' | 'half' | null
       coverImage: null
-      firstImage: null
+      firstImage: {
+        _key: string
+        _type: 'mediaItem'
+        mediaType?: 'image' | 'video'
+        image?: {
+          asset?: SanityImageAssetReference
+          media?: unknown
+          hotspot?: SanityImageHotspot
+          crop?: SanityImageCrop
+          _type: 'image'
+        }
+        videoUrl?: string
+        videoFile?: {
+          asset?: SanityFileAssetReference
+          media?: unknown
+          _type: 'file'
+        }
+        isAudiencePhoto?: boolean
+        caption?: string
+        credit?: string
+        asset: null
+      } | null
     }
   | {
       _id: string
@@ -553,7 +581,6 @@ export type StreamQueryResult = Array<
       title: string
       slug: string
       year: number
-      isFeature: boolean | null
       layoutSize: 'float' | 'full' | 'half' | null
       coverImage: {
         asset: {
@@ -589,7 +616,7 @@ export type StreamQueryResult = Array<
 
 // Source: sanity/lib/queries.ts
 // Variable: archiveQuery
-// Query: *[_type == "work" && defined(slug.current) && year < 2015]  | order(year desc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  isFeature,  layoutSize,  coverImage { ..., asset-> }  }
+// Query: *[_type == "work" && defined(slug.current) && year < 2015]  | order(orderRank asc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  layoutSize,  coverImage { ..., asset-> }  }
 export type ArchiveQueryResult = Array<{
   _id: string
   _type: 'work'
@@ -597,7 +624,6 @@ export type ArchiveQueryResult = Array<{
   slug: string
   year: number
   medium: string | null
-  isFeature: boolean | null
   layoutSize: 'float' | 'full' | 'half' | null
   coverImage: {
     asset: {
@@ -631,7 +657,7 @@ export type ArchiveQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: workQuery
-// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    isFeature,    layoutSize,    coverImage { ..., asset-> },    gallery[] {   mediaType,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  isAudiencePhoto,  caption,  credit },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[0] { ..., asset-> }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
+// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    layoutSize,    coverImage { ..., asset-> },    gallery[] {   mediaType,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  isAudiencePhoto,  caption,  credit },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[0] { ..., asset-> }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type WorkQueryResult = {
   _id: string
   title: string
@@ -657,7 +683,6 @@ export type WorkQueryResult = {
     _type: 'block'
     _key: string
   }> | null
-  isFeature: boolean | null
   layoutSize: 'float' | 'full' | 'half' | null
   coverImage: {
     asset: {
@@ -757,7 +782,28 @@ export type WorkQueryResult = {
       | 'research'
       | 'sketch'
       | null
-    firstImage: null
+    firstImage: {
+      _key: string
+      _type: 'mediaItem'
+      mediaType?: 'image' | 'video'
+      image?: {
+        asset?: SanityImageAssetReference
+        media?: unknown
+        hotspot?: SanityImageHotspot
+        crop?: SanityImageCrop
+        _type: 'image'
+      }
+      videoUrl?: string
+      videoFile?: {
+        asset?: SanityFileAssetReference
+        media?: unknown
+        _type: 'file'
+      }
+      isAudiencePhoto?: boolean
+      caption?: string
+      credit?: string
+      asset: null
+    } | null
   }> | null
   tags: Array<string> | null
   exhibitions: Array<{
@@ -779,7 +825,7 @@ export type WorkSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: exhibitionQuery
-// Query: *[_type == "exhibition" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  isFeature,  layoutSize,  coverImage { ..., asset-> }    },    installationImages[] {   mediaType,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  isAudiencePhoto,  caption,  credit },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
+// Query: *[_type == "exhibition" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  layoutSize,  coverImage { ..., asset-> }    },    installationImages[] {   mediaType,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  isAudiencePhoto,  caption,  credit },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
 export type ExhibitionQueryResult = {
   _id: string
   title: string
@@ -816,7 +862,6 @@ export type ExhibitionQueryResult = {
     slug: string
     year: number
     medium: string | null
-    isFeature: boolean | null
     layoutSize: 'float' | 'full' | 'half' | null
     coverImage: {
       asset: {
@@ -1046,7 +1091,7 @@ export type EphemeraSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: cvQuery
-// Query: *[_type == "cvEntry"] | order(year desc) {    _id,    title,    year,    category,    role,    institution,    location,    description,    internalRef-> {      _id,      title,      "slug": slug.current    }  }
+// Query: *[_type == "cvEntry"] | order(orderRank asc) {    _id,    title,    year,    category,    role,    institution,    location,    description,    internalRef-> {      _id,      title,      "slug": slug.current    }  }
 export type CvQueryResult = Array<{
   _id: string
   title: string
@@ -1077,14 +1122,14 @@ export type CvQueryResult = Array<{
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(isFeature desc, year desc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    isFeature,\n    layoutSize,\n    coverImage { ..., asset-> },\n    "firstImage": images[0] { ..., asset-> }\n  }\n': StreamQueryResult
-    '\n  *[_type == "work" && defined(slug.current) && year < 2015]\n  | order(year desc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  isFeature,\n  layoutSize,\n  coverImage { ..., asset-> }\n\n  }\n': ArchiveQueryResult
-    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    isFeature,\n    layoutSize,\n    coverImage { ..., asset-> },\n    gallery[] { \n  mediaType,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[0] { ..., asset-> }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': WorkQueryResult
+    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    layoutSize,\n    coverImage { ..., asset-> },\n    "firstImage": images[0] { ..., asset-> }\n  }\n': StreamQueryResult
+    '\n  *[_type == "work" && defined(slug.current) && year < 2015]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  layoutSize,\n  coverImage { ..., asset-> }\n\n  }\n': ArchiveQueryResult
+    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    layoutSize,\n    coverImage { ..., asset-> },\n    gallery[] { \n  mediaType,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[0] { ..., asset-> }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': WorkQueryResult
     '\n  *[_type == "work" && defined(slug.current)] { "slug": slug.current }\n': WorkSlugQueryResult
-    '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  isFeature,\n  layoutSize,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  mediaType,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
+    '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  layoutSize,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  mediaType,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
     '\n  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }\n': ExhibitionSlugQueryResult
     '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    media[] { \n  mediaType,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
-    '\n  *[_type == "cvEntry"] | order(year desc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': CvQueryResult
+    '\n  *[_type == "cvEntry"] | order(orderRank asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': CvQueryResult
   }
 }

@@ -8,7 +8,6 @@ type GridItem = {
   title: string
   slug: string
   year?: number
-  isFeature?: boolean
   layoutSize?: 'full' | 'half' | 'float'
   coverImage?: SanityImageRef
   firstImage?: SanityImageRef

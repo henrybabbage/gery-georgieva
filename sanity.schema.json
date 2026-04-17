@@ -64,6 +64,13 @@
           "type": "string"
         }
       },
+      "orderRank": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "title": {
         "type": "objectAttribute",
         "value": {
@@ -229,6 +236,13 @@
         "value": {
           "type": "string"
         }
+      },
+      "orderRank": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       },
       "title": {
         "type": "objectAttribute",
@@ -602,6 +616,13 @@
           "type": "string"
         }
       },
+      "orderRank": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "title": {
         "type": "objectAttribute",
         "value": {
@@ -836,6 +857,28 @@
         },
         "optional": true
       },
+      "images": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "mediaItem"
+            }
+          }
+        },
+        "optional": true
+      },
       "media": {
         "type": "objectAttribute",
         "value": {
@@ -876,13 +919,6 @@
               "value": "float"
             }
           ]
-        },
-        "optional": true
-      },
-      "isFeature": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
         },
         "optional": true
       },
@@ -1026,6 +1062,13 @@
         "value": {
           "type": "string"
         }
+      },
+      "orderRank": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       },
       "title": {
         "type": "objectAttribute",
@@ -1242,13 +1285,6 @@
         },
         "optional": true
       },
-      "isFeature": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
-        },
-        "optional": true
-      },
       "layoutSize": {
         "type": "objectAttribute",
         "value": {
@@ -1336,6 +1372,13 @@
               "name": "mediaItem"
             }
           }
+        },
+        "optional": true
+      },
+      "isFeature": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
         },
         "optional": true
       },

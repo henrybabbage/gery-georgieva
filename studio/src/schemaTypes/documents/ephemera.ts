@@ -1,10 +1,15 @@
 import {defineField, defineType} from 'sanity'
+import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
+import {FlowerTulip} from '@phosphor-icons/react'
 
 export const ephemera = defineType({
   name: 'ephemera',
   title: 'Ephemera',
   type: 'document',
+  icon: FlowerTulip,
+  orderings: [orderRankOrdering],
   fields: [
+    orderRankField({type: 'ephemera', hidden: true}),
     defineField({
       name: 'title',
       title: 'Title',
@@ -41,10 +46,17 @@ export const ephemera = defineType({
       of: [{type: 'block'}],
     }),
     defineField({
-      name: 'media',
-      title: 'Media',
+      name: 'images',
+      title: 'Images',
       type: 'array',
       of: [{type: 'mediaItem'}],
+    }),
+    defineField({
+      name: 'media',
+      title: 'Media (deprecated)',
+      type: 'array',
+      of: [{type: 'mediaItem'}],
+      hidden: true,
     }),
     defineField({
       name: 'layoutSize',
@@ -58,12 +70,6 @@ export const ephemera = defineType({
         ],
       },
       initialValue: 'half',
-    }),
-    defineField({
-      name: 'isFeature',
-      title: 'Featured',
-      type: 'boolean',
-      initialValue: false,
     }),
     defineField({
       name: 'relatedWork',
@@ -81,9 +87,18 @@ export const ephemera = defineType({
     }),
   ],
   preview: {
-    select: {title: 'title', category: 'category'},
-    prepare({title, category}) {
-      return {title, subtitle: category}
+    select: {
+      title: 'title',
+      category: 'category',
+      images: 'images',
+    },
+    prepare({title, category, images}) {
+      const media = images?.[0]
+      return {
+        title,
+        subtitle: category,
+        media: media || FlowerTulip,
+      }
     },
   },
 })

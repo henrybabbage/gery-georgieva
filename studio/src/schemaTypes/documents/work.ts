@@ -1,10 +1,15 @@
+import {Spiral} from '@phosphor-icons/react'
+import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
 export const work = defineType({
   name: 'work',
   title: 'Work',
   type: 'document',
+  icon: Spiral,
+  orderings: [orderRankOrdering],
   fields: [
+    orderRankField({type: 'work', hidden: true}),
     defineField({
       name: 'title',
       title: 'Title',
@@ -26,6 +31,13 @@ export const work = defineType({
     }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),
+    defineField({name: 'duration', title: 'Duration', type: 'string'}),
+    defineField({
+      name: 'videoUrl',
+      title: 'Video URL',
+      type: 'url',
+      description: 'URL to the video (e.g., Vimeo, YouTube)',
+    }),
     defineField({
       name: 'description',
       title: 'Description',
@@ -33,11 +45,10 @@ export const work = defineType({
       of: [{type: 'block'}],
     }),
     defineField({
-      name: 'isFeature',
-      title: 'Featured',
-      type: 'boolean',
-      description: 'Pin this work to the top of the grid.',
-      initialValue: false,
+      name: 'artistStatement',
+      title: 'Artist Statement',
+      type: 'array',
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'layoutSize',
@@ -66,6 +77,11 @@ export const work = defineType({
       of: [{type: 'mediaItem'}],
     }),
     defineField({
+      name: 'isFeature',
+      title: 'Featured',
+      type: 'boolean',
+    }),
+    defineField({
       name: 'relatedEphemera',
       title: 'Related Ephemera',
       type: 'array',
@@ -78,11 +94,27 @@ export const work = defineType({
       of: [{type: 'string'}],
       options: {layout: 'tags'},
     }),
+    defineField({
+      name: 'collaborators',
+      title: 'Collaborators',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+    }),
+    defineField({
+      name: 'commissionedBy',
+      title: 'Commissioned By',
+      type: 'string',
+    }),
   ],
   preview: {
     select: {title: 'title', year: 'year', media: 'coverImage'},
     prepare({title, year, media}) {
-      return {title, subtitle: String(year ?? ''), media}
+      return {
+        title,
+        subtitle: String(year ?? ''),
+        media: media || Spiral,
+      }
     },
   },
 })

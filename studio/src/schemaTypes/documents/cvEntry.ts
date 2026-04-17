@@ -1,10 +1,15 @@
 import {defineField, defineType} from 'sanity'
+import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
+import {ListDashes} from '@phosphor-icons/react'
 
 export const cvEntry = defineType({
   name: 'cvEntry',
   title: 'CV Entry',
   type: 'document',
+  icon: ListDashes,
+  orderings: [orderRankOrdering],
   fields: [
+    orderRankField({type: 'cvEntry', hidden: true}),
     defineField({
       name: 'title',
       title: 'Title / Name',
@@ -52,7 +57,11 @@ export const cvEntry = defineType({
   preview: {
     select: {title: 'title', year: 'year', category: 'category'},
     prepare({title, year, category}) {
-      return {title, subtitle: `${year} — ${category}`}
+      return {
+        title,
+        subtitle: `${year} — ${category}`,
+        media: ListDashes,
+      }
     },
   },
 })

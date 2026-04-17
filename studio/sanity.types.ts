@@ -28,6 +28,7 @@ export type CvEntry = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   year: number
   category:
@@ -61,6 +62,7 @@ export type Exhibition = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year?: number
@@ -112,6 +114,7 @@ export type Ephemera = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year?: number
@@ -134,13 +137,17 @@ export type Ephemera = {
     _type: 'block'
     _key: string
   }>
+  images?: Array<
+    {
+      _key: string
+    } & MediaItem
+  >
   media?: Array<
     {
       _key: string
     } & MediaItem
   >
   layoutSize?: 'full' | 'half' | 'float'
-  isFeature?: boolean
   relatedWork?: Array<
     {
       _key: string
@@ -173,6 +180,7 @@ export type Work = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  orderRank?: string
   title: string
   slug: Slug
   year: number
@@ -196,7 +204,6 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
-  isFeature?: boolean
   layoutSize?: 'full' | 'half' | 'float'
   coverImage?: {
     asset?: SanityImageAssetReference
@@ -210,6 +217,7 @@ export type Work = {
       _key: string
     } & MediaItem
   >
+  isFeature?: boolean
   relatedEphemera?: Array<
     {
       _key: string

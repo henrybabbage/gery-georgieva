@@ -1,25 +1,37 @@
 import type {StructureResolver} from 'sanity/structure'
+import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
+import {Asterisk, FlowerTulip, ListDashes, Spiral} from '@phosphor-icons/react'
 
-export const structure: StructureResolver = (S) =>
+export const structure: StructureResolver = (S, context) =>
   S.list()
     .title('Gery Georgieva')
     .items([
-      S.listItem()
-        .title('Work')
-        .schemaType('work')
-        .child(S.documentTypeList('work').title('Work')),
-      S.listItem()
-        .title('Ephemera')
-        .schemaType('ephemera')
-        .child(S.documentTypeList('ephemera').title('Ephemera')),
-      S.divider(),
-      S.listItem()
-        .title('Exhibitions')
-        .schemaType('exhibition')
-        .child(S.documentTypeList('exhibition').title('Exhibitions')),
-      S.divider(),
-      S.listItem()
-        .title('CV Entries')
-        .schemaType('cvEntry')
-        .child(S.documentTypeList('cvEntry').title('CV Entries')),
+      orderableDocumentListDeskItem({
+        type: 'work',
+        title: 'Work',
+        icon: Spiral,
+        S,
+        context,
+      }),
+      orderableDocumentListDeskItem({
+        type: 'ephemera',
+        title: 'Ephemera',
+        icon: FlowerTulip,
+        S,
+        context,
+      }),
+      orderableDocumentListDeskItem({
+        type: 'exhibition',
+        title: 'Exhibitions',
+        icon: Asterisk,
+        S,
+        context,
+      }),
+      orderableDocumentListDeskItem({
+        type: 'cvEntry',
+        title: 'CV Entries',
+        icon: ListDashes,
+        S,
+        context,
+      }),
     ])

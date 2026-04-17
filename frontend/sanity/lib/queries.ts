@@ -21,7 +21,6 @@ const workCardFields = /* groq */ `
   "slug": slug.current,
   year,
   medium,
-  isFeature,
   layoutSize,
   coverImage { ..., asset-> }
 `
@@ -32,13 +31,12 @@ const workCardFields = /* groq */ `
 
 export const streamQuery = defineQuery(`
   *[_type in ["work", "ephemera"] && defined(slug.current)]
-  | order(isFeature desc, year desc) {
+  | order(orderRank asc) {
     _id,
     _type,
     title,
     "slug": slug.current,
     year,
-    isFeature,
     layoutSize,
     coverImage { ..., asset-> },
     "firstImage": images[0] { ..., asset-> }
@@ -51,7 +49,7 @@ export const streamQuery = defineQuery(`
 
 export const archiveQuery = defineQuery(`
   *[_type == "work" && defined(slug.current) && year < 2015]
-  | order(year desc) {
+  | order(orderRank asc) {
     ${workCardFields}
   }
 `)
@@ -69,7 +67,6 @@ export const workQuery = defineQuery(`
     medium,
     dimensions,
     description,
-    isFeature,
     layoutSize,
     coverImage { ..., asset-> },
     gallery[] { ${mediaItemFields} },
@@ -171,7 +168,7 @@ export const ephemeraSlugQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const cvQuery = defineQuery(`
-  *[_type == "cvEntry"] | order(year desc) {
+  *[_type == "cvEntry"] | order(orderRank asc) {
     _id,
     title,
     year,
