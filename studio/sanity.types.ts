@@ -15,27 +15,142 @@
 export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: ../sanity.schema.json
-export type PageReference = {
+export type ExhibitionReference = {
   _ref: string
   _type: 'reference'
   _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'page'
+  [internalGroqTypeReferenceTo]?: 'exhibition'
 }
 
-export type PostReference = {
+export type CvEntry = {
+  _id: string
+  _type: 'cvEntry'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  year: number
+  category:
+    | 'exhibition'
+    | 'education'
+    | 'award'
+    | 'residency'
+    | 'publication'
+    | 'performance'
+    | 'screening'
+    | 'commission'
+    | 'lecture'
+    | 'other'
+  role?: string
+  institution?: string
+  location?: string
+  description?: string
+  internalRef?: ExhibitionReference
+}
+
+export type WorkReference = {
   _ref: string
   _type: 'reference'
   _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'post'
+  [internalGroqTypeReferenceTo]?: 'work'
 }
 
-export type Link = {
-  _type: 'link'
-  linkType?: 'href' | 'page' | 'post'
-  href?: string
-  page?: PageReference
-  post?: PostReference
-  openInNewTab?: boolean
+export type Exhibition = {
+  _id: string
+  _type: 'exhibition'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  slug: Slug
+  year?: number
+  venue?: string
+  location?: string
+  startDate?: string
+  endDate?: string
+  exhibitionType?: 'solo' | 'group' | 'duo' | 'institutional'
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  relatedWorks?: Array<
+    {
+      _key: string
+    } & WorkReference
+  >
+  installationImages?: Array<
+    {
+      _key: string
+    } & MediaItem
+  >
+  externalDocumentationLink?: string
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
+export type Ephemera = {
+  _id: string
+  _type: 'ephemera'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  slug: Slug
+  year?: number
+  category?: 'research' | 'sketch' | 'reference' | 'documentation' | 'correspondence' | 'other'
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  media?: Array<
+    {
+      _key: string
+    } & MediaItem
+  >
+  layoutSize?: 'full' | 'half' | 'float'
+  isFeature?: boolean
+  relatedWork?: Array<
+    {
+      _key: string
+    } & WorkReference
+  >
+  relatedExhibitions?: Array<
+    {
+      _key: string
+    } & ExhibitionReference
+  >
 }
 
 export type SanityImageAssetReference = {
@@ -45,95 +160,24 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
 }
 
-export type CallToAction = {
-  _type: 'callToAction'
-  eyebrow?: string
-  heading: string
-  body?: BlockContentTextOnly
-  button?: Button
-  image?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  theme?: 'light' | 'dark'
-  contentAlignment?: 'textFirst' | 'imageFirst'
+export type EphemeraReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'ephemera'
 }
 
-export type InfoSection = {
-  _type: 'infoSection'
-  heading?: string
-  subheading?: string
-  content?: BlockContent
-}
-
-export type BlockContentTextOnly = Array<{
-  children?: Array<{
-    marks?: Array<string>
-    text?: string
-    _type: 'span'
-    _key: string
-  }>
-  style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
-  listItem?: 'bullet' | 'number'
-  markDefs?: Array<{
-    href?: string
-    _type: 'link'
-    _key: string
-  }>
-  level?: number
-  _type: 'block'
-  _key: string
-}>
-
-export type BlockContent = Array<
-  | {
-      children?: Array<{
-        marks?: Array<string>
-        text?: string
-        _type: 'span'
-        _key: string
-      }>
-      style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
-      listItem?: 'bullet' | 'number'
-      markDefs?: Array<{
-        linkType?: 'href' | 'page' | 'post'
-        href?: string
-        page?: PageReference
-        post?: PostReference
-        openInNewTab?: boolean
-        _type: 'link'
-        _key: string
-      }>
-      level?: number
-      _type: 'block'
-      _key: string
-    }
-  | {
-      asset?: SanityImageAssetReference
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      _type: 'image'
-      _key: string
-    }
->
-
-export type Button = {
-  _type: 'button'
-  buttonText?: string
-  link?: Link
-}
-
-export type Settings = {
+export type Work = {
   _id: string
-  _type: 'settings'
+  _type: 'work'
   _createdAt: string
   _updatedAt: string
   _rev: string
   title: string
+  slug: Slug
+  year: number
+  medium?: string
+  dimensions?: string
   description?: Array<{
     children?: Array<{
       marks?: Array<string>
@@ -141,14 +185,10 @@ export type Settings = {
       _type: 'span'
       _key: string
     }>
-    style?: 'normal'
-    listItem?: never
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
     markDefs?: Array<{
-      linkType?: 'href' | 'page' | 'post'
       href?: string
-      page?: PageReference
-      post?: PostReference
-      openInNewTab?: boolean
       _type: 'link'
       _key: string
     }>
@@ -156,15 +196,26 @@ export type Settings = {
     _type: 'block'
     _key: string
   }>
-  ogImage?: {
+  isFeature?: boolean
+  layoutSize?: 'full' | 'half' | 'float'
+  coverImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    alt?: string
-    metadataBase?: string
     _type: 'image'
   }
+  gallery?: Array<
+    {
+      _key: string
+    } & MediaItem
+  >
+  relatedEphemera?: Array<
+    {
+      _key: string
+    } & EphemeraReference
+  >
+  tags?: Array<string>
 }
 
 export type SanityImageCrop = {
@@ -183,77 +234,32 @@ export type SanityImageHotspot = {
   width: number
 }
 
-export type Page = {
-  _id: string
-  _type: 'page'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  name: string
-  slug: Slug
-  heading: string
-  subheading?: string
-  pageBuilder?: Array<
-    | ({
-        _key: string
-      } & CallToAction)
-    | ({
-        _key: string
-      } & InfoSection)
-  >
-}
-
-export type PersonReference = {
+export type SanityFileAssetReference = {
   _ref: string
   _type: 'reference'
   _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'person'
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
 }
 
-export type Post = {
-  _id: string
-  _type: 'post'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title: string
-  slug: Slug
-  content?: BlockContent
-  excerpt?: string
-  coverImage?: {
+export type MediaItem = {
+  _type: 'mediaItem'
+  mediaType?: 'image' | 'video'
+  image?: {
     asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
-    alt?: string
     _type: 'image'
   }
-  date?: string
-  author?: PersonReference
-}
-
-export type Person = {
-  _id: string
-  _type: 'person'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  firstName: string
-  lastName: string
-  picture: {
-    asset?: SanityImageAssetReference
+  videoUrl?: string
+  videoFile?: {
+    asset?: SanityFileAssetReference
     media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    _type: 'image'
+    _type: 'file'
   }
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
+  isAudiencePhoto?: boolean
+  caption?: string
+  credit?: string
 }
 
 export type SanityAssistInstructionTask = {
@@ -491,23 +497,19 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
-  | PageReference
-  | PostReference
-  | Link
+  | ExhibitionReference
+  | CvEntry
+  | WorkReference
+  | Exhibition
+  | Slug
+  | Ephemera
   | SanityImageAssetReference
-  | CallToAction
-  | InfoSection
-  | BlockContentTextOnly
-  | BlockContent
-  | Button
-  | Settings
+  | EphemeraReference
+  | Work
   | SanityImageCrop
   | SanityImageHotspot
-  | Page
-  | PersonReference
-  | Post
-  | Person
-  | Slug
+  | SanityFileAssetReference
+  | MediaItem
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations

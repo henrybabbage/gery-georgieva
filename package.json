@@ -1,13 +1,13 @@
 {
-  "name": "sanity-template-nextjs-clean",
-  "description": "Next.js + Sanity: A Powerful Website Starter with Real-time Visual Editing",
+  "name": "gery-georgieva",
+  "description": "Gery Georgieva (b. 1986, Varna/BG) is a London-based artist working primarily in video, performance, and installation.",
   "keywords": [
-    "Sanity",
-    "Next.js",
-    "Headless CMS",
-    "Visual Editing",
-    "Live Content API (LCAPI)",
-    "Real-time"
+    "Gery Georgieva",
+    "artist",
+    "installation",
+    "video",
+    "performance",
+    "Bulgarian"
   ],
   "homepage": "https://github.com/sanity-io/sanity-template-nextjs-clean#readme",
   "bugs": {
