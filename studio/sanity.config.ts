@@ -7,6 +7,7 @@ import {assist} from '@sanity/assist'
 import {visionTool} from '@sanity/vision'
 import {defineConfig} from 'sanity'
 import {unsplashImageAsset} from 'sanity-plugin-asset-source-unsplash'
+import {media} from 'sanity-plugin-media'
 import {
   defineDocuments,
   defineLocations,
@@ -21,11 +22,20 @@ import {structure} from './src/structure'
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 
-// URL for preview functionality, defaults to localhost:3000 if not set
-const SANITY_STUDIO_PREVIEW_URL =
-  process.env.SANITY_STUDIO_PREVIEW_URL ||
-  'http://localhost:3000' ||
-  'https://gerygeorgieva.vercel.app'
+function previewOriginFromEnv(raw: string | undefined): string {
+  const trimmed = raw?.trim() ?? ''
+  if (!trimmed) {
+    return 'http://localhost:3000'
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/+$/, '')
+  }
+  return `https://${trimmed.replace(/^\/+/, '').replace(/\/+$/, '')}`
+}
+
+const SANITY_STUDIO_PREVIEW_URL = previewOriginFromEnv(
+  process.env.SANITY_STUDIO_PREVIEW_URL,
+)
 
 // Define the home location for the presentation tool
 const homeLocation = {
@@ -60,6 +70,7 @@ export default defineConfig({
     structureTool({
       structure, // Custom studio structure configuration, imported from ./src/structure.ts
     }),
+    media(),
     // Presentation tool configuration for Visual Editing
     presentationTool({
       previewUrl: {
