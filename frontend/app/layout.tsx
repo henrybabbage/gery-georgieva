@@ -4,6 +4,7 @@ import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
 import {Inter} from 'next/font/google'
 import {draftMode} from 'next/headers'
+import Link from 'next/link'
 import {VisualEditing} from 'next-sanity/visual-editing'
 import {Toaster} from 'sonner'
 
@@ -41,10 +42,10 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         )}
         <SanityLive onError={handleError} />
         <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between px-5 py-4 text-sm">
-          <a href="/">Gery Georgieva</a>
+          <Link href="/">Gery Georgieva</Link>
           <div className="flex gap-6">
-            <a href="/archive">Archive</a>
-            <a href="/cv">CV</a>
+            <Link href="/archive">Archive</Link>
+            <Link href="/cv">CV</Link>
           </div>
         </nav>
         <main className="pt-12">{children}</main>

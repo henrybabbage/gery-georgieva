@@ -1,6 +1,5 @@
 import {notFound} from 'next/navigation'
 import Link from 'next/link'
-import {stegaClean} from '@sanity/client/stega'
 import {sanityFetch} from '@/sanity/lib/live'
 import {workQuery, workSlugQuery} from '@/sanity/lib/queries'
 import type {Metadata} from 'next'
@@ -52,7 +51,7 @@ export default async function WorkPage({params}: Props) {
         <section className="mb-6">
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Exhibited in</h2>
           <ul className="space-y-1">
-            {work.exhibitions.map((ex: {_id: string; slug: string; title: string; venue?: string; year?: number}) => (
+            {work.exhibitions.map((ex) => (
               <li key={ex._id} className="text-sm">
                 <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
                   {ex.title}
@@ -69,7 +68,7 @@ export default async function WorkPage({params}: Props) {
         <section>
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Related research</h2>
           <ul className="space-y-1">
-            {work.relatedEphemera.map((ep: {_id: string; title: string; category?: string}) => (
+            {work.relatedEphemera.map((ep) => (
               <li key={ep._id} className="text-sm">
                 {ep.title}
                 {ep.category && <span className="opacity-50 ml-2">{ep.category}</span>}

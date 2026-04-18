@@ -8,7 +8,7 @@ export default async function Page() {
   return (
     <div className="px-5 py-8">
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {items?.map((item: {_id: string; _type: string; slug: string; title: string; year?: number}) => (
+        {items?.map((item) => (
           <li key={item._id}>
             <Link
               href={item._type === 'work' ? `/work/${item.slug}` : `/ephemera/${item.slug}`}

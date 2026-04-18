@@ -50,7 +50,7 @@ export default async function ExhibitionPage({params}: Props) {
       {/* Installation images placeholder */}
       {exhibition.installationImages && exhibition.installationImages.length > 0 && (
         <div className="grid grid-cols-2 gap-2 mb-8">
-          {exhibition.installationImages.map((item: {isAudiencePhoto?: boolean}, i: number) => (
+          {exhibition.installationImages.map((item, i) => (
             <div
               key={i}
               className={`bg-[#e8e7e3] aspect-video ${stegaClean(item.isAudiencePhoto) ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
@@ -64,7 +64,7 @@ export default async function ExhibitionPage({params}: Props) {
         <section>
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Works</h2>
           <ul className="space-y-1">
-            {exhibition.relatedWorks.map((work: {_id: string; slug: string; title: string; year?: number; medium?: string}) => (
+            {exhibition.relatedWorks.map((work) => (
               <li key={work._id} className="text-sm">
                 <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
                   {work.title}
@@ -81,7 +81,7 @@ export default async function ExhibitionPage({params}: Props) {
         <section className="mt-6">
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Research & ephemera</h2>
           <ul className="space-y-1">
-            {exhibition.relatedEphemera.map((ep: {_id: string; slug: string; title: string; category?: string; year?: number}) => (
+            {exhibition.relatedEphemera.map((ep) => (
               <li key={ep._id} className="text-sm">
                 <Link href={`/ephemera/${ep.slug}`} className="underline underline-offset-2">
                   {ep.title}

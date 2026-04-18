@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {sanityFetch} from '@/sanity/lib/live'
 import {ephemeraQuery, ephemeraSlugQuery} from '@/sanity/lib/queries'
 import CustomPortableText from '@/app/components/PortableText'
+import type {PortableTextBlock} from 'next-sanity'
 import type {Metadata} from 'next'
 
 type Props = {params: Promise<{slug: string}>}
@@ -44,7 +45,7 @@ export default async function EphemeraPage({params}: Props) {
       {item.description && item.description.length > 0 && (
         <CustomPortableText
           className="text-sm mb-8"
-          value={item.description}
+          value={item.description as PortableTextBlock[]}
         />
       )}
 
@@ -52,7 +53,7 @@ export default async function EphemeraPage({params}: Props) {
         <section className="mb-6">
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Works</h2>
           <ul className="space-y-1">
-            {item.relatedWork.map((work: {_id: string; slug: string; title: string; year?: number; medium?: string}) => (
+            {item.relatedWork.map((work) => (
               <li key={work._id} className="text-sm">
                 <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
                   {work.title}
@@ -69,7 +70,7 @@ export default async function EphemeraPage({params}: Props) {
         <section>
           <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Exhibitions</h2>
           <ul className="space-y-1">
-            {item.relatedExhibitions.map((ex: {_id: string; slug: string; title: string; year?: number; venue?: string; location?: string}) => (
+            {item.relatedExhibitions.map((ex) => (
               <li key={ex._id} className="text-sm">
                 <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
                   {ex.title}
