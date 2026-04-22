@@ -52,14 +52,20 @@ export const exhibition = defineType({
       title: 'Related Works',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'work'}]}],
+      options: {layout: 'grid'},
     }),
     defineField({
       name: 'installationImages',
       title: 'Installation Images',
       type: 'array',
       of: [{type: 'mediaItem'}],
+      options: {layout: 'grid'},
     }),
-    defineField({name: 'externalDocumentationLink', title: 'External Documentation Link', type: 'url'}),
+    defineField({
+      name: 'externalDocumentationLink',
+      title: 'External Documentation Link',
+      type: 'url',
+    }),
   ],
   preview: {
     select: {

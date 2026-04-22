@@ -75,6 +75,7 @@ export const work = defineType({
       title: 'Gallery',
       type: 'array',
       of: [{type: 'mediaItem'}],
+      options: {layout: 'grid'},
     }),
     defineField({
       name: 'isFeature',
@@ -86,6 +87,7 @@ export const work = defineType({
       title: 'Related Ephemera',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'ephemera'}]}],
+      options: {layout: 'grid'},
     }),
     defineField({
       name: 'tags',

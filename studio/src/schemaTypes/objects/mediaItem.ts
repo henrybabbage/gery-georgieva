@@ -38,7 +38,7 @@ export const mediaItem = defineType({
       description: 'Mark if this is an audience/vernissage photo, not official documentation.',
       initialValue: false,
     }),
-    defineField({name: 'caption', title: 'Caption', type: 'string'}),
+    defineField({name: 'caption', title: 'Caption', type: 'text', rows: 2}),
     defineField({name: 'credit', title: 'Photo Credit', type: 'string'}),
   ],
 })

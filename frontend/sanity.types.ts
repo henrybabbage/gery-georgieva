@@ -186,7 +186,27 @@ export type Work = {
   year: number
   medium?: string
   dimensions?: string
+  duration?: string
+  videoUrl?: string
   description?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  artistStatement?: Array<{
     children?: Array<{
       marks?: Array<string>
       text?: string
@@ -224,6 +244,8 @@ export type Work = {
     } & EphemeraReference
   >
   tags?: Array<string>
+  collaborators?: Array<string>
+  commissionedBy?: string
 }
 
 export type SanityImageCrop = {
@@ -407,6 +429,15 @@ export type SanityAssistSchemaTypeField = {
   >
 }
 
+export type MediaTag = {
+  _id: string
+  _type: 'media.tag'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: Slug
+}
+
 export type SanityImagePaletteSwatch = {
   _type: 'sanity.imagePaletteSwatch'
   background?: string
@@ -531,6 +562,7 @@ export type AllSanitySchemaTypes =
   | SanityAssistInstructionFieldRef
   | SanityAssistInstruction
   | SanityAssistSchemaTypeField
+  | MediaTag
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
