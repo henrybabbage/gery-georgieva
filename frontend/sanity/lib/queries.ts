@@ -4,12 +4,16 @@ import {defineQuery} from 'next-sanity'
 // Shared field fragments
 // ---------------------------------------------------------------------------
 
-const mediaItemFields = /* groq */ `
-  mediaType,
-  videoSource,
-  image { ..., asset-> },
-  videoUrl,
-  videoFile { asset-> },
+const galleryUnionFields = /* groq */ `
+  _key,
+  _type,
+  crop,
+  hotspot,
+  "asset": asset->,
+  isAudiencePhoto,
+  caption,
+  credit,
+  provider,
   vimeo {
     asset-> {
       vimeoId,
@@ -23,9 +27,13 @@ const mediaItemFields = /* groq */ `
       play
     }
   },
-  isAudiencePhoto,
-  caption,
-  credit
+  youtube {
+    id,
+    title,
+    description,
+    publishedAt,
+    thumbnails
+  }
 `
 
 const workCardFields = /* groq */ `
@@ -51,7 +59,7 @@ export const streamQuery = defineQuery(`
     "slug": slug.current,
     year,
     coverImage { ..., asset-> },
-    "firstImage": images[0] { ..., asset-> }
+    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }
   }
 `)
 
@@ -80,13 +88,13 @@ export const workQuery = defineQuery(`
     dimensions,
     description,
     coverImage { ..., asset-> },
-    gallery[] { ${mediaItemFields} },
+    gallery[] { ${galleryUnionFields} },
     relatedEphemera[]-> {
       _id,
       title,
       "slug": slug.current,
       category,
-      "firstImage": images[0] { ..., asset-> }
+      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }
     },
     tags,
     "exhibitions": *[_type == "exhibition" && references(^._id)] {
@@ -124,7 +132,7 @@ export const exhibitionQuery = defineQuery(`
     relatedWorks[]-> {
       ${workCardFields}
     },
-    installationImages[] { ${mediaItemFields} },
+    installationImages[] { ${galleryUnionFields} },
     "relatedEphemera": *[_type == "ephemera" && references(^._id)] {
       _id,
       title,
@@ -151,7 +159,7 @@ export const ephemeraQuery = defineQuery(`
     year,
     category,
     description,
-    media[] { ${mediaItemFields} },
+    images[] { ${galleryUnionFields} },
     relatedWork[]-> {
       _id,
       title,

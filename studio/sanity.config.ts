@@ -9,6 +9,7 @@ import {defineConfig} from 'sanity'
 import {unsplashImageAsset} from 'sanity-plugin-asset-source-unsplash'
 import {media} from 'sanity-plugin-media'
 import {vimeoField} from 'sanity-plugin-vimeo-field'
+import {youtubeInput} from 'sanity-plugin-youtube-input'
 import {
   defineDocuments,
   defineLocations,
@@ -73,6 +74,9 @@ export default defineConfig({
     }),
     media(),
     vimeoField(),
+    youtubeInput({
+      apiKey: process.env.SANITY_STUDIO_YOUTUBE_API_KEY || '',
+    }),
     // Presentation tool configuration for Visual Editing
     presentationTool({
       previewUrl: {

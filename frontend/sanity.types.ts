@@ -66,6 +66,17 @@ export type Exhibition = {
   title: string
   slug: Slug
   year?: number
+  installationImages?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
   venue?: string
   location?: string
   startDate?: string
@@ -93,11 +104,6 @@ export type Exhibition = {
     {
       _key: string
     } & WorkReference
-  >
-  installationImages?: Array<
-    {
-      _key: string
-    } & MediaItem
   >
   externalDocumentationLink?: string
 }
@@ -138,14 +144,26 @@ export type Ephemera = {
     _key: string
   }>
   images?: Array<
-    {
-      _key: string
-    } & MediaItem
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
   >
   media?: Array<
-    {
-      _key: string
-    } & MediaItem
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
   >
   relatedWork?: Array<
     {
@@ -183,6 +201,25 @@ export type Work = {
   title: string
   slug: Slug
   year: number
+  coverImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  gallery?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
+  isFeature?: boolean
   medium?: string
   dimensions?: string
   duration?: string
@@ -223,19 +260,6 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
-  coverImage?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  gallery?: Array<
-    {
-      _key: string
-    } & MediaItem
-  >
-  isFeature?: boolean
   relatedEphemera?: Array<
     {
       _key: string
@@ -262,34 +286,22 @@ export type SanityImageHotspot = {
   width: number
 }
 
-export type SanityFileAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
-}
-
-export type MediaItem = {
-  _type: 'mediaItem'
-  mediaType?: 'image' | 'video'
-  image?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  videoSource?: 'url' | 'file' | 'vimeo'
-  videoUrl?: string
-  videoFile?: {
-    asset?: SanityFileAssetReference
-    media?: unknown
-    _type: 'file'
-  }
+export type MediaVideoLink = {
+  _type: 'mediaVideoLink'
+  provider: 'vimeo' | 'youtube'
   vimeo?: Vimeo
-  isAudiencePhoto?: boolean
+  youtube?: YoutubeVideo
   caption?: string
   credit?: string
+}
+
+export type YoutubeVideo = {
+  _type: 'youtubeVideo'
+  id: string
+  title?: string
+  description?: string
+  publishedAt?: string
+  thumbnails?: Array<string>
 }
 
 export type VimeoVideoReference = {
@@ -302,6 +314,39 @@ export type VimeoVideoReference = {
 export type Vimeo = {
   _type: 'vimeo'
   asset?: VimeoVideoReference
+}
+
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type MediaVideoFile = {
+  _type: 'mediaVideoFile'
+  asset?: SanityFileAssetReference
+  media?: unknown
+  poster?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  caption?: string
+  credit?: string
+}
+
+export type MediaImage = {
+  _type: 'mediaImage'
+  asset?: SanityImageAssetReference
+  media?: unknown
+  hotspot?: SanityImageHotspot
+  crop?: SanityImageCrop
+  isAudiencePhoto?: boolean
+  caption?: string
+  credit?: string
 }
 
 export type SanityAssistInstructionTask = {
@@ -607,10 +652,13 @@ export type AllSanitySchemaTypes =
   | Work
   | SanityImageCrop
   | SanityImageHotspot
-  | SanityFileAssetReference
-  | MediaItem
+  | MediaVideoLink
+  | YoutubeVideo
   | VimeoVideoReference
   | Vimeo
+  | SanityFileAssetReference
+  | MediaVideoFile
+  | MediaImage
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
@@ -637,7 +685,7 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: streamQuery
-// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(orderRank asc) {    _id,    _type,    title,    "slug": slug.current,    year,    coverImage { ..., asset-> },    "firstImage": images[0] { ..., asset-> }  }
+// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(orderRank asc) {    _id,    _type,    title,    "slug": slug.current,    year,    coverImage { ..., asset-> },    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }  }
 export type StreamQueryResult = Array<
   | {
       _id: string
@@ -648,27 +696,35 @@ export type StreamQueryResult = Array<
       coverImage: null
       firstImage: {
         _key: string
-        _type: 'mediaItem'
-        mediaType?: 'image' | 'video'
-        image?: {
-          asset?: SanityImageAssetReference
-          media?: unknown
-          hotspot?: SanityImageHotspot
-          crop?: SanityImageCrop
-          _type: 'image'
-        }
-        videoSource?: 'file' | 'url' | 'vimeo'
-        videoUrl?: string
-        videoFile?: {
-          asset?: SanityFileAssetReference
-          media?: unknown
-          _type: 'file'
-        }
-        vimeo?: Vimeo
+        _type: 'mediaImage'
+        asset: {
+          _id: string
+          _type: 'sanity.imageAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          metadata?: SanityImageMetadata
+          source?: SanityAssetSourceData
+        } | null
+        media?: unknown
+        hotspot?: SanityImageHotspot
+        crop?: SanityImageCrop
         isAudiencePhoto?: boolean
         caption?: string
         credit?: string
-        asset: null
       } | null
     }
   | {
@@ -751,7 +807,7 @@ export type ArchiveQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: workQuery
-// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    coverImage { ..., asset-> },    gallery[] {   mediaType,  videoSource,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  isAudiencePhoto,  caption,  credit },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[0] { ..., asset-> }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
+// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    coverImage { ..., asset-> },    gallery[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type WorkQueryResult = {
   _id: string
   title: string
@@ -805,10 +861,144 @@ export type WorkQueryResult = {
     crop?: SanityImageCrop
     _type: 'image'
   } | null
-  gallery: Array<{
-    mediaType: 'image' | 'video' | null
-    videoSource: 'file' | 'url' | 'vimeo' | null
-    image: {
+  gallery: Array<
+    | {
+        _key: string
+        _type: 'mediaImage'
+        crop: SanityImageCrop | null
+        hotspot: SanityImageHotspot | null
+        asset: {
+          _id: string
+          _type: 'sanity.imageAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          metadata?: SanityImageMetadata
+          source?: SanityAssetSourceData
+        } | null
+        isAudiencePhoto: boolean | null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoFile'
+        crop: null
+        hotspot: null
+        asset: {
+          _id: string
+          _type: 'sanity.fileAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          source?: SanityAssetSourceData
+        } | null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoLink'
+        crop: null
+        hotspot: null
+        asset: null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: 'vimeo' | 'youtube'
+        vimeo: {
+          asset: {
+            vimeoId: string | null
+            name: string | null
+            duration: number | null
+            width: number | null
+            height: number | null
+            privacy: string | null
+            thumbnail: string | null
+            files: Array<{
+              quality?: string
+              type?: string
+              width?: number
+              height?: number
+              link?: string
+              size?: number
+              _key: string
+            }> | null
+            play: {
+              progressive?: Array<{
+                type?: string
+                rendition?: string
+                width?: number
+                height?: number
+                link?: string
+                _key: string
+              }>
+              dash?: {
+                link?: string
+              }
+              hls?: {
+                link?: string
+              }
+            } | null
+          } | null
+        } | null
+        youtube: {
+          id: string
+          title: string | null
+          description: string | null
+          publishedAt: string | null
+          thumbnails: Array<string> | null
+        } | null
+      }
+  > | null
+  relatedEphemera: Array<{
+    _id: string
+    title: string
+    slug: string
+    category:
+      | 'correspondence'
+      | 'documentation'
+      | 'other'
+      | 'reference'
+      | 'research'
+      | 'sketch'
+      | null
+    firstImage: {
+      _key: string
+      _type: 'mediaImage'
       asset: {
         _id: string
         _type: 'sanity.imageAsset'
@@ -834,107 +1024,9 @@ export type WorkQueryResult = {
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
-      _type: 'image'
-    } | null
-    videoUrl: string | null
-    videoFile: {
-      asset: {
-        _id: string
-        _type: 'sanity.fileAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash: string
-        extension: string
-        mimeType: string
-        size: number
-        assetId: string
-        uploadId?: string
-        path: string
-        url: string
-        source?: SanityAssetSourceData
-      } | null
-    } | null
-    vimeo: {
-      asset: {
-        vimeoId: string | null
-        name: string | null
-        duration: number | null
-        width: number | null
-        height: number | null
-        privacy: string | null
-        thumbnail: string | null
-        files: Array<{
-          quality?: string
-          type?: string
-          width?: number
-          height?: number
-          link?: string
-          size?: number
-          _key: string
-        }> | null
-        play: {
-          progressive?: Array<{
-            type?: string
-            rendition?: string
-            width?: number
-            height?: number
-            link?: string
-            _key: string
-          }>
-          dash?: {
-            link?: string
-          }
-          hls?: {
-            link?: string
-          }
-        } | null
-      } | null
-    } | null
-    isAudiencePhoto: boolean | null
-    caption: string | null
-    credit: string | null
-  }> | null
-  relatedEphemera: Array<{
-    _id: string
-    title: string
-    slug: string
-    category:
-      | 'correspondence'
-      | 'documentation'
-      | 'other'
-      | 'reference'
-      | 'research'
-      | 'sketch'
-      | null
-    firstImage: {
-      _key: string
-      _type: 'mediaItem'
-      mediaType?: 'image' | 'video'
-      image?: {
-        asset?: SanityImageAssetReference
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-      }
-      videoSource?: 'file' | 'url' | 'vimeo'
-      videoUrl?: string
-      videoFile?: {
-        asset?: SanityFileAssetReference
-        media?: unknown
-        _type: 'file'
-      }
-      vimeo?: Vimeo
       isAudiencePhoto?: boolean
       caption?: string
       credit?: string
-      asset: null
     } | null
   }> | null
   tags: Array<string> | null
@@ -957,7 +1049,7 @@ export type WorkSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: exhibitionQuery
-// Query: *[_type == "exhibition" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage { ..., asset-> }    },    installationImages[] {   mediaType,  videoSource,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  isAudiencePhoto,  caption,  credit },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
+// Query: *[_type == "exhibition" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage { ..., asset-> }    },    installationImages[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
 export type ExhibitionQueryResult = {
   _id: string
   title: string
@@ -1023,101 +1115,129 @@ export type ExhibitionQueryResult = {
       _type: 'image'
     } | null
   }> | null
-  installationImages: Array<{
-    mediaType: 'image' | 'video' | null
-    videoSource: 'file' | 'url' | 'vimeo' | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash: string
-        extension: string
-        mimeType: string
-        size: number
-        assetId: string
-        uploadId?: string
-        path: string
-        url: string
-        metadata?: SanityImageMetadata
-        source?: SanityAssetSourceData
-      } | null
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      _type: 'image'
-    } | null
-    videoUrl: string | null
-    videoFile: {
-      asset: {
-        _id: string
-        _type: 'sanity.fileAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash: string
-        extension: string
-        mimeType: string
-        size: number
-        assetId: string
-        uploadId?: string
-        path: string
-        url: string
-        source?: SanityAssetSourceData
-      } | null
-    } | null
-    vimeo: {
-      asset: {
-        vimeoId: string | null
-        name: string | null
-        duration: number | null
-        width: number | null
-        height: number | null
-        privacy: string | null
-        thumbnail: string | null
-        files: Array<{
-          quality?: string
-          type?: string
-          width?: number
-          height?: number
-          link?: string
-          size?: number
-          _key: string
-        }> | null
-        play: {
-          progressive?: Array<{
-            type?: string
-            rendition?: string
-            width?: number
-            height?: number
-            link?: string
-            _key: string
-          }>
-          dash?: {
-            link?: string
-          }
-          hls?: {
-            link?: string
-          }
+  installationImages: Array<
+    | {
+        _key: string
+        _type: 'mediaImage'
+        crop: SanityImageCrop | null
+        hotspot: SanityImageHotspot | null
+        asset: {
+          _id: string
+          _type: 'sanity.imageAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          metadata?: SanityImageMetadata
+          source?: SanityAssetSourceData
         } | null
-      } | null
-    } | null
-    isAudiencePhoto: boolean | null
-    caption: string | null
-    credit: string | null
-  }> | null
+        isAudiencePhoto: boolean | null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoFile'
+        crop: null
+        hotspot: null
+        asset: {
+          _id: string
+          _type: 'sanity.fileAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          source?: SanityAssetSourceData
+        } | null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoLink'
+        crop: null
+        hotspot: null
+        asset: null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: 'vimeo' | 'youtube'
+        vimeo: {
+          asset: {
+            vimeoId: string | null
+            name: string | null
+            duration: number | null
+            width: number | null
+            height: number | null
+            privacy: string | null
+            thumbnail: string | null
+            files: Array<{
+              quality?: string
+              type?: string
+              width?: number
+              height?: number
+              link?: string
+              size?: number
+              _key: string
+            }> | null
+            play: {
+              progressive?: Array<{
+                type?: string
+                rendition?: string
+                width?: number
+                height?: number
+                link?: string
+                _key: string
+              }>
+              dash?: {
+                link?: string
+              }
+              hls?: {
+                link?: string
+              }
+            } | null
+          } | null
+        } | null
+        youtube: {
+          id: string
+          title: string | null
+          description: string | null
+          publishedAt: string | null
+          thumbnails: Array<string> | null
+        } | null
+      }
+  > | null
   relatedEphemera: Array<{
     _id: string
     title: string
@@ -1143,7 +1263,7 @@ export type ExhibitionSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: ephemeraQuery
-// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    media[] {   mediaType,  videoSource,  image { ..., asset-> },  videoUrl,  videoFile { asset-> },  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  isAudiencePhoto,  caption,  credit },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
+// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type EphemeraQueryResult = {
   _id: string
   title: string
@@ -1175,101 +1295,129 @@ export type EphemeraQueryResult = {
     _type: 'block'
     _key: string
   }> | null
-  media: Array<{
-    mediaType: 'image' | 'video' | null
-    videoSource: 'file' | 'url' | 'vimeo' | null
-    image: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash: string
-        extension: string
-        mimeType: string
-        size: number
-        assetId: string
-        uploadId?: string
-        path: string
-        url: string
-        metadata?: SanityImageMetadata
-        source?: SanityAssetSourceData
-      } | null
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      _type: 'image'
-    } | null
-    videoUrl: string | null
-    videoFile: {
-      asset: {
-        _id: string
-        _type: 'sanity.fileAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash: string
-        extension: string
-        mimeType: string
-        size: number
-        assetId: string
-        uploadId?: string
-        path: string
-        url: string
-        source?: SanityAssetSourceData
-      } | null
-    } | null
-    vimeo: {
-      asset: {
-        vimeoId: string | null
-        name: string | null
-        duration: number | null
-        width: number | null
-        height: number | null
-        privacy: string | null
-        thumbnail: string | null
-        files: Array<{
-          quality?: string
-          type?: string
-          width?: number
-          height?: number
-          link?: string
-          size?: number
-          _key: string
-        }> | null
-        play: {
-          progressive?: Array<{
-            type?: string
-            rendition?: string
-            width?: number
-            height?: number
-            link?: string
-            _key: string
-          }>
-          dash?: {
-            link?: string
-          }
-          hls?: {
-            link?: string
-          }
+  images: Array<
+    | {
+        _key: string
+        _type: 'mediaImage'
+        crop: SanityImageCrop | null
+        hotspot: SanityImageHotspot | null
+        asset: {
+          _id: string
+          _type: 'sanity.imageAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          metadata?: SanityImageMetadata
+          source?: SanityAssetSourceData
         } | null
-      } | null
-    } | null
-    isAudiencePhoto: boolean | null
-    caption: string | null
-    credit: string | null
-  }> | null
+        isAudiencePhoto: boolean | null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoFile'
+        crop: null
+        hotspot: null
+        asset: {
+          _id: string
+          _type: 'sanity.fileAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          source?: SanityAssetSourceData
+        } | null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoLink'
+        crop: null
+        hotspot: null
+        asset: null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: 'vimeo' | 'youtube'
+        vimeo: {
+          asset: {
+            vimeoId: string | null
+            name: string | null
+            duration: number | null
+            width: number | null
+            height: number | null
+            privacy: string | null
+            thumbnail: string | null
+            files: Array<{
+              quality?: string
+              type?: string
+              width?: number
+              height?: number
+              link?: string
+              size?: number
+              _key: string
+            }> | null
+            play: {
+              progressive?: Array<{
+                type?: string
+                rendition?: string
+                width?: number
+                height?: number
+                link?: string
+                _key: string
+              }>
+              dash?: {
+                link?: string
+              }
+              hls?: {
+                link?: string
+              }
+            } | null
+          } | null
+        } | null
+        youtube: {
+          id: string
+          title: string | null
+          description: string | null
+          publishedAt: string | null
+          thumbnails: Array<string> | null
+        } | null
+      }
+  > | null
   relatedWork: Array<{
     _id: string
     title: string
@@ -1327,13 +1475,13 @@ export type CvQueryResult = Array<{
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage { ..., asset-> },\n    "firstImage": images[0] { ..., asset-> }\n  }\n': StreamQueryResult
+    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage { ..., asset-> },\n    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }\n  }\n': StreamQueryResult
     '\n  *[_type == "work" && defined(slug.current) && year < 2015]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n  }\n': ArchiveQueryResult
-    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    coverImage { ..., asset-> },\n    gallery[] { \n  mediaType,\n  videoSource,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[0] { ..., asset-> }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': WorkQueryResult
+    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    coverImage { ..., asset-> },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': WorkQueryResult
     '\n  *[_type == "work" && defined(slug.current)] { "slug": slug.current }\n': WorkSlugQueryResult
-    '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  mediaType,\n  videoSource,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
+    '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
     '\n  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }\n': ExhibitionSlugQueryResult
-    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    media[] { \n  mediaType,\n  videoSource,\n  image { ..., asset-> },\n  videoUrl,\n  videoFile { asset-> },\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  isAudiencePhoto,\n  caption,\n  credit\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': EphemeraQueryResult
+    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '\n  *[_type == "cvEntry"] | order(orderRank asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': CvQueryResult
   }

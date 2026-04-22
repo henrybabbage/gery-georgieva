@@ -1,6 +1,9 @@
 import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
+import {previewMediaFromFirstGalleryItem} from '../lib/galleryPreviewMedia'
+import {studioFieldScope} from '../lib/studioFieldScope'
 
 export const work = defineType({
   name: 'work',
@@ -39,8 +42,13 @@ export const work = defineType({
       name: 'gallery',
       title: 'Gallery',
       type: 'array',
-      of: [{type: 'mediaItem'}],
+      of: [
+        {type: 'mediaImage'},
+        {type: 'mediaVideoFile'},
+        {type: 'mediaVideoLink'},
+      ],
       options: {layout: 'grid'},
+      components: {field: studioFieldScope('gallery')},
     }),
     defineField({
       name: 'isFeature',
@@ -96,12 +104,15 @@ export const work = defineType({
     }),
   ],
   preview: {
-    select: {title: 'title', year: 'year', media: 'coverImage'},
-    prepare({title, year, media}) {
+    select: {title: 'title', year: 'year', coverImage: 'coverImage', gallery: 'gallery'},
+    prepare({title, year, coverImage, gallery}): PreviewValue {
+      const media = coverImage?.asset
+        ? coverImage
+        : previewMediaFromFirstGalleryItem(gallery?.[0], Spiral)
       return {
         title,
         subtitle: String(year ?? ''),
-        media: media || Spiral,
+        media: media as PreviewValue['media'],
       }
     },
   },

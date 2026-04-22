@@ -1,6 +1,8 @@
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {Asterisk} from '@phosphor-icons/react'
+import {previewMediaFromFirstGalleryItem} from '../lib/galleryPreviewMedia'
 
 export const exhibition = defineType({
   name: 'exhibition',
@@ -28,7 +30,11 @@ export const exhibition = defineType({
       name: 'installationImages',
       title: 'Installation Images',
       type: 'array',
-      of: [{type: 'mediaItem'}],
+      of: [
+        {type: 'mediaImage'},
+        {type: 'mediaVideoFile'},
+        {type: 'mediaVideoLink'},
+      ],
       options: {layout: 'grid'},
     }),
     defineField({name: 'venue', title: 'Venue', type: 'string'}),
@@ -74,12 +80,15 @@ export const exhibition = defineType({
       year: 'year',
       installationImages: 'installationImages',
     },
-    prepare({title, venue, year, installationImages}) {
-      const media = installationImages?.[0]
+    prepare({title, venue, year, installationImages}): PreviewValue {
+      const media = previewMediaFromFirstGalleryItem(
+        installationImages?.[0],
+        Asterisk,
+      )
       return {
         title,
         subtitle: [venue, year].filter(Boolean).join(' — '),
-        media: media || Asterisk,
+        media: media as PreviewValue['media'],
       }
     },
   },

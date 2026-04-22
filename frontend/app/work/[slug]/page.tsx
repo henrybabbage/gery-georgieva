@@ -37,9 +37,9 @@ export default async function WorkPage({params}: Props) {
       {/* Gallery placeholder — swap in MediaGallery component */}
       {work.gallery && work.gallery.length > 0 && (
         <div className="space-y-2 mb-8">
-          {work.gallery.map((_item: unknown, i: number) => (
+          {work.gallery.map((item, i) => (
             <div
-              key={i}
+              key={item._key ?? i}
               className="bg-[#e8e7e3] aspect-video"
             />
           ))}

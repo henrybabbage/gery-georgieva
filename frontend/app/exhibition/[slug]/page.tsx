@@ -50,12 +50,17 @@ export default async function ExhibitionPage({params}: Props) {
       {/* Installation images placeholder */}
       {exhibition.installationImages && exhibition.installationImages.length > 0 && (
         <div className="grid grid-cols-2 gap-2 mb-8">
-          {exhibition.installationImages.map((item, i) => (
-            <div
-              key={i}
-              className={`bg-[#e8e7e3] aspect-video ${stegaClean(item.isAudiencePhoto) ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
-            />
-          ))}
+          {exhibition.installationImages.map((item, i) => {
+            const isAudience =
+              item._type === 'mediaImage' &&
+              stegaClean(item.isAudiencePhoto)
+            return (
+              <div
+                key={item._key ?? i}
+                className={`bg-[#e8e7e3] aspect-video ${isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
+              />
+            )
+          })}
         </div>
       )}
 

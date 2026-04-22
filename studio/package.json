@@ -31,6 +31,7 @@
     "sanity-plugin-asset-source-unsplash": "^7.0.5",
     "sanity-plugin-media": "^4.1.1",
     "sanity-plugin-vimeo-field": "^3.2.0",
+    "sanity-plugin-youtube-input": "^0.2.0",
     "styled-components": "^6.3.12"
   },
   "devDependencies": {

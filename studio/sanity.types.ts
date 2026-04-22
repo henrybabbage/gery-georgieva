@@ -66,6 +66,17 @@ export type Exhibition = {
   title: string
   slug: Slug
   year?: number
+  installationImages?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
   venue?: string
   location?: string
   startDate?: string
@@ -93,11 +104,6 @@ export type Exhibition = {
     {
       _key: string
     } & WorkReference
-  >
-  installationImages?: Array<
-    {
-      _key: string
-    } & MediaItem
   >
   externalDocumentationLink?: string
 }
@@ -138,14 +144,26 @@ export type Ephemera = {
     _key: string
   }>
   images?: Array<
-    {
-      _key: string
-    } & MediaItem
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
   >
   media?: Array<
-    {
-      _key: string
-    } & MediaItem
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
   >
   relatedWork?: Array<
     {
@@ -183,6 +201,25 @@ export type Work = {
   title: string
   slug: Slug
   year: number
+  coverImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  gallery?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
+  isFeature?: boolean
   medium?: string
   dimensions?: string
   duration?: string
@@ -223,19 +260,6 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
-  coverImage?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  gallery?: Array<
-    {
-      _key: string
-    } & MediaItem
-  >
-  isFeature?: boolean
   relatedEphemera?: Array<
     {
       _key: string
@@ -262,34 +286,22 @@ export type SanityImageHotspot = {
   width: number
 }
 
-export type SanityFileAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
-}
-
-export type MediaItem = {
-  _type: 'mediaItem'
-  mediaType?: 'image' | 'video'
-  image?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
-  videoSource?: 'url' | 'file' | 'vimeo'
-  videoUrl?: string
-  videoFile?: {
-    asset?: SanityFileAssetReference
-    media?: unknown
-    _type: 'file'
-  }
+export type MediaVideoLink = {
+  _type: 'mediaVideoLink'
+  provider: 'vimeo' | 'youtube'
   vimeo?: Vimeo
-  isAudiencePhoto?: boolean
+  youtube?: YoutubeVideo
   caption?: string
   credit?: string
+}
+
+export type YoutubeVideo = {
+  _type: 'youtubeVideo'
+  id: string
+  title?: string
+  description?: string
+  publishedAt?: string
+  thumbnails?: Array<string>
 }
 
 export type VimeoVideoReference = {
@@ -302,6 +314,39 @@ export type VimeoVideoReference = {
 export type Vimeo = {
   _type: 'vimeo'
   asset?: VimeoVideoReference
+}
+
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type MediaVideoFile = {
+  _type: 'mediaVideoFile'
+  asset?: SanityFileAssetReference
+  media?: unknown
+  poster?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  caption?: string
+  credit?: string
+}
+
+export type MediaImage = {
+  _type: 'mediaImage'
+  asset?: SanityImageAssetReference
+  media?: unknown
+  hotspot?: SanityImageHotspot
+  crop?: SanityImageCrop
+  isAudiencePhoto?: boolean
+  caption?: string
+  credit?: string
 }
 
 export type SanityAssistInstructionTask = {
@@ -607,10 +652,13 @@ export type AllSanitySchemaTypes =
   | Work
   | SanityImageCrop
   | SanityImageHotspot
-  | SanityFileAssetReference
-  | MediaItem
+  | MediaVideoLink
+  | YoutubeVideo
   | VimeoVideoReference
   | Vimeo
+  | SanityFileAssetReference
+  | MediaVideoFile
+  | MediaImage
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations

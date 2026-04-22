@@ -2,6 +2,31 @@ import type {SanityImageSource} from '@sanity/image-url'
 
 export type {SanityImageSource}
 
+export type MediaImageItem = {
+  _type: 'mediaImage'
+  _key?: string
+  asset?: SanityImageSource & {metadata?: {dimensions?: {width?: number; height?: number}}}
+  isAudiencePhoto?: boolean
+  caption?: string
+  credit?: string
+}
+
+export type MediaVideoFileItem = {
+  _type: 'mediaVideoFile'
+  _key?: string
+  asset?: {
+    _id?: string
+    url?: string
+    originalFilename?: string
+    extension?: string
+    mimeType?: string
+    size?: number
+  }
+  poster?: SanityImageSource
+  caption?: string
+  credit?: string
+}
+
 export type VimeoVideoResolved = {
   vimeoId?: string
   name?: string
@@ -14,17 +39,23 @@ export type VimeoVideoResolved = {
   play?: unknown
 }
 
-export type MediaItem = {
-  mediaType?: 'image' | 'video'
-  videoSource?: 'url' | 'file' | 'vimeo'
-  image?: SanityImageSource & {asset?: {_ref?: string}}
-  videoUrl?: string
-  videoFile?: {asset?: {_ref?: string}}
+export type MediaVideoLinkItem = {
+  _type: 'mediaVideoLink'
+  _key?: string
+  provider?: 'vimeo' | 'youtube'
   vimeo?: {asset?: VimeoVideoResolved | null}
-  isAudiencePhoto?: boolean
+  youtube?: {
+    id?: string
+    title?: string
+    description?: string
+    publishedAt?: string
+    thumbnails?: string[]
+  }
   caption?: string
   credit?: string
 }
+
+export type GalleryItem = MediaImageItem | MediaVideoFileItem | MediaVideoLinkItem
 
 export type WorkCard = {
   _id: string
@@ -40,7 +71,7 @@ export type WorkCard = {
 export type WorkDetail = WorkCard & {
   dimensions?: string
   description?: unknown[]
-  gallery?: MediaItem[]
+  gallery?: GalleryItem[]
   relatedEphemera?: EphemeraCard[]
   tags?: string[]
   exhibitions?: ExhibitionCard[]
@@ -67,13 +98,40 @@ export type ExhibitionCard = {
 }
 
 export type ExhibitionDetail = ExhibitionCard & {
+  _id: string
   startDate?: string
   endDate?: string
   exhibitionType?: string
   description?: unknown[]
-  externalDocumentationLink?: string
   relatedWorks?: WorkCard[]
-  installationImages?: MediaItem[]
+  relatedEphemera?: EphemeraCard[]
+  installationImages?: GalleryItem[]
+  externalDocumentationLink?: string
+}
+
+export type EphemeraDetail = {
+  _id: string
+  title: string
+  slug: string
+  year?: number
+  category?: string
+  description?: unknown[]
+  images?: GalleryItem[]
+  relatedWork?: {
+    _id: string
+    title: string
+    slug: string
+    year?: number
+    medium?: string
+  }[]
+  relatedExhibitions?: {
+    _id: string
+    title: string
+    slug: string
+    year?: number
+    venue?: string
+    location?: string
+  }[]
 }
 
 export type CvEntry = {

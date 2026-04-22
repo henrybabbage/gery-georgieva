@@ -1,6 +1,8 @@
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {FlowerTulip} from '@phosphor-icons/react'
+import {previewMediaFromFirstGalleryItem} from '../lib/galleryPreviewMedia'
 
 export const ephemera = defineType({
   name: 'ephemera',
@@ -49,13 +51,21 @@ export const ephemera = defineType({
       name: 'images',
       title: 'Images',
       type: 'array',
-      of: [{type: 'mediaItem'}],
+      of: [
+        {type: 'mediaImage'},
+        {type: 'mediaVideoFile'},
+        {type: 'mediaVideoLink'},
+      ],
     }),
     defineField({
       name: 'media',
       title: 'Media (deprecated)',
       type: 'array',
-      of: [{type: 'mediaItem'}],
+      of: [
+        {type: 'mediaImage'},
+        {type: 'mediaVideoFile'},
+        {type: 'mediaVideoLink'},
+      ],
       hidden: true,
     }),
     defineField({
@@ -79,12 +89,12 @@ export const ephemera = defineType({
       category: 'category',
       images: 'images',
     },
-    prepare({title, category, images}) {
-      const media = images?.[0]
+    prepare({title, category, images}): PreviewValue {
+      const media = previewMediaFromFirstGalleryItem(images?.[0], FlowerTulip)
       return {
         title,
         subtitle: category,
-        media: media || FlowerTulip,
+        media: media as PreviewValue['media'],
       }
     },
   },
