@@ -1,3 +1,5 @@
+import {PlayIcon} from '@sanity/icons'
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
 type MediaVideoLinkParent = {
@@ -62,4 +64,20 @@ export const mediaVideoLink = defineType({
     defineField({name: 'caption', title: 'Caption', type: 'text', rows: 2}),
     defineField({name: 'credit', title: 'Credit', type: 'string'}),
   ],
+  preview: {
+    select: {provider: 'provider', caption: 'caption', credit: 'credit'},
+    prepare({provider, caption, credit}): PreviewValue {
+      const fallback =
+        provider === 'vimeo'
+          ? 'Vimeo'
+          : provider === 'youtube'
+            ? 'YouTube'
+            : 'Video link'
+      return {
+        title: (caption as string | undefined)?.trim() || fallback,
+        subtitle: credit,
+        media: PlayIcon,
+      }
+    },
+  },
 })

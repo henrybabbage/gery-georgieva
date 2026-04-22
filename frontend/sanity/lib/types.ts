@@ -22,7 +22,6 @@ export type MediaVideoFileItem = {
     mimeType?: string
     size?: number
   }
-  poster?: SanityImageSource
   caption?: string
   credit?: string
 }

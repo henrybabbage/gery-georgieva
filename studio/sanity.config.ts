@@ -35,9 +35,7 @@ function previewOriginFromEnv(raw: string | undefined): string {
   return `https://${trimmed.replace(/^\/+/, '').replace(/\/+$/, '')}`
 }
 
-const SANITY_STUDIO_PREVIEW_URL = previewOriginFromEnv(
-  process.env.SANITY_STUDIO_PREVIEW_URL,
-)
+const SANITY_STUDIO_PREVIEW_URL = previewOriginFromEnv(process.env.SANITY_STUDIO_PREVIEW_URL)
 
 // Define the home location for the presentation tool
 const homeLocation = {

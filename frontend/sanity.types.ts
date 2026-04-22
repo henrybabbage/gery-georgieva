@@ -327,13 +327,6 @@ export type MediaVideoFile = {
   _type: 'mediaVideoFile'
   asset?: SanityFileAssetReference
   media?: unknown
-  poster?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    _type: 'image'
-  }
   caption?: string
   credit?: string
 }
