@@ -8,6 +8,7 @@ import {visionTool} from '@sanity/vision'
 import {defineConfig} from 'sanity'
 import {unsplashImageAsset} from 'sanity-plugin-asset-source-unsplash'
 import {media} from 'sanity-plugin-media'
+import {vimeoField} from 'sanity-plugin-vimeo-field'
 import {
   defineDocuments,
   defineLocations,
@@ -71,6 +72,7 @@ export default defineConfig({
       structure, // Custom studio structure configuration, imported from ./src/structure.ts
     }),
     media(),
+    vimeoField(),
     // Presentation tool configuration for Visual Editing
     presentationTool({
       previewUrl: {

@@ -24,6 +24,13 @@ export const exhibition = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
+    defineField({
+      name: 'installationImages',
+      title: 'Installation Images',
+      type: 'array',
+      of: [{type: 'mediaItem'}],
+      options: {layout: 'grid'},
+    }),
     defineField({name: 'venue', title: 'Venue', type: 'string'}),
     defineField({name: 'location', title: 'Location', type: 'string'}),
     defineField({name: 'startDate', title: 'Start Date', type: 'date'}),
@@ -52,13 +59,6 @@ export const exhibition = defineType({
       title: 'Related Works',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'work'}]}],
-      options: {layout: 'grid'},
-    }),
-    defineField({
-      name: 'installationImages',
-      title: 'Installation Images',
-      type: 'array',
-      of: [{type: 'mediaItem'}],
       options: {layout: 'grid'},
     }),
     defineField({

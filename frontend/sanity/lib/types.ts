@@ -2,11 +2,25 @@ import type {SanityImageSource} from '@sanity/image-url'
 
 export type {SanityImageSource}
 
+export type VimeoVideoResolved = {
+  vimeoId?: string
+  name?: string
+  duration?: number
+  width?: number
+  height?: number
+  privacy?: string
+  thumbnail?: string
+  files?: unknown[]
+  play?: unknown
+}
+
 export type MediaItem = {
   mediaType?: 'image' | 'video'
+  videoSource?: 'url' | 'file' | 'vimeo'
   image?: SanityImageSource & {asset?: {_ref?: string}}
   videoUrl?: string
   videoFile?: {asset?: {_ref?: string}}
+  vimeo?: {asset?: VimeoVideoResolved | null}
   isAudiencePhoto?: boolean
   caption?: string
   credit?: string
@@ -20,7 +34,6 @@ export type WorkCard = {
   year?: number
   medium?: string
   isFeature?: boolean
-  layoutSize?: 'full' | 'half' | 'float'
   coverImage?: SanityImageSource
 }
 
@@ -40,7 +53,6 @@ export type EphemeraCard = {
   slug: string
   year?: number
   category?: string
-  layoutSize?: 'full' | 'half' | 'float'
   isFeature?: boolean
   firstImage?: SanityImageSource
 }

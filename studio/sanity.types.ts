@@ -147,7 +147,6 @@ export type Ephemera = {
       _key: string
     } & MediaItem
   >
-  layoutSize?: 'full' | 'half' | 'float'
   relatedWork?: Array<
     {
       _key: string
@@ -224,7 +223,6 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
-  layoutSize?: 'full' | 'half' | 'float'
   coverImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -281,15 +279,29 @@ export type MediaItem = {
     crop?: SanityImageCrop
     _type: 'image'
   }
+  videoSource?: 'url' | 'file' | 'vimeo'
   videoUrl?: string
   videoFile?: {
     asset?: SanityFileAssetReference
     media?: unknown
     _type: 'file'
   }
+  vimeo?: Vimeo
   isAudiencePhoto?: boolean
   caption?: string
   credit?: string
+}
+
+export type VimeoVideoReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'vimeoVideo'
+}
+
+export type Vimeo = {
+  _type: 'vimeo'
+  asset?: VimeoVideoReference
 }
 
 export type SanityAssistInstructionTask = {
@@ -429,6 +441,54 @@ export type SanityAssistSchemaTypeField = {
   >
 }
 
+export type VimeoVideo = {
+  _id: string
+  _type: 'vimeoVideo'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  vimeoId?: string
+  name?: string
+  duration?: number
+  width?: number
+  height?: number
+  privacy?: string
+  lastSynced?: string
+  pictures?: {
+    sizes?: Array<{
+      width?: number
+      height?: number
+      link?: string
+      _key: string
+    }>
+  }
+  files?: Array<{
+    quality?: string
+    type?: string
+    width?: number
+    height?: number
+    link?: string
+    size?: number
+    _key: string
+  }>
+  play?: {
+    progressive?: Array<{
+      type?: string
+      rendition?: string
+      width?: number
+      height?: number
+      link?: string
+      _key: string
+    }>
+    dash?: {
+      link?: string
+    }
+    hls?: {
+      link?: string
+    }
+  }
+}
+
 export type MediaTag = {
   _id: string
   _type: 'media.tag'
@@ -549,6 +609,8 @@ export type AllSanitySchemaTypes =
   | SanityImageHotspot
   | SanityFileAssetReference
   | MediaItem
+  | VimeoVideoReference
+  | Vimeo
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
@@ -562,6 +624,7 @@ export type AllSanitySchemaTypes =
   | SanityAssistInstructionFieldRef
   | SanityAssistInstruction
   | SanityAssistSchemaTypeField
+  | VimeoVideo
   | MediaTag
   | SanityImagePaletteSwatch
   | SanityImagePalette

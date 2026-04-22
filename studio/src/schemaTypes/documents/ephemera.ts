@@ -59,19 +59,6 @@ export const ephemera = defineType({
       hidden: true,
     }),
     defineField({
-      name: 'layoutSize',
-      title: 'Layout Size',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Full width', value: 'full'},
-          {title: 'Half width', value: 'half'},
-          {title: 'Float', value: 'float'},
-        ],
-      },
-      initialValue: 'half',
-    }),
-    defineField({
       name: 'relatedWork',
       title: 'Related Works',
       description: 'Works this material contributed to',

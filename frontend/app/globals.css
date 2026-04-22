@@ -26,21 +26,6 @@
   }
 }
 
-/* Grid tile sizing utilities */
-.tile-full  { grid-column: span 12; }
-.tile-half  { grid-column: span 12; }
-.tile-float { grid-column: span 12; }
-
-@media (min-width: 640px) {
-  .tile-full  { grid-column: span 12; }
-  .tile-half  { grid-column: span 6; }
-  .tile-float { grid-column: span 4; }
-}
-
-@media (min-width: 1024px) {
-  .tile-float { grid-column: span 3; }
-}
-
 /* Audience photo visual treatment */
 .audience-photo {
   outline: 1px solid var(--color-hairline);

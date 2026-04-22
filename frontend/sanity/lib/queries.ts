@@ -6,9 +6,23 @@ import {defineQuery} from 'next-sanity'
 
 const mediaItemFields = /* groq */ `
   mediaType,
+  videoSource,
   image { ..., asset-> },
   videoUrl,
   videoFile { asset-> },
+  vimeo {
+    asset-> {
+      vimeoId,
+      name,
+      duration,
+      width,
+      height,
+      privacy,
+      "thumbnail": pictures.sizes[0].link,
+      files,
+      play
+    }
+  },
   isAudiencePhoto,
   caption,
   credit
@@ -21,7 +35,6 @@ const workCardFields = /* groq */ `
   "slug": slug.current,
   year,
   medium,
-  layoutSize,
   coverImage { ..., asset-> }
 `
 
@@ -37,7 +50,6 @@ export const streamQuery = defineQuery(`
     title,
     "slug": slug.current,
     year,
-    layoutSize,
     coverImage { ..., asset-> },
     "firstImage": images[0] { ..., asset-> }
   }
@@ -67,7 +79,6 @@ export const workQuery = defineQuery(`
     medium,
     dimensions,
     description,
-    layoutSize,
     coverImage { ..., asset-> },
     gallery[] { ${mediaItemFields} },
     relatedEphemera[]-> {

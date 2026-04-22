@@ -29,6 +29,24 @@ export const work = defineType({
       type: 'number',
       validation: (Rule) => Rule.required().min(1900).max(2100),
     }),
+    defineField({
+      name: 'coverImage',
+      title: 'Cover Image',
+      type: 'image',
+      options: {hotspot: true},
+    }),
+    defineField({
+      name: 'gallery',
+      title: 'Gallery',
+      type: 'array',
+      of: [{type: 'mediaItem'}],
+      options: {layout: 'grid'},
+    }),
+    defineField({
+      name: 'isFeature',
+      title: 'Featured',
+      type: 'boolean',
+    }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),
     defineField({name: 'duration', title: 'Duration', type: 'string'}),
@@ -49,38 +67,6 @@ export const work = defineType({
       title: 'Artist Statement',
       type: 'array',
       of: [{type: 'block'}],
-    }),
-    defineField({
-      name: 'layoutSize',
-      title: 'Layout Size',
-      type: 'string',
-      description: 'Controls tile width in the Tillmans grid.',
-      options: {
-        list: [
-          {title: 'Full width', value: 'full'},
-          {title: 'Half width', value: 'half'},
-          {title: 'Float', value: 'float'},
-        ],
-      },
-      initialValue: 'half',
-    }),
-    defineField({
-      name: 'coverImage',
-      title: 'Cover Image',
-      type: 'image',
-      options: {hotspot: true},
-    }),
-    defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'array',
-      of: [{type: 'mediaItem'}],
-      options: {layout: 'grid'},
-    }),
-    defineField({
-      name: 'isFeature',
-      title: 'Featured',
-      type: 'boolean',
     }),
     defineField({
       name: 'relatedEphemera',

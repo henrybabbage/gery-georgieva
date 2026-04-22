@@ -8,7 +8,6 @@ type GridItem = {
   title: string
   slug: string
   year?: number
-  layoutSize?: 'full' | 'half' | 'float'
   coverImage?: SanityImageRef
   firstImage?: SanityImageRef
 }
@@ -16,18 +15,6 @@ type GridItem = {
 type SanityImageRef = {
   asset?: {_ref?: string; url?: string}
   [key: string]: unknown
-}
-
-function tileClass(size?: string) {
-  switch (size) {
-    case 'full':
-      return 'tile-full'
-    case 'float':
-      return 'tile-float'
-    case 'half':
-    default:
-      return 'tile-half'
-  }
 }
 
 function TileImage({image, title}: {image: SanityImageRef; title: string}) {
@@ -58,7 +45,7 @@ export default function StreamGrid({items}: {items: GridItem[]}) {
           <Link
             key={item._id}
             href={href}
-            className={`group block ${tileClass(item.layoutSize)}`}
+            className="group col-span-12 block sm:col-span-6"
           >
             {img ? (
               <TileImage image={img} title={item.title} />
