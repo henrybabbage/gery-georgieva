@@ -53,13 +53,6 @@ export const ephemera = defineType({
       of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
     }),
     defineField({
-      name: 'media',
-      title: 'Media (deprecated)',
-      type: 'array',
-      of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
-      hidden: true,
-    }),
-    defineField({
       name: 'relatedWork',
       title: 'Related Works',
       description: 'Works this material contributed to',

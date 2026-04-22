@@ -51,12 +51,6 @@ export const work = defineType({
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),
     defineField({name: 'duration', title: 'Duration', type: 'string'}),
     defineField({
-      name: 'videoUrl',
-      title: 'Video URL',
-      type: 'url',
-      description: 'URL to the video (e.g., Vimeo, YouTube)',
-    }),
-    defineField({
       name: 'description',
       title: 'Description',
       type: 'array',
