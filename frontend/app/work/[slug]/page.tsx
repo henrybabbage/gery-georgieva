@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {sanityFetch} from '@/sanity/lib/live'
 import {workQuery, workSlugQuery} from '@/sanity/lib/queries'
 import type {Metadata} from 'next'
+import type {WorkQueryResult} from '@/sanity.types'
 
 type Props = {params: Promise<{slug: string}>}
 
@@ -19,7 +20,8 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 
 export default async function WorkPage({params}: Props) {
   const {slug} = await params
-  const {data: work} = await sanityFetch({query: workQuery, params: {slug}})
+  const {data} = await sanityFetch({query: workQuery, params: {slug}})
+  const work = data as WorkQueryResult
 
   if (!work) notFound()
 
