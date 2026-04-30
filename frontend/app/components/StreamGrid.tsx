@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import {getImageSizePreset, type ImageSizeOverride} from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
 
 type GridItem = {
@@ -13,20 +14,22 @@ type GridItem = {
 }
 
 type SanityImageRef = {
-  asset?: {_ref?: string; url?: string}
+  asset?: {_ref?: string; url?: string; sizeOverride?: ImageSizeOverride}
   [key: string]: unknown
 }
 
 function TileImage({image, title}: {image: SanityImageRef; title: string}) {
-  const url = urlForImage(image)?.width(1200).auto('format').url()
+  const imageSizePreset = getImageSizePreset(image.asset?.sizeOverride)
+  const url = urlForImage(image)?.width(imageSizePreset.width).auto('format').url()
   if (!url) return <div className="aspect-[4/3] bg-placeholder" />
   return (
     <div className="relative overflow-hidden bg-placeholder">
       <Image
         src={url}
         alt={title}
-        width={1200}
-        height={900}
+        width={imageSizePreset.width}
+        height={imageSizePreset.height}
+        sizes={imageSizePreset.sizes}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
         style={{aspectRatio: '4/3'}}
       />

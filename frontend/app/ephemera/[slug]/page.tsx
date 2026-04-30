@@ -5,6 +5,7 @@ import {ephemeraQuery, ephemeraSlugQuery} from '@/sanity/lib/queries'
 import CustomPortableText from '@/app/components/PortableText'
 import type {PortableTextBlock} from 'next-sanity'
 import type {Metadata} from 'next'
+import type {EphemeraQueryResult} from '@/sanity.types'
 
 type Props = {params: Promise<{slug: string}>}
 
@@ -25,7 +26,8 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 
 export default async function EphemeraPage({params}: Props) {
   const {slug} = await params
-  const {data: item} = await sanityFetch({query: ephemeraQuery, params: {slug}})
+  const {data} = await sanityFetch({query: ephemeraQuery, params: {slug}})
+  const item = data as EphemeraQueryResult
 
   if (!item) notFound()
 

@@ -2,10 +2,19 @@ import type {SanityImageSource} from '@sanity/image-url'
 
 export type {SanityImageSource}
 
+export type ImageType = 'performance' | 'work' | 'installation' | 'detail'
+export type ImageSizeOverride = 'sm' | 'md' | 'lg' | 'xl'
+
+export type SanityImageAssetMetadata = {
+  metadata?: {dimensions?: {width?: number; height?: number}}
+  imageType?: ImageType
+  sizeOverride?: ImageSizeOverride
+}
+
 export type MediaImageItem = {
   _type: 'mediaImage'
   _key?: string
-  asset?: SanityImageSource & {metadata?: {dimensions?: {width?: number; height?: number}}}
+  asset?: SanityImageSource & SanityImageAssetMetadata
   isAudiencePhoto?: boolean
   caption?: string
   credit?: string
@@ -64,6 +73,7 @@ export type WorkCard = {
   year?: number
   medium?: string
   coverImage?: SanityImageSource
+  coverImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
 }
 
 export type WorkDetail = WorkCard & {
@@ -83,6 +93,8 @@ export type EphemeraCard = {
   year?: number
   category?: string
   firstImage?: SanityImageSource
+  isFeature?: boolean
+  firstImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
 }
 
 export type ExhibitionCard = {
@@ -151,8 +163,8 @@ export type CvEntry = {
 }
 
 export type StreamItem = (WorkCard | EphemeraCard) & {
-  coverImage?: SanityImageSource
-  firstImage?: SanityImageSource
+  coverImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
+  firstImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
 }
 
 // Represents a Link after GROQ dereferencing (page/post become slug strings)
