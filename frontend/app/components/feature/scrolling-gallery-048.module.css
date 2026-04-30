@@ -1,0 +1,47 @@
+.root {
+	padding: 100vh 0;
+	perspective: 200vw;
+}
+
+.container {
+	transform-style: preserve-3d;
+}
+
+.scroll {
+	position: fixed;
+	top: 50vh;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.media {
+	width: 70vw;
+	margin: 0 auto;
+	will-change: transform;
+}
+
+.media:not(:first-child) {
+	margin-top: -16vw;
+}
+
+.media img {
+	width: 20vw;
+	aspect-ratio: 1;
+	display: block;
+	object-fit: cover;
+	box-shadow: 1px 1px 30px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+	.root {
+		perspective: 400vw;
+	}
+
+	.media {
+		width: 95vw;
+	}
+
+	.media img {
+		width: 36vw;
+	}
+}

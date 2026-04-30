@@ -154,17 +154,6 @@ export type Ephemera = {
         _key: string
       } & MediaVideoLink)
   >
-  media?: Array<
-    | ({
-        _key: string
-      } & MediaImage)
-    | ({
-        _key: string
-      } & MediaVideoFile)
-    | ({
-        _key: string
-      } & MediaVideoLink)
-  >
   relatedWork?: Array<
     {
       _key: string
@@ -223,7 +212,6 @@ export type Work = {
   medium?: string
   dimensions?: string
   duration?: string
-  videoUrl?: string
   description?: Array<{
     children?: Array<{
       marks?: Array<string>
