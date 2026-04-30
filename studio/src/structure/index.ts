@@ -6,13 +6,14 @@ export const structure: StructureResolver = (S, context) =>
   S.list()
     .title('Content')
     .items([
-      orderableDocumentListDeskItem({
-        type: 'work',
-        title: 'Work',
-        icon: Spiral,
-        S,
-        context,
-      }),
+      S.listItem()
+        .title('Work')
+        .icon(Spiral)
+        .child(
+          S.documentTypeList('work').defaultOrdering([
+            {field: 'year', direction: 'desc'},
+          ]),
+        ),
       orderableDocumentListDeskItem({
         type: 'ephemera',
         title: 'Ephemera',
@@ -20,13 +21,14 @@ export const structure: StructureResolver = (S, context) =>
         S,
         context,
       }),
-      orderableDocumentListDeskItem({
-        type: 'exhibition',
-        title: 'Exhibitions',
-        icon: Asterisk,
-        S,
-        context,
-      }),
+      S.listItem()
+        .title('Exhibitions')
+        .icon(Asterisk)
+        .child(
+          S.documentTypeList('exhibition').defaultOrdering([
+            {field: 'year', direction: 'desc'},
+          ]),
+        ),
       orderableDocumentListDeskItem({
         type: 'cvEntry',
         title: 'CV Entries',
