@@ -19,9 +19,9 @@ type SanityImageRef = {
 
 function TileImage({image, title}: {image: SanityImageRef; title: string}) {
   const url = urlForImage(image)?.width(1200).auto('format').url()
-  if (!url) return <div className="aspect-[4/3] bg-[#e8e7e3]" />
+  if (!url) return <div className="aspect-[4/3] bg-placeholder" />
   return (
-    <div className="relative overflow-hidden bg-[#e8e7e3]">
+    <div className="relative overflow-hidden bg-placeholder">
       <Image
         src={url}
         alt={title}
@@ -50,7 +50,7 @@ export default function StreamGrid({items}: {items: GridItem[]}) {
             {img ? (
               <TileImage image={img} title={item.title} />
             ) : (
-              <div className="aspect-[4/3] bg-[#e8e7e3] flex items-end p-3">
+              <div className="aspect-[4/3] bg-placeholder flex items-end p-3">
                 <span className="text-base text-[#8a8880]">{item.title}</span>
               </div>
             )}

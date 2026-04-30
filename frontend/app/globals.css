@@ -32,7 +32,8 @@
 }
 
 @theme {
-  --color-paper: #f4f3ef;
+  --color-paper: #fafafa;
+  --color-placeholder: #e6e6e6;
   --color-ink: #1c1b18;
   --color-muted: #8a8880;
   --color-hairline: #deded9;

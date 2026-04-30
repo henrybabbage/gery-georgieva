@@ -57,7 +57,7 @@ export default function FeatureShowcase ({
 	}, [lenis])
 
 	return (
-		<div className="h-[calc(100dvh-3rem)] overflow-hidden bg-[#fafaf8] text-[#111]">
+		<div className="fixed inset-0 z-0 overflow-hidden bg-paper text-[#111]">
 			<div className="relative h-full min-h-0">
 				<div className="absolute inset-0">
 					<OrbitalImageGallery

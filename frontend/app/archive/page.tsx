@@ -15,7 +15,7 @@ export default async function ArchivePage() {
         {works?.map((work: {_id: string; slug: string; title: string; year?: number}) => (
           <li key={work._id}>
             <Link href={`/work/${work.slug}`} className="block text-base">
-              <div className="aspect-[4/3] bg-[#e8e7e3] mb-1" />
+              <div className="aspect-[4/3] bg-placeholder mb-1" />
               <span>{work.title}</span>
               {work.year && <span className="ml-2 opacity-50">{work.year}</span>}
             </Link>

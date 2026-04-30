@@ -40,7 +40,7 @@ export default async function WorkPage({params}: Props) {
           {work.gallery.map((item, i) => (
             <div
               key={item._key ?? i}
-              className="bg-[#e8e7e3] aspect-video"
+              className="bg-placeholder aspect-video"
             />
           ))}
         </div>

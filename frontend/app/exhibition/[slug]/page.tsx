@@ -57,7 +57,7 @@ export default async function ExhibitionPage({params}: Props) {
             return (
               <div
                 key={item._key ?? i}
-                className={`bg-[#e8e7e3] aspect-video ${isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
+                className={`bg-placeholder aspect-video ${isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
               />
             )
           })}
