@@ -13,7 +13,7 @@ export default function SiteNav () {
 		<nav
 			className="fixed left-0 right-0 top-0 z-50 flex justify-between bg-transparent px-5 py-4 text-base"
 		>
-			<Link href="/">Home</Link>
+			<Link href="/">Gery Georgieva</Link>
 			<div className="flex gap-6">
 				{navLinks.map(({href, label}) => (
 					<Link key={href} href={href}>
