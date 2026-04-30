@@ -28,7 +28,6 @@ export type CvEntry = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  orderRank?: string
   title: string
   year: number
   category:
@@ -54,65 +53,6 @@ export type WorkReference = {
   _type: 'reference'
   _weak?: boolean
   [internalGroqTypeReferenceTo]?: 'work'
-}
-
-export type Exhibition = {
-  _id: string
-  _type: 'exhibition'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  orderRank?: string
-  title: string
-  slug: Slug
-  hidePublicPage?: boolean
-  year?: number
-  installationImages?: Array<
-    | ({
-        _key: string
-      } & MediaImage)
-    | ({
-        _key: string
-      } & MediaVideoFile)
-    | ({
-        _key: string
-      } & MediaVideoLink)
-  >
-  venue?: string
-  location?: string
-  startDate?: string
-  endDate?: string
-  exhibitionType?: 'solo' | 'group' | 'duo' | 'institutional'
-  description?: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
-    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
-    listItem?: 'bullet' | 'number'
-    markDefs?: Array<{
-      href?: string
-      _type: 'link'
-      _key: string
-    }>
-    level?: number
-    _type: 'block'
-    _key: string
-  }>
-  relatedWorks?: Array<
-    {
-      _key: string
-    } & WorkReference
-  >
-  externalDocumentationLink?: string
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type Ephemera = {
@@ -167,6 +107,12 @@ export type Ephemera = {
   >
 }
 
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
 export type SanityImageAssetReference = {
   _ref: string
   _type: 'reference'
@@ -209,7 +155,8 @@ export type Work = {
         _key: string
       } & MediaVideoLink)
   >
-  isFeature?: boolean
+  exhibition?: ExhibitionReference
+  carouselImage?: MediaImage
   medium?: string
   dimensions?: string
   duration?: string
@@ -257,6 +204,71 @@ export type Work = {
   tags?: Array<string>
   collaborators?: Array<string>
   commissionedBy?: string
+}
+
+export type MediaImage = {
+  _type: 'mediaImage'
+  asset?: SanityImageAssetReference
+  media?: unknown
+  hotspot?: SanityImageHotspot
+  crop?: SanityImageCrop
+  isAudiencePhoto?: boolean
+  caption?: string
+  credit?: string
+}
+
+export type Exhibition = {
+  _id: string
+  _type: 'exhibition'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  orderRank?: string
+  title: string
+  slug: Slug
+  hidePublicPage?: boolean
+  carouselImage?: MediaImage
+  year?: number
+  installationImages?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
+  venue?: string
+  location?: string
+  startDate?: string
+  endDate?: string
+  exhibitionType?: 'solo' | 'group' | 'duo' | 'institutional'
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  relatedWorks?: Array<
+    {
+      _key: string
+    } & WorkReference
+  >
+  externalDocumentationLink?: string
 }
 
 export type SanityImageCrop = {
@@ -320,15 +332,20 @@ export type MediaVideoFile = {
   credit?: string
 }
 
-export type MediaImage = {
-  _type: 'mediaImage'
-  asset?: SanityImageAssetReference
-  media?: unknown
-  hotspot?: SanityImageHotspot
-  crop?: SanityImageCrop
-  isAudiencePhoto?: boolean
-  caption?: string
-  credit?: string
+export type SiteSettings = {
+  _id: string
+  _type: 'siteSettings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  homepageCarousel?: Array<
+    | ({
+        _key: string
+      } & WorkReference)
+    | ({
+        _key: string
+      } & ExhibitionReference)
+  >
 }
 
 export type SanityAssistInstructionTask = {
@@ -626,12 +643,13 @@ export type AllSanitySchemaTypes =
   | ExhibitionReference
   | CvEntry
   | WorkReference
-  | Exhibition
-  | Slug
   | Ephemera
+  | Slug
   | SanityImageAssetReference
   | EphemeraReference
   | Work
+  | MediaImage
+  | Exhibition
   | SanityImageCrop
   | SanityImageHotspot
   | MediaVideoLink
@@ -640,7 +658,7 @@ export type AllSanitySchemaTypes =
   | Vimeo
   | SanityFileAssetReference
   | MediaVideoFile
-  | MediaImage
+  | SiteSettings
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations

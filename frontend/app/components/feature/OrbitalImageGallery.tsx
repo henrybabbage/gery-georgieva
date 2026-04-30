@@ -22,6 +22,8 @@ const PHASE_MAX_DT = 48 / 1000
 
 export interface OrbitalImageGalleryProps {
 	imageSrcs: readonly string[]
+	/** Stable React keys per slide; defaults to `imageSrcs` entries. */
+	slideKeys?: readonly string[]
 	/** Per-slide exhibition URLs; same order and length as `imageSrcs`. */
 	slideHrefs?: readonly (string | null)[]
 	/** Exhibition (or slide) titles; same order and length as `imageSrcs`. */
@@ -30,6 +32,7 @@ export interface OrbitalImageGalleryProps {
 
 export default function OrbitalImageGallery ({
 	imageSrcs,
+	slideKeys = [],
 	slideHrefs = [],
 	slideTitles = [],
 }: OrbitalImageGalleryProps) {
@@ -235,6 +238,7 @@ export default function OrbitalImageGallery ({
 			<div className={styles.stage}>
 				{imageSrcs.map((src, index) => {
 					const href = slideHrefs[index] ?? null
+					const slideKey = slideKeys[index] ?? src
 					const inner = (
 						<div className={styles.orbitInner}>
 							<Image
@@ -252,7 +256,7 @@ export default function OrbitalImageGallery ({
 					)
 					return (
 						<div
-							key={src}
+							key={slideKey}
 							className={styles.orbitItem}
 							data-orbit-item="true"
 						>

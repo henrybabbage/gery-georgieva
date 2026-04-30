@@ -32,6 +32,14 @@ export const exhibition = defineType({
         'When on, there is no live /exhibition/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
       initialValue: false,
     }),
+    defineField({
+      name: 'carouselImage',
+      title: 'Homepage carousel image',
+      type: 'mediaImage',
+      description:
+        'Image when this exhibition is added to the homepage carousel in Site Settings. ' +
+        'Optional if installation images include at least one still image.',
+    }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
       name: 'installationImages',
@@ -81,10 +89,14 @@ export const exhibition = defineType({
       title: 'title',
       venue: 'venue',
       year: 'year',
+      carouselImage: 'carouselImage',
       installationImages: 'installationImages',
     },
-    prepare({title, venue, year, installationImages}): PreviewValue {
-      const raw = installationImages?.[0]
+    prepare({title, venue, year, carouselImage, installationImages}): PreviewValue {
+      const raw =
+        carouselImage && typeof carouselImage === 'object' && '_type' in carouselImage
+          ? carouselImage
+          : installationImages?.[0]
       const media =
         raw && typeof raw === 'object' && '_type' in raw && raw._type === 'mediaImage'
           ? (raw as Image)

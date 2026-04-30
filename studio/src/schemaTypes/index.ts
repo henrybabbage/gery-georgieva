@@ -6,7 +6,10 @@ import {ephemera} from './documents/ephemera'
 import {exhibition} from './documents/exhibition'
 import {cvEntry} from './documents/cvEntry'
 
+import {siteSettings} from './documents/siteSettings'
+
 export const schemaTypes = [
+  siteSettings,
   mediaImage,
   mediaVideoFile,
   mediaVideoLink,

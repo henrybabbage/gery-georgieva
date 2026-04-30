@@ -43,9 +43,20 @@ export const work = defineType({
       options: {layout: 'grid'},
     }),
     defineField({
-      name: 'isFeature',
-      title: 'Featured',
-      type: 'boolean',
+      name: 'exhibition',
+      title: 'Primary exhibition',
+      type: 'reference',
+      to: [{type: 'exhibition'}],
+      description:
+        'Used when this work is added to the homepage carousel in Site Settings: the slide ' +
+        'links here. Also used for “Exhibited in” on the work page when set.',
+    }),
+    defineField({
+      name: 'carouselImage',
+      title: 'Homepage carousel image',
+      type: 'mediaImage',
+      description:
+        'Image for this work on the homepage carousel (optional if cover image is enough).',
     }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),

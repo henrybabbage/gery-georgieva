@@ -1,21 +1,13 @@
 import FeatureShowcase from '@/app/feature/FeatureShowcase'
+import {buildHomepageCarouselSlides} from '@/sanity/lib/homepage-carousel'
 import {sanityFetch} from '@/sanity/lib/live'
-import {featureExhibitionListQuery} from '@/sanity/lib/queries'
-
-const FEATURE_GALLERY_IMAGE_SRCS = Array.from(
-	{length: 10},
-	(_, index) => `/images/gery-georgieva-${index + 1}.webp`,
-) as readonly string[]
+import {homepageCarouselQuery} from '@/sanity/lib/queries'
 
 export default async function Page () {
-	const {data: exhibitions} = await sanityFetch({
-		query: featureExhibitionListQuery,
+	const {data} = await sanityFetch({
+		query: homepageCarouselQuery,
 	})
+	const slides = buildHomepageCarouselSlides(data)
 
-	return (
-		<FeatureShowcase
-			imageSrcs={FEATURE_GALLERY_IMAGE_SRCS}
-			exhibitions={exhibitions}
-		/>
-	)
+	return <FeatureShowcase slides={slides} />
 }
