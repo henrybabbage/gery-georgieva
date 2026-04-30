@@ -9,7 +9,11 @@ const galleryUnionFields = /* groq */ `
   _type,
   crop,
   hotspot,
-  "asset": asset->,
+  "asset": asset-> {
+    ...,
+    imageType,
+    sizeOverride
+  },
   isAudiencePhoto,
   caption,
   credit,
@@ -43,7 +47,14 @@ const workCardFields = /* groq */ `
   "slug": slug.current,
   year,
   medium,
-  coverImage { ..., asset-> }
+  coverImage {
+    ...,
+    "asset": asset-> {
+      ...,
+      imageType,
+      sizeOverride
+    }
+  }
 `
 
 // ---------------------------------------------------------------------------
@@ -58,8 +69,22 @@ export const streamQuery = defineQuery(`
     title,
     "slug": slug.current,
     year,
-    coverImage { ..., asset-> },
-    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }
+    coverImage {
+      ...,
+      "asset": asset-> {
+        ...,
+        imageType,
+        sizeOverride
+      }
+    },
+    "firstImage": images[_type == "mediaImage"][0] {
+      ...,
+      "asset": asset-> {
+        ...,
+        imageType,
+        sizeOverride
+      }
+    }
   }
 `)
 
@@ -87,14 +112,28 @@ export const workQuery = defineQuery(`
     medium,
     dimensions,
     description,
-    coverImage { ..., asset-> },
+    coverImage {
+      ...,
+      "asset": asset-> {
+        ...,
+        imageType,
+        sizeOverride
+      }
+    },
     gallery[] { ${galleryUnionFields} },
     relatedEphemera[]-> {
       _id,
       title,
       "slug": slug.current,
       category,
-      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }
+      "firstImage": images[_type == "mediaImage"][0] {
+        ...,
+        "asset": asset-> {
+          ...,
+          imageType,
+          sizeOverride
+        }
+      }
     },
     tags,
     "exhibitions": *[_type == "exhibition" && references(^._id)] {

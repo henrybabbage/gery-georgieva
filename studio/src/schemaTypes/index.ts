@@ -5,6 +5,7 @@ import {work} from './documents/work'
 import {ephemera} from './documents/ephemera'
 import {exhibition} from './documents/exhibition'
 import {cvEntry} from './documents/cvEntry'
+import {sanityImageAsset} from './documents/sanityImageAsset'
 
 export const schemaTypes = [
   mediaImage,
@@ -14,4 +15,5 @@ export const schemaTypes = [
   ephemera,
   exhibition,
   cvEntry,
+  sanityImageAsset,
 ]
