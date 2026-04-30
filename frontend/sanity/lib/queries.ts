@@ -147,6 +147,18 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }
 `)
 
+export const featureExhibitionListQuery = defineQuery(`
+  *[_type == "exhibition" && defined(slug.current)]
+  | order(orderRank asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    venue,
+    location
+  }
+`)
+
 // ---------------------------------------------------------------------------
 // Ephemera detail
 // ---------------------------------------------------------------------------

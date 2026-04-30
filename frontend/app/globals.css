@@ -1,6 +1,36 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
+@font-face {
+  font-family: Maxisud;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('/fonts/Maxisud/for-maxisudunlicensedtrial-regular.otf')
+    format('opentype');
+}
+
+@font-face {
+  font-family: Maxisud;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src:
+    url('/fonts/Maxisud/for-maxisudunlicensedtrial-medium.otf')
+    format('opentype');
+}
+
+@font-face {
+  font-family: Maxisud;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url('/fonts/Maxisud/for-maxisudunlicensedtrial-bold.otf')
+    format('opentype');
+}
+
 @theme {
   --color-paper: #f4f3ef;
   --color-ink: #1c1b18;
@@ -8,7 +38,7 @@
   --color-hairline: #deded9;
 
   --font-sans: 'Inter', system-ui, sans-serif;
-
+  --font-maxisud: Maxisud, ui-sans-serif, system-ui, sans-serif;
   --default-transition-duration: 300ms;
 }
 
