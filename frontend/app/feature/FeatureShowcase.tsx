@@ -35,6 +35,17 @@ export default function FeatureShowcase ({
 		[imageSrcs, exhibitions],
 	)
 
+	const slideHrefs = useMemo(
+		() =>
+			imageSrcs.map((_, i) => {
+				const slug = exhibitions?.[i]?.slug
+				return typeof slug === 'string' && slug.length > 0
+					? `/exhibition/${slug}`
+					: null
+			}),
+		[imageSrcs, exhibitions],
+	)
+
 	useEffect(() => {
 		const html = document.documentElement
 		const body = document.body
@@ -62,6 +73,7 @@ export default function FeatureShowcase ({
 				<div className="absolute inset-0">
 					<OrbitalImageGallery
 						imageSrcs={imageSrcs}
+						slideHrefs={slideHrefs}
 						slideTitles={slideTitles}
 					/>
 				</div>

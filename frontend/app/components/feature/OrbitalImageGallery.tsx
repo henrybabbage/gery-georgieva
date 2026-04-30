@@ -2,6 +2,7 @@
 
 import {gsap} from '@/lib/gsap'
 import Image from 'next/image'
+import Link from 'next/link'
 import {useEffect, useRef} from 'react'
 
 import styles from './orbital-image-gallery.module.css'
@@ -15,12 +16,15 @@ const TOUCH_RAD_PER_PX = 0.008
 
 export interface OrbitalImageGalleryProps {
 	imageSrcs: readonly string[]
+	/** Per-slide exhibition URLs; same order and length as `imageSrcs`. */
+	slideHrefs?: readonly (string | null)[]
 	/** Exhibition (or slide) titles; same order and length as `imageSrcs`. */
 	slideTitles?: readonly string[]
 }
 
 export default function OrbitalImageGallery ({
 	imageSrcs,
+	slideHrefs = [],
 	slideTitles = [],
 }: OrbitalImageGalleryProps) {
 	const viewportRef = useRef<HTMLDivElement>(null)
@@ -177,12 +181,9 @@ export default function OrbitalImageGallery ({
 			tabIndex={0}
 		>
 			<div className={styles.stage}>
-				{imageSrcs.map((src, index) => (
-					<div
-						key={src}
-						className={styles.orbitItem}
-						data-orbit-item="true"
-					>
+				{imageSrcs.map((src, index) => {
+					const href = slideHrefs[index] ?? null
+					const inner = (
 						<div className={styles.orbitInner}>
 							<Image
 								src={src}
@@ -196,8 +197,26 @@ export default function OrbitalImageGallery ({
 								priority={index === 0}
 							/>
 						</div>
-					</div>
-				))}
+					)
+					return (
+						<div
+							key={src}
+							className={styles.orbitItem}
+							data-orbit-item="true"
+						>
+							{href ? (
+								<Link
+									className={styles.orbitLink}
+									href={href}
+								>
+									{inner}
+								</Link>
+							) : (
+								inner
+							)}
+						</div>
+					)
+				})}
 			</div>
 			<p
 				ref={captionRef}
