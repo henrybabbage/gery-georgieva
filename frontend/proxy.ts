@@ -21,8 +21,19 @@ function hostMatchesProduction (hostname: string): boolean {
 	return false
 }
 
+function isHoldAllowedForThisDeployment (): boolean {
+	const vercelEnv = process.env.VERCEL_ENV
+	if (vercelEnv !== undefined && vercelEnv !== 'production') {
+		return false
+	}
+	return true
+}
+
 function shouldHoldForRequest (request: NextRequest): boolean {
 	if (process.env.HOLD_SITE !== 'true') {
+		return false
+	}
+	if (!isHoldAllowedForThisDeployment()) {
 		return false
 	}
 	return hostMatchesProduction(request.nextUrl.hostname)
