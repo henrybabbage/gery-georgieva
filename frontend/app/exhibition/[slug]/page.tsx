@@ -5,6 +5,7 @@ import {stegaClean} from '@sanity/client/stega'
 import {sanityFetch} from '@/sanity/lib/live'
 import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
 import type {Metadata} from 'next'
+import type {ExhibitionQueryResult} from '@/sanity.types'
 
 type Props = {params: Promise<{slug: string}>}
 
@@ -31,10 +32,11 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 export default async function ExhibitionPage({params}: Props) {
   const {slug} = await params
   const {isEnabled: allowHidden} = await draftMode()
-  const {data: exhibition} = await sanityFetch({
+  const {data} = await sanityFetch({
     query: exhibitionQuery,
     params: {slug, allowHidden},
   })
+  const exhibition = data as ExhibitionQueryResult
 
   if (!exhibition) notFound()
 
