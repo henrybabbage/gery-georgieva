@@ -667,7 +667,7 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: streamQuery
-// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(orderRank asc) {    _id,    _type,    title,    "slug": slug.current,    year,    coverImage { ..., asset-> },    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }  }
+// Query: *[_type in ["work", "ephemera"] && defined(slug.current)]  | order(orderRank asc) {    _id,    _type,    title,    "slug": slug.current,    year,    coverImage {      ...,      "asset": asset-> {        ...,        imageType,        sizeOverride      }    },    "firstImage": images[_type == "mediaImage"][0] {      ...,      "asset": asset-> {        ...,        imageType,        sizeOverride      }    }  }
 export type StreamQueryResult = Array<
   | {
       _id: string
@@ -700,6 +700,8 @@ export type StreamQueryResult = Array<
           url: string
           metadata?: SanityImageMetadata
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         media?: unknown
         hotspot?: SanityImageHotspot
@@ -737,6 +739,8 @@ export type StreamQueryResult = Array<
           url: string
           metadata?: SanityImageMetadata
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         media?: unknown
         hotspot?: SanityImageHotspot
@@ -749,7 +753,7 @@ export type StreamQueryResult = Array<
 
 // Source: sanity/lib/queries.ts
 // Variable: archiveQuery
-// Query: *[_type == "work" && defined(slug.current) && year < 2015]  | order(orderRank asc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage { ..., asset-> }  }
+// Query: *[_type == "work" && defined(slug.current) && year < 2015]  | order(orderRank asc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage {    ...,    "asset": asset-> {      ...,      imageType,      sizeOverride    }  }  }
 export type ArchiveQueryResult = Array<{
   _id: string
   _type: 'work'
@@ -779,6 +783,8 @@ export type ArchiveQueryResult = Array<{
       url: string
       metadata?: SanityImageMetadata
       source?: SanityAssetSourceData
+      imageType: null
+      sizeOverride: null
     } | null
     media?: unknown
     hotspot?: SanityImageHotspot
@@ -789,7 +795,7 @@ export type ArchiveQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: workQuery
-// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    coverImage { ..., asset-> },    gallery[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location,      hidePublicPage    }  }
+// Query: *[_type == "work" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    coverImage {      ...,      "asset": asset-> {        ...,        imageType,        sizeOverride      }    },    gallery[] {   _key,  _type,  crop,  hotspot,  "asset": asset-> {    ...,    imageType,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[_type == "mediaImage"][0] {        ...,        "asset": asset-> {          ...,          imageType,          sizeOverride        }      }    },    tags,    "exhibitions": *[_type == "exhibition" && references(^._id)] {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type WorkQueryResult = {
   _id: string
   title: string
@@ -837,6 +843,8 @@ export type WorkQueryResult = {
       url: string
       metadata?: SanityImageMetadata
       source?: SanityAssetSourceData
+      imageType: null
+      sizeOverride: null
     } | null
     media?: unknown
     hotspot?: SanityImageHotspot
@@ -870,6 +878,8 @@ export type WorkQueryResult = {
           url: string
           metadata?: SanityImageMetadata
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: boolean | null
         caption: string | null
@@ -903,6 +913,8 @@ export type WorkQueryResult = {
           path: string
           url: string
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: null
         caption: string | null
@@ -1002,6 +1014,8 @@ export type WorkQueryResult = {
         url: string
         metadata?: SanityImageMetadata
         source?: SanityAssetSourceData
+        imageType: null
+        sizeOverride: null
       } | null
       media?: unknown
       hotspot?: SanityImageHotspot
@@ -1032,7 +1046,7 @@ export type WorkSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: exhibitionQuery
-// Query: *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage { ..., asset-> }    },    installationImages[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
+// Query: *[_type == "exhibition" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    externalDocumentationLink,    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  coverImage {    ...,    "asset": asset-> {      ...,      imageType,      sizeOverride    }  }    },    installationImages[] {   _key,  _type,  crop,  hotspot,  "asset": asset-> {    ...,    imageType,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year    }  }
 export type ExhibitionQueryResult = {
   _id: string
   title: string
@@ -1091,6 +1105,8 @@ export type ExhibitionQueryResult = {
         url: string
         metadata?: SanityImageMetadata
         source?: SanityAssetSourceData
+        imageType: null
+        sizeOverride: null
       } | null
       media?: unknown
       hotspot?: SanityImageHotspot
@@ -1125,6 +1141,8 @@ export type ExhibitionQueryResult = {
           url: string
           metadata?: SanityImageMetadata
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: boolean | null
         caption: string | null
@@ -1158,6 +1176,8 @@ export type ExhibitionQueryResult = {
           path: string
           url: string
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: null
         caption: string | null
@@ -1259,7 +1279,7 @@ export type FeatureExhibitionListQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: ephemeraQuery
-// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location,      hidePublicPage    }  }
+// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  "asset": asset-> {    ...,    imageType,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type EphemeraQueryResult = {
   _id: string
   title: string
@@ -1318,6 +1338,8 @@ export type EphemeraQueryResult = {
           url: string
           metadata?: SanityImageMetadata
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: boolean | null
         caption: string | null
@@ -1351,6 +1373,8 @@ export type EphemeraQueryResult = {
           path: string
           url: string
           source?: SanityAssetSourceData
+          imageType: null
+          sizeOverride: null
         } | null
         isAudiencePhoto: null
         caption: string | null
@@ -1473,14 +1497,14 @@ export type CvQueryResult = Array<{
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage { ..., asset-> },\n    "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }\n  }\n': StreamQueryResult
-    '\n  *[_type == "work" && defined(slug.current) && year < 2015]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n  }\n': ArchiveQueryResult
-    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    coverImage { ..., asset-> },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] { ..., asset-> }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': WorkQueryResult
+    '\n  *[_type in ["work", "ephemera"] && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage {\n      ...,\n      "asset": asset-> {\n        ...,\n        imageType,\n        sizeOverride\n      }\n    },\n    "firstImage": images[_type == "mediaImage"][0] {\n      ...,\n      "asset": asset-> {\n        ...,\n        imageType,\n        sizeOverride\n      }\n    }\n  }\n': StreamQueryResult
+    '\n  *[_type == "work" && defined(slug.current) && year < 2015]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage {\n    ...,\n    "asset": asset-> {\n      ...,\n      imageType,\n      sizeOverride\n    }\n  }\n\n  }\n': ArchiveQueryResult
+    '\n  *[_type == "work" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    coverImage {\n      ...,\n      "asset": asset-> {\n        ...,\n        imageType,\n        sizeOverride\n      }\n    },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset-> {\n    ...,\n    imageType,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] {\n        ...,\n        "asset": asset-> {\n          ...,\n          imageType,\n          sizeOverride\n        }\n      }\n    },\n    tags,\n    "exhibitions": *[_type == "exhibition" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': WorkQueryResult
     '\n  *[_type == "work" && defined(slug.current)] { "slug": slug.current }\n': WorkSlugQueryResult
-    '\n  *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
-    '\n  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }\n': ExhibitionSlugQueryResult
-    '\n  *[_type == "exhibition" && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    hidePublicPage\n  }\n': FeatureExhibitionListQueryResult
-    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': EphemeraQueryResult
+    '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage {\n    ...,\n    "asset": asset-> {\n      ...,\n      imageType,\n      sizeOverride\n    }\n  }\n\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset-> {\n    ...,\n    imageType,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
+    '\n  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }\n': ExhibitionSlugQueryResult
+    '\n  *[_type == "exhibition" && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location\n  }\n': FeatureExhibitionListQueryResult
+    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset-> {\n    ...,\n    imageType,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '\n  *[_type == "cvEntry"] | order(orderRank asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current,\n      hidePublicPage\n    }\n  }\n': CvQueryResult
   }
