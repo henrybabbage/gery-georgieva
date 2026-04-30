@@ -30,18 +30,18 @@ export default async function ExhibitionPage({params}: Props) {
 
   return (
     <div className="px-5 py-8 max-w-3xl">
-      <p className="text-xs opacity-50 mb-6">
+      <p className="text-base opacity-50 mb-6">
         <Link href="/">← Work</Link>
       </p>
 
-      <h1 className="text-lg font-normal mb-1">{exhibition.title}</h1>
-      <p className="text-sm opacity-50 mb-1">
+      <h1 className="text-base font-normal mb-1">{exhibition.title}</h1>
+      <p className="text-base opacity-50 mb-1">
         {[exhibition.exhibitionType, exhibition.venue, exhibition.location, exhibition.year]
           .filter(Boolean)
           .join(', ')}
       </p>
       {exhibition.startDate && (
-        <p className="text-sm opacity-40 mb-6">
+        <p className="text-base opacity-40 mb-6">
           {exhibition.startDate}
           {exhibition.endDate && ` — ${exhibition.endDate}`}
         </p>
@@ -57,7 +57,7 @@ export default async function ExhibitionPage({params}: Props) {
             return (
               <div
                 key={item._key ?? i}
-                className={`bg-[#e8e7e3] aspect-video ${isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
+                className={`bg-placeholder aspect-video ${isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''}`}
               />
             )
           })}
@@ -67,10 +67,10 @@ export default async function ExhibitionPage({params}: Props) {
       {/* Works in this exhibition */}
       {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
         <section>
-          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Works</h2>
+          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Works</h2>
           <ul className="space-y-1">
             {exhibition.relatedWorks.map((work) => (
-              <li key={work._id} className="text-sm">
+              <li key={work._id} className="text-base">
                 <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
                   {work.title}
                 </Link>
@@ -84,10 +84,10 @@ export default async function ExhibitionPage({params}: Props) {
 
       {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
         <section className="mt-6">
-          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Research & ephemera</h2>
+          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Research & ephemera</h2>
           <ul className="space-y-1">
             {exhibition.relatedEphemera.map((ep) => (
-              <li key={ep._id} className="text-sm">
+              <li key={ep._id} className="text-base">
                 <Link href={`/ephemera/${ep.slug}`} className="underline underline-offset-2">
                   {ep.title}
                 </Link>
@@ -100,7 +100,7 @@ export default async function ExhibitionPage({params}: Props) {
       )}
 
       {exhibition.externalDocumentationLink && (
-        <p className="mt-6 text-sm">
+        <p className="mt-6 text-base">
           <a
             href={exhibition.externalDocumentationLink}
             target="_blank"

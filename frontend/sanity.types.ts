@@ -154,17 +154,6 @@ export type Ephemera = {
         _key: string
       } & MediaVideoLink)
   >
-  media?: Array<
-    | ({
-        _key: string
-      } & MediaImage)
-    | ({
-        _key: string
-      } & MediaVideoFile)
-    | ({
-        _key: string
-      } & MediaVideoLink)
-  >
   relatedWork?: Array<
     {
       _key: string
@@ -223,7 +212,6 @@ export type Work = {
   medium?: string
   dimensions?: string
   duration?: string
-  videoUrl?: string
   description?: Array<{
     children?: Array<{
       marks?: Array<string>
@@ -1255,6 +1243,18 @@ export type ExhibitionSlugQueryResult = Array<{
 }>
 
 // Source: sanity/lib/queries.ts
+// Variable: featureExhibitionListQuery
+// Query: *[_type == "exhibition" && defined(slug.current)]  | order(orderRank asc) {    _id,    title,    "slug": slug.current,    year,    venue,    location  }
+export type FeatureExhibitionListQueryResult = Array<{
+  _id: string
+  title: string
+  slug: string
+  year: number | null
+  venue: string | null
+  location: string | null
+}>
+
+// Source: sanity/lib/queries.ts
 // Variable: ephemeraQuery
 // Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  "asset": asset->,  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location    }  }
 export type EphemeraQueryResult = {
@@ -1474,6 +1474,7 @@ declare module '@sanity/client' {
     '\n  *[_type == "work" && defined(slug.current)] { "slug": slug.current }\n': WorkSlugQueryResult
     '\n  *[_type == "exhibition" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    externalDocumentationLink,\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  coverImage { ..., asset-> }\n\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year\n    }\n  }\n': ExhibitionQueryResult
     '\n  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }\n': ExhibitionSlugQueryResult
+    '\n  *[_type == "exhibition" && defined(slug.current)]\n  | order(orderRank asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location\n  }\n': FeatureExhibitionListQueryResult
     '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset->,\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '\n  *[_type == "cvEntry"] | order(orderRank asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current\n    }\n  }\n': CvQueryResult
