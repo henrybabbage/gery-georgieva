@@ -10,7 +10,7 @@ export default function SiteNav () {
 
 	return (
 		<nav
-			className={`fixed left-0 right-0 top-0 z-50 flex justify-between px-5 py-4 text-sm ${
+			className={`fixed left-0 right-0 top-0 z-50 flex justify-between px-5 py-4 text-base ${
 				isFeatureSurface ? 'bg-[#fafaf8]' : 'bg-paper'
 			}`}
 		>

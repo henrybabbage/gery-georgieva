@@ -10,11 +10,11 @@ export default async function ArchivePage() {
 
   return (
     <div className="px-5 py-8">
-      <h1 className="text-sm font-normal opacity-50 mb-6">Archive — pre-2015</h1>
+      <h1 className="text-base font-normal opacity-50 mb-6">Archive — pre-2015</h1>
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {works?.map((work: {_id: string; slug: string; title: string; year?: number}) => (
           <li key={work._id}>
-            <Link href={`/work/${work.slug}`} className="block text-sm">
+            <Link href={`/work/${work.slug}`} className="block text-base">
               <div className="aspect-[4/3] bg-[#e8e7e3] mb-1" />
               <span>{work.title}</span>
               {work.year && <span className="ml-2 opacity-50">{work.year}</span>}
@@ -22,7 +22,7 @@ export default async function ArchivePage() {
           </li>
         ))}
         {!works?.length && (
-          <li className="col-span-full text-sm opacity-40">No archived works yet.</li>
+          <li className="col-span-full text-base opacity-40">No archived works yet.</li>
         )}
       </ul>
     </div>

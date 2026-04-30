@@ -12,7 +12,7 @@ export default async function Page() {
           <li key={item._id}>
             <Link
               href={item._type === 'work' ? `/work/${item.slug}` : `/ephemera/${item.slug}`}
-              className="block text-sm"
+              className="block text-base"
             >
               <div className="aspect-[4/3] bg-[#e8e7e3] mb-1" />
               <span>{item.title}</span>

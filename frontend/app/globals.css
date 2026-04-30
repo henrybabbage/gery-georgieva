@@ -44,6 +44,7 @@
 
 @layer base {
   html {
+    font-size: 100%;
     background-color: var(--color-paper);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
@@ -53,6 +54,37 @@
   ::selection {
     background: var(--color-ink);
     color: var(--color-paper);
+  }
+}
+
+@layer components {
+  .prose-uniform {
+    font-size: 1rem;
+    line-height: 1.625;
+  }
+
+  .prose-uniform :where(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    li,
+    td,
+    th,
+    blockquote,
+    figcaption,
+    dt,
+    dd,
+    small,
+    code,
+    pre,
+    kbd,
+    samp
+  ) {
+    font-size: inherit;
   }
 }
 

@@ -51,13 +51,13 @@ export default function StreamGrid({items}: {items: GridItem[]}) {
               <TileImage image={img} title={item.title} />
             ) : (
               <div className="aspect-[4/3] bg-[#e8e7e3] flex items-end p-3">
-                <span className="text-xs text-[#8a8880]">{item.title}</span>
+                <span className="text-base text-[#8a8880]">{item.title}</span>
               </div>
             )}
             <div className="px-1 pt-2 pb-4">
-              <p className="text-xs text-[#1c1b18] leading-snug">{item.title}</p>
+              <p className="text-base text-[#1c1b18] leading-snug">{item.title}</p>
               {item.year && (
-                <p className="text-xs text-[#8a8880]">{item.year}</p>
+                <p className="text-base text-[#8a8880]">{item.year}</p>
               )}
             </div>
           </Link>

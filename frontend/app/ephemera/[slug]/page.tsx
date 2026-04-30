@@ -31,30 +31,30 @@ export default async function EphemeraPage({params}: Props) {
 
   return (
     <div className="px-5 py-8 max-w-2xl">
-      <p className="text-xs opacity-50 mb-6">
+      <p className="text-base opacity-50 mb-6">
         <Link href="/">← Work</Link>
       </p>
 
-      <h1 className="text-lg font-normal mb-1">{item.title}</h1>
+      <h1 className="text-base font-normal mb-1">{item.title}</h1>
       {(item.category || item.year) && (
-        <p className="text-sm opacity-50 mb-6">
+        <p className="text-base opacity-50 mb-6">
           {[item.category, item.year].filter(Boolean).join(', ')}
         </p>
       )}
 
       {item.description && item.description.length > 0 && (
         <CustomPortableText
-          className="text-sm mb-8"
+          className="text-base mb-8"
           value={item.description as PortableTextBlock[]}
         />
       )}
 
       {item.relatedWork && item.relatedWork.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Works</h2>
+          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Works</h2>
           <ul className="space-y-1">
             {item.relatedWork.map((work) => (
-              <li key={work._id} className="text-sm">
+              <li key={work._id} className="text-base">
                 <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
                   {work.title}
                 </Link>
@@ -68,10 +68,10 @@ export default async function EphemeraPage({params}: Props) {
 
       {item.relatedExhibitions && item.relatedExhibitions.length > 0 && (
         <section>
-          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-2">Exhibitions</h2>
+          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Exhibitions</h2>
           <ul className="space-y-1">
             {item.relatedExhibitions.map((ex) => (
-              <li key={ex._id} className="text-sm">
+              <li key={ex._id} className="text-base">
                 <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
                   {ex.title}
                 </Link>

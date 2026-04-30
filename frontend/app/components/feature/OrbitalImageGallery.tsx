@@ -15,12 +15,16 @@ const TOUCH_RAD_PER_PX = 0.008
 
 export interface OrbitalImageGalleryProps {
 	imageSrcs: readonly string[]
+	/** Exhibition (or slide) titles; same order and length as `imageSrcs`. */
+	slideTitles?: readonly string[]
 }
 
 export default function OrbitalImageGallery ({
 	imageSrcs,
+	slideTitles = [],
 }: OrbitalImageGalleryProps) {
 	const viewportRef = useRef<HTMLDivElement>(null)
+	const captionRef = useRef<HTMLParagraphElement>(null)
 	const phaseRef = useRef(0)
 
 	useEffect(() => {
@@ -29,6 +33,10 @@ export default function OrbitalImageGallery ({
 		if (!viewport || n === 0) return
 
 		const viewportEl = viewport
+		const titles = imageSrcs.map((_, i) => {
+			const t = slideTitles[i]
+			return typeof t === 'string' ? t : ''
+		})
 
 		const prefersReduced =
 			typeof window !== 'undefined' &&
@@ -39,7 +47,15 @@ export default function OrbitalImageGallery ({
 
 		function radiusPx () {
 			const r = viewportEl.getBoundingClientRect()
-			return Math.min(r.width, r.height) * 0.38
+			return Math.min(r.width, r.height) * 0.56
+		}
+
+		function updateCenterTitle (frontIndex: number) {
+			const cap = captionRef.current
+			if (!cap) return
+			const label = titles[frontIndex] ?? ''
+			cap.textContent = label
+			cap.toggleAttribute('aria-hidden', label.length === 0)
 		}
 
 		function applyPhase (phase: number) {
@@ -47,11 +63,17 @@ export default function OrbitalImageGallery ({
 				'[data-orbit-item="true"]',
 			)
 			const R = radiusPx()
+			let frontIndex = 0
+			let bestCz = -Infinity
 			items.forEach((el, i) => {
 				const theta = phase + (TAU * i) / n
+				const cz = Math.cos(theta)
+				if (cz > bestCz) {
+					bestCz = cz
+					frontIndex = i
+				}
 				const y = Math.sin(theta) * R
 				const z = Math.cos(theta) * R
-				const cz = Math.cos(theta)
 				gsap.set(el, {
 					xPercent: -50,
 					yPercent: -50,
@@ -63,6 +85,7 @@ export default function OrbitalImageGallery ({
 					opacity: 0.22 + 0.78 * Math.max(0, cz),
 				})
 			})
+			updateCenterTitle(frontIndex)
 		}
 
 		function layStaticSpread () {
@@ -70,11 +93,17 @@ export default function OrbitalImageGallery ({
 				'[data-orbit-item="true"]',
 			)
 			const R = radiusPx()
+			let frontIndex = 0
+			let bestCz = -Infinity
 			items.forEach((el, i) => {
 				const theta = (TAU * i) / n
-				const y = Math.sin(theta) * R * 0.82
-				const z = Math.cos(theta) * R * 0.82
 				const cz = Math.cos(theta)
+				if (cz > bestCz) {
+					bestCz = cz
+					frontIndex = i
+				}
+				const y = Math.sin(theta) * R * 0.9
+				const z = Math.cos(theta) * R * 0.9
 				gsap.set(el, {
 					xPercent: -50,
 					yPercent: -50,
@@ -86,6 +115,7 @@ export default function OrbitalImageGallery ({
 					opacity: 0.35 + 0.65 * Math.max(0, cz),
 				})
 			})
+			updateCenterTitle(frontIndex)
 		}
 
 		if (prefersReduced) {
@@ -136,7 +166,7 @@ export default function OrbitalImageGallery ({
 			viewportEl.removeEventListener('touchmove', onTouchMove)
 			observer.disconnect()
 		}
-	}, [imageSrcs])
+	}, [imageSrcs, slideTitles])
 
 	return (
 		<div
@@ -156,7 +186,10 @@ export default function OrbitalImageGallery ({
 						<div className={styles.orbitInner}>
 							<Image
 								src={src}
-								alt={`Gery Georgieva, gallery image ${index + 1}`}
+								alt={
+									(slideTitles[index] ?? '').trim() ||
+									`Gery Georgieva, gallery image ${index + 1}`
+								}
 								fill
 								className="object-contain"
 								sizes="(max-width: 1023px) min(72vw, 48vh), min(42vw, 52vh)"
@@ -166,6 +199,13 @@ export default function OrbitalImageGallery ({
 					</div>
 				))}
 			</div>
+			<p
+				ref={captionRef}
+				className={styles.activeTitle}
+				aria-live="polite"
+			>
+				{'\u00a0'}
+			</p>
 		</div>
 	)
 }

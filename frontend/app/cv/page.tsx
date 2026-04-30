@@ -34,16 +34,16 @@ export default async function CVPage() {
 
   return (
     <div className="px-5 py-8 max-w-2xl">
-      <h1 className="text-sm font-normal mb-8">Gery Georgieva — CV</h1>
+      <h1 className="text-base font-normal mb-8">Gery Georgieva — CV</h1>
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category} className="mb-8">
-          <h2 className="text-xs uppercase tracking-widest opacity-40 mb-3">
+          <h2 className="text-base uppercase tracking-widest opacity-40 mb-3">
             {category.charAt(0).toUpperCase() + category.slice(1)}s
           </h2>
           <ul className="space-y-2">
             {items.map((entry: Entry) => (
-              <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-sm">
+              <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-base">
                 <span className="opacity-50 tabular-nums">{entry.year}</span>
                 <span>
                   {entry.internalRef ? (
