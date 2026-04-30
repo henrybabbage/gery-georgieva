@@ -72,7 +72,6 @@ export type WorkCard = {
   slug: string
   year?: number
   medium?: string
-  coverImage?: SanityImageSource
   coverImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
 }
 
@@ -92,8 +91,6 @@ export type EphemeraCard = {
   slug: string
   year?: number
   category?: string
-  firstImage?: SanityImageSource
-  isFeature?: boolean
   firstImage?: SanityImageSource & {asset?: SanityImageAssetMetadata}
 }
 
