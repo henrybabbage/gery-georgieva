@@ -4,7 +4,7 @@ import 'lenis/dist/lenis.css'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
 import {Inter} from 'next/font/google'
-import {draftMode} from 'next/headers'
+import {draftMode, headers} from 'next/headers'
 import {VisualEditing} from 'next-sanity/visual-editing'
 import {Toaster} from 'sonner'
 
@@ -31,6 +31,17 @@ const inter = Inter({
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
+  const holdShell = (await headers()).get('x-hold-shell') === '1'
+
+  if (holdShell) {
+    return (
+      <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
+        <body className="min-h-screen text-base font-sans antialiased">
+          {children}
+        </body>
+      </html>
+    )
+  }
 
   return (
     <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
