@@ -3,6 +3,29 @@ import {NextResponse} from 'next/server'
 
 const HOLD_PATH = '/hold'
 
+function normalizeHostCandidate (value: string): string {
+	let host = value.trim().toLowerCase()
+	if (!host) {
+		return ''
+	}
+	for (const prefix of ['https://', 'http://']) {
+		if (host.startsWith(prefix)) {
+			host = host.slice(prefix.length)
+			break
+		}
+	}
+	const slashIndex = host.indexOf('/')
+	if (slashIndex !== -1) {
+		host = host.slice(0, slashIndex)
+	}
+	return host.split(':')[0] ?? ''
+}
+
+function isHoldSiteEnabled (): boolean {
+	const raw = process.env.HOLD_SITE?.trim().toLowerCase()
+	return raw === 'true' || raw === '1'
+}
+
 function hostMatchesProduction (hostname: string): boolean {
 	const raw = process.env.PRODUCTION_HOST?.trim()
 	if (!raw) {
@@ -11,7 +34,7 @@ function hostMatchesProduction (hostname: string): boolean {
 	const host = hostname.toLowerCase().split(':')[0]
 	const candidates = raw
 		.split(',')
-		.map((value) => value.trim().toLowerCase())
+		.map(normalizeHostCandidate)
 		.filter(Boolean)
 	for (const primary of candidates) {
 		if (host === primary || host === `www.${primary}`) {
@@ -30,7 +53,7 @@ function isHoldAllowedForThisDeployment (): boolean {
 }
 
 function shouldHoldForRequest (request: NextRequest): boolean {
-	if (process.env.HOLD_SITE !== 'true') {
+	if (!isHoldSiteEnabled()) {
 		return false
 	}
 	if (!isHoldAllowedForThisDeployment()) {
@@ -78,6 +101,7 @@ export function proxy (request: NextRequest) {
 
 export const config = {
 	matcher: [
+		'/',
 		'/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf)$).*)',
 	],
 }
