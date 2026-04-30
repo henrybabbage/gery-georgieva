@@ -1,5 +1,6 @@
 import {notFound} from 'next/navigation'
 import Link from 'next/link'
+import {draftMode} from 'next/headers'
 import {stegaClean} from '@sanity/client/stega'
 import {sanityFetch} from '@/sanity/lib/live'
 import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
@@ -18,13 +19,22 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {slug} = await params
-  const {data} = await sanityFetch({query: exhibitionQuery, params: {slug}, stega: false})
+  const {isEnabled: allowHidden} = await draftMode()
+  const {data} = await sanityFetch({
+    query: exhibitionQuery,
+    params: {slug, allowHidden},
+    stega: false,
+  })
   return {title: data?.title}
 }
 
 export default async function ExhibitionPage({params}: Props) {
   const {slug} = await params
-  const {data: exhibition} = await sanityFetch({query: exhibitionQuery, params: {slug}})
+  const {isEnabled: allowHidden} = await draftMode()
+  const {data: exhibition} = await sanityFetch({
+    query: exhibitionQuery,
+    params: {slug, allowHidden},
+  })
 
   if (!exhibition) notFound()
 

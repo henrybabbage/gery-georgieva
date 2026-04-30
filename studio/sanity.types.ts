@@ -65,6 +65,7 @@ export type Exhibition = {
   orderRank?: string
   title: string
   slug: Slug
+  hidePublicPage?: boolean
   year?: number
   installationImages?: Array<
     | ({

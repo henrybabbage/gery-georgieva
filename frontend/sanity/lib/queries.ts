@@ -103,7 +103,8 @@ export const workQuery = defineQuery(`
       "slug": slug.current,
       year,
       venue,
-      location
+      location,
+      hidePublicPage
     }
   }
 `)
@@ -117,7 +118,7 @@ export const workSlugQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const exhibitionQuery = defineQuery(`
-  *[_type == "exhibition" && slug.current == $slug][0] {
+  *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {
     _id,
     title,
     "slug": slug.current,
@@ -144,7 +145,7 @@ export const exhibitionQuery = defineQuery(`
 `)
 
 export const exhibitionSlugQuery = defineQuery(`
-  *[_type == "exhibition" && defined(slug.current)] { "slug": slug.current }
+  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
 export const featureExhibitionListQuery = defineQuery(`
@@ -155,7 +156,8 @@ export const featureExhibitionListQuery = defineQuery(`
     "slug": slug.current,
     year,
     venue,
-    location
+    location,
+    hidePublicPage
   }
 `)
 
@@ -185,7 +187,8 @@ export const ephemeraQuery = defineQuery(`
       "slug": slug.current,
       year,
       venue,
-      location
+      location,
+      hidePublicPage
     }
   }
 `)
@@ -211,7 +214,8 @@ export const cvQuery = defineQuery(`
     internalRef-> {
       _id,
       title,
-      "slug": slug.current
+      "slug": slug.current,
+      hidePublicPage
     }
   }
 `)

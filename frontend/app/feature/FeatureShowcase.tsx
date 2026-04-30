@@ -12,6 +12,7 @@ export interface FeatureExhibitionRow {
 	year?: number | null
 	venue?: string | null
 	location?: string | null
+	hidePublicPage?: boolean | null
 }
 
 export interface FeatureShowcaseProps {
@@ -38,10 +39,17 @@ export default function FeatureShowcase ({
 	const slideHrefs = useMemo(
 		() =>
 			imageSrcs.map((_, i) => {
-				const slug = exhibitions?.[i]?.slug
-				return typeof slug === 'string' && slug.length > 0
-					? `/exhibition/${slug}`
-					: null
+				const row = exhibitions?.[i]
+				const slug = row?.slug
+				const hidden = row?.hidePublicPage === true
+				if (
+					hidden ||
+					typeof slug !== 'string' ||
+					slug.length === 0
+				) {
+					return null
+				}
+				return `/exhibition/${slug}`
 			}),
 		[imageSrcs, exhibitions],
 	)

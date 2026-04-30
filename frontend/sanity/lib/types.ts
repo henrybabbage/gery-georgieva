@@ -94,6 +94,7 @@ export type ExhibitionCard = {
   year?: number
   venue?: string
   location?: string
+  hidePublicPage?: boolean | null
 }
 
 export type ExhibitionDetail = ExhibitionCard & {
@@ -130,6 +131,7 @@ export type EphemeraDetail = {
     year?: number
     venue?: string
     location?: string
+    hidePublicPage?: boolean | null
   }[]
 }
 
@@ -142,7 +144,12 @@ export type CvEntry = {
   institution?: string
   location?: string
   description?: string
-  internalRef?: {_id: string; title: string; slug: string}
+  internalRef?: {
+    _id: string
+    title: string
+    slug: string
+    hidePublicPage?: boolean | null
+  }
 }
 
 export type StreamItem = (WorkCard | EphemeraCard) & {

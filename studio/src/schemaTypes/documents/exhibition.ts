@@ -24,6 +24,14 @@ export const exhibition = defineType({
       options: {source: 'title'},
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: 'hidePublicPage',
+      title: 'Hide public page',
+      type: 'boolean',
+      description:
+        'When on, there is no live /exhibition/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
+      initialValue: false,
+    }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
       name: 'installationImages',

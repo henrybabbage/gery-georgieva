@@ -46,7 +46,8 @@ export default async function CVPage() {
               <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-base">
                 <span className="opacity-50 tabular-nums">{entry.year}</span>
                 <span>
-                  {entry.internalRef ? (
+                  {entry.internalRef &&
+                  entry.internalRef.hidePublicPage !== true ? (
                     <Link
                       href={`/exhibition/${entry.internalRef.slug}`}
                       className="underline underline-offset-2"

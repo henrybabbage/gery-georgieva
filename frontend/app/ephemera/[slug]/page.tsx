@@ -72,9 +72,16 @@ export default async function EphemeraPage({params}: Props) {
           <ul className="space-y-1">
             {item.relatedExhibitions.map((ex) => (
               <li key={ex._id} className="text-base">
-                <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
-                  {ex.title}
-                </Link>
+                {ex.hidePublicPage === true ? (
+                  <span>{ex.title}</span>
+                ) : (
+                  <Link
+                    href={`/exhibition/${ex.slug}`}
+                    className="underline underline-offset-2"
+                  >
+                    {ex.title}
+                  </Link>
+                )}
                 {ex.venue && <span className="opacity-50 ml-2">{ex.venue}</span>}
                 {ex.location && <span className="opacity-50 ml-2">{ex.location}</span>}
                 {ex.year && <span className="opacity-50 ml-2">{ex.year}</span>}

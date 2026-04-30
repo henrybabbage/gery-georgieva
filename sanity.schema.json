@@ -259,6 +259,13 @@
         },
         "optional": false
       },
+      "hidePublicPage": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "year": {
         "type": "objectAttribute",
         "value": {
