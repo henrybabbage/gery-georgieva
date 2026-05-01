@@ -8,6 +8,7 @@ import {cvEntry} from './documents/cvEntry'
 import {sanityImageAsset} from './documents/sanityImageAsset'
 
 import {siteSettings} from './documents/siteSettings'
+import {press} from './documents/press'
 
 export const schemaTypes = [
   siteSettings,
@@ -18,5 +19,6 @@ export const schemaTypes = [
   ephemera,
   exhibition,
   cvEntry,
+  press,
   sanityImageAsset,
 ]

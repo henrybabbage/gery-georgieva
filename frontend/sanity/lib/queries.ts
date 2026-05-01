@@ -288,3 +288,16 @@ export const cvQuery = defineQuery(`
     }
   }
 `)
+
+// ---------------------------------------------------------------------------
+// Press
+// ---------------------------------------------------------------------------
+
+export const pressQuery = defineQuery(`
+  *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {
+    _id,
+    linkText,
+    url,
+    "pdfUrl": pdf.asset->url
+  }
+`)

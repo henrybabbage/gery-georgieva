@@ -53,6 +53,8 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
       return slug ? `/exhibition/${slug}` : undefined
     case 'ephemera':
       return slug ? `/ephemera/${slug}` : undefined
+    case 'press':
+      return '/press'
     default:
       return undefined
   }
@@ -106,6 +108,10 @@ export default defineConfig({
             route: '/cv',
             filter: `_type == "cvEntry"`,
           },
+          {
+            route: '/press',
+            filter: `_type == "press"`,
+          },
         ]),
         locations: {
           siteSettings: defineLocations({
@@ -151,6 +157,19 @@ export default defineConfig({
           cvEntry: defineLocations({
             locations: [{title: 'CV', href: '/cv'}],
             message: 'This entry appears on the CV page.',
+            tone: 'positive',
+          }),
+          press: defineLocations({
+            select: {linkText: 'linkText'},
+            resolve: (doc) => ({
+              locations: [
+                {
+                  title: doc?.linkText || 'Press',
+                  href: '/press',
+                },
+              ],
+            }),
+            message: 'This link appears on the Press page.',
             tone: 'positive',
           }),
         },
