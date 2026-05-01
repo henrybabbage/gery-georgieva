@@ -23,6 +23,31 @@ const PHASE_SMOOTHING = 6.5
 const PHASE_EPS = 5e-5
 /** Cap dt when tab was backgrounded — avoids single-frame leaps */
 const PHASE_MAX_DT = 48 / 1000
+/**
+ * Circular path radius (fraction of vmin); drives arc spacing along the orbit.
+ */
+const ORBIT_RADIUS_RATIO = 0.92
+/**
+ * Closest frontal depth (fraction of vmin, +Z toward viewer). Larger orbit alone
+ * would push θ=0 closer to the camera; this caps nearest Z at the legacy value.
+ */
+const ORBIT_FRONT_DEPTH_RATIO = 0.68
+/** Reduced-motion orbit / depth scale vs interactive */
+const ORBIT_REDUCED_MOTION_SCALE = 0.9
+/** Max lateral offset from centre (±fraction of min(viewport w, h)); per-slide amount from hash */
+const HORIZONTAL_STAGGER_RATIO = 0.1
+
+/** Stable −1 … 1 from a string — same slide keeps the same lateral offset across resizes */
+function stableHorizontalNorm (seed: string): number {
+	let h = 5381
+	for (let i = 0; i < seed.length; i++) {
+		h = ((h << 5) + h) ^ seed.charCodeAt(i)
+	}
+	const u = ((h >>> 0) % 65_001) / 65_000
+	return u * 2 - 1
+}
+
+const EMPTY_SLIDE_KEYS: readonly string[] = []
 
 export interface OrbitalImageGalleryProps {
 	imageSrcs: readonly string[]
@@ -36,7 +61,7 @@ export interface OrbitalImageGalleryProps {
 
 export default function OrbitalImageGallery ({
 	imageSrcs,
-	slideKeys = [],
+	slideKeys = EMPTY_SLIDE_KEYS,
 	slideHrefs = [],
 	slideTitles = [],
 }: OrbitalImageGalleryProps) {
@@ -61,10 +86,23 @@ export default function OrbitalImageGallery ({
 
 		let lastTouchY = 0
 
-		function radiusPx () {
-			const r = viewportEl.getBoundingClientRect()
-			return Math.min(r.width, r.height) * 0.56
+		function orbitDepthScale (motionScale: number) {
+			const bounds = viewportEl.getBoundingClientRect()
+			const vmin = Math.min(bounds.width, bounds.height) * motionScale
+			const R = vmin * ORBIT_RADIUS_RATIO
+			const zNear = vmin * ORBIT_FRONT_DEPTH_RATIO
+			const zOffset = zNear - R
+			return {R, zOffset}
 		}
+
+		function horizontalSpanPx () {
+			const r = viewportEl.getBoundingClientRect()
+			return Math.min(r.width, r.height) * HORIZONTAL_STAGGER_RATIO
+		}
+
+		const lateralNormByIndex = imageSrcs.map((src, i) =>
+			stableHorizontalNorm(slideKeys[i] ?? src ?? String(i)),
+		)
 
 		function updateCenterTitle (frontIndex: number) {
 			const cap = captionRef.current
@@ -78,9 +116,10 @@ export default function OrbitalImageGallery ({
 			const items = viewportEl.querySelectorAll<HTMLElement>(
 				'[data-orbit-item="true"]',
 			)
-			const R = radiusPx()
+			const {R, zOffset} = orbitDepthScale(1)
 			let frontIndex = 0
 			let bestCz = -Infinity
+			const span = horizontalSpanPx()
 			items.forEach((el, i) => {
 				const theta = phase + (TAU * i) / n
 				const cz = Math.cos(theta)
@@ -89,11 +128,12 @@ export default function OrbitalImageGallery ({
 					frontIndex = i
 				}
 				const y = Math.sin(theta) * R
-				const z = Math.cos(theta) * R
+				const z = Math.cos(theta) * R + zOffset
+				const x = lateralNormByIndex[i] * span
 				gsap.set(el, {
 					xPercent: -50,
 					yPercent: -50,
-					x: 0,
+					x,
 					y,
 					z,
 					force3D: true,
@@ -108,9 +148,10 @@ export default function OrbitalImageGallery ({
 			const items = viewportEl.querySelectorAll<HTMLElement>(
 				'[data-orbit-item="true"]',
 			)
-			const R = radiusPx()
+			const {R, zOffset} = orbitDepthScale(ORBIT_REDUCED_MOTION_SCALE)
 			let frontIndex = 0
 			let bestCz = -Infinity
+			const span = horizontalSpanPx()
 			items.forEach((el, i) => {
 				const theta = (TAU * i) / n
 				const cz = Math.cos(theta)
@@ -118,12 +159,13 @@ export default function OrbitalImageGallery ({
 					bestCz = cz
 					frontIndex = i
 				}
-				const y = Math.sin(theta) * R * 0.9
-				const z = Math.cos(theta) * R * 0.9
+				const y = Math.sin(theta) * R
+				const z = Math.cos(theta) * R + zOffset
+				const x = lateralNormByIndex[i] * span
 				gsap.set(el, {
 					xPercent: -50,
 					yPercent: -50,
-					x: 0,
+					x,
 					y,
 					z,
 					force3D: true,
@@ -229,7 +271,7 @@ export default function OrbitalImageGallery ({
 			viewportEl.removeEventListener('touchmove', onTouchMove)
 			observer.disconnect()
 		}
-	}, [imageSrcs, slideTitles])
+	}, [imageSrcs, slideKeys, slideTitles])
 
 	const firstImageIndex = imageSrcs.findIndex(hasCarouselImageSrc)
 
