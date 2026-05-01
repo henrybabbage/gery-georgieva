@@ -195,6 +195,7 @@ export type Work = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
+    sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
     _type: 'image'
   }
   gallery?: Array<
@@ -326,6 +327,7 @@ export type MediaImage = {
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
   isAudiencePhoto?: boolean
+  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   caption?: string
   credit?: string
 }

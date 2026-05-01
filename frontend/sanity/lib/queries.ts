@@ -9,9 +9,9 @@ const galleryUnionFields = /* groq */ `
   _type,
   crop,
   hotspot,
+  sizeOverride,
   "asset": asset-> {
     ...,
-    imageType,
     sizeOverride
   },
   isAudiencePhoto,
@@ -49,9 +49,9 @@ const workCardFields = /* groq */ `
   medium,
   coverImage {
     ...,
+    sizeOverride,
     "asset": asset-> {
       ...,
-      imageType,
       sizeOverride
     }
   }
@@ -71,17 +71,17 @@ export const streamQuery = defineQuery(`
     year,
     coverImage {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     },
     "firstImage": images[_type == "mediaImage"][0] {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     }
@@ -114,9 +114,9 @@ export const workQuery = defineQuery(`
     description,
     coverImage {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     },
@@ -128,9 +128,9 @@ export const workQuery = defineQuery(`
       category,
       "firstImage": images[_type == "mediaImage"][0] {
         ...,
+        sizeOverride,
         "asset": asset-> {
           ...,
-          imageType,
           sizeOverride
         }
       }
