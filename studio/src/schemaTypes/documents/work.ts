@@ -2,12 +2,14 @@ import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
+import {yearDescOrdering} from '../shared/yearDescOrdering'
+
 export const work = defineType({
   name: 'work',
   title: 'Work',
   type: 'document',
   icon: Spiral,
-  orderings: [orderRankOrdering],
+  orderings: [yearDescOrdering, orderRankOrdering],
   fields: [
     orderRankField({type: 'work', hidden: true}),
     defineField({

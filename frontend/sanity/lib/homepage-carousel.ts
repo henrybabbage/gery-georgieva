@@ -69,7 +69,7 @@ export function buildHomepageCarouselSlides (
 			const url = img
 				? urlForImage(img)?.width(2400).auto('format').url()
 				: undefined
-			if (!url) continue
+			const imageUrl = url ?? ''
 			const {href, title} = exhibitionHrefAndTitle(
 				w.exhibition,
 				typeof w.title === 'string' ? w.title.trim() : '',
@@ -77,7 +77,7 @@ export function buildHomepageCarouselSlides (
 			if (!href) continue
 			out.push({
 				key: `work:${row._key}`,
-				imageUrl: url,
+				imageUrl,
 				title,
 				href,
 			})
@@ -91,12 +91,12 @@ export function buildHomepageCarouselSlides (
 			const url = img
 				? urlForImage(img)?.width(2400).auto('format').url()
 				: undefined
-			if (!url) continue
+			const imageUrl = url ?? ''
 			const {href, title} = exhibitionHrefAndTitle(ex, typeof ex.title === 'string' ? ex.title.trim() : '')
 			if (!href) continue
 			out.push({
 				key: `exhibition:${row._key}`,
-				imageUrl: url,
+				imageUrl,
 				title,
 				href,
 			})

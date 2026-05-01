@@ -9,6 +9,10 @@ import styles from './orbital-image-gallery.module.css'
 
 const TAU = Math.PI * 2
 
+function hasCarouselImageSrc (src: string): boolean {
+	return typeof src === 'string' && src.trim().length > 0
+}
+
 /** radians per px of vertical wheel delta (lower = slower orbit) */
 const WHEEL_RAD_PER_PX = 0.001
 /** Same feel for drag on touch screens */
@@ -227,6 +231,8 @@ export default function OrbitalImageGallery ({
 		}
 	}, [imageSrcs, slideTitles])
 
+	const firstImageIndex = imageSrcs.findIndex(hasCarouselImageSrc)
+
 	return (
 		<div
 			ref={viewportRef}
@@ -239,19 +245,31 @@ export default function OrbitalImageGallery ({
 				{imageSrcs.map((src, index) => {
 					const href = slideHrefs[index] ?? null
 					const slideKey = slideKeys[index] ?? src
+					const showImage = hasCarouselImageSrc(src)
 					const inner = (
 						<div className={styles.orbitInner}>
-							<Image
-								src={src}
-								alt={
-									(slideTitles[index] ?? '').trim() ||
-									`Gery Georgieva, gallery image ${index + 1}`
-								}
-								fill
-								className="object-contain"
-								sizes="(max-width: 1023px) min(72vw, 48vh), min(42vw, 52vh)"
-								priority={index === 0}
-							/>
+							{showImage ? (
+								<Image
+									src={src}
+									alt={
+										(slideTitles[index] ?? '').trim() ||
+										`Gery Georgieva, gallery image ${index + 1}`
+									}
+									fill
+									className="object-contain"
+									sizes="(max-width: 1023px) min(72vw, 48vh), min(42vw, 52vh)"
+									priority={firstImageIndex === index}
+								/>
+							) : (
+								<div
+									className={styles.orbitPlaceholder}
+									role="img"
+									aria-label={
+										(slideTitles[index] ?? '').trim() ||
+										`Placeholder, no image for slide ${index + 1}`
+									}
+								/>
+							)}
 						</div>
 					)
 					return (

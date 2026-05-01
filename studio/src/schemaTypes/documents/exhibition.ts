@@ -3,12 +3,14 @@ import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list
 import type {Image, PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
+import {yearDescOrdering} from '../shared/yearDescOrdering'
+
 export const exhibition = defineType({
   name: 'exhibition',
   title: 'Exhibition',
   type: 'document',
   icon: Asterisk,
-  orderings: [orderRankOrdering],
+  orderings: [yearDescOrdering, orderRankOrdering],
   fields: [
     orderRankField({type: 'exhibition', hidden: true}),
     defineField({

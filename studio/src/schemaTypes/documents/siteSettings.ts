@@ -1,5 +1,13 @@
 import {GearSix} from '@phosphor-icons/react'
+import type {ReferenceOptions} from '@sanity/types'
 import {defineArrayMember, defineField, defineType} from 'sanity'
+
+const homepageCarouselRefSearchOptions = {
+  sort: [
+    {field: 'year', direction: 'desc' as const},
+    {field: 'title', direction: 'asc' as const},
+  ],
+} as unknown as ReferenceOptions
 
 export const siteSettings = defineType({
   name: 'siteSettings',
@@ -21,12 +29,14 @@ export const siteSettings = defineType({
           title: 'Work',
           type: 'reference',
           to: [{type: 'work'}],
+          options: homepageCarouselRefSearchOptions,
         }),
         defineArrayMember({
           name: 'homepageCarouselExhibition',
           title: 'Exhibition',
           type: 'reference',
           to: [{type: 'exhibition'}],
+          options: homepageCarouselRefSearchOptions,
         }),
       ],
     }),
