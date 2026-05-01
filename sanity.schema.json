@@ -883,6 +883,31 @@
               },
               "optional": true
             },
+            "sizeOverride": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "union",
+                "of": [
+                  {
+                    "type": "string",
+                    "value": "sm"
+                  },
+                  {
+                    "type": "string",
+                    "value": "md"
+                  },
+                  {
+                    "type": "string",
+                    "value": "lg"
+                  },
+                  {
+                    "type": "string",
+                    "value": "xl"
+                  }
+                ]
+              },
+              "optional": true
+            },
             "_type": {
               "type": "objectAttribute",
               "value": {
@@ -1445,6 +1470,31 @@
           "type": "objectAttribute",
           "value": {
             "type": "boolean"
+          },
+          "optional": true
+        },
+        "sizeOverride": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "sm"
+              },
+              {
+                "type": "string",
+                "value": "md"
+              },
+              {
+                "type": "string",
+                "value": "lg"
+              },
+              {
+                "type": "string",
+                "value": "xl"
+              }
+            ]
           },
           "optional": true
         },

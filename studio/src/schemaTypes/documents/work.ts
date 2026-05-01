@@ -2,6 +2,7 @@ import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
+import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
 import {yearDescOrdering} from '../shared/yearDescOrdering'
 
 export const work = defineType({
@@ -36,6 +37,20 @@ export const work = defineType({
       title: 'Cover Image',
       type: 'image',
       options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'sizeOverride',
+          title: 'Size override',
+          type: 'string',
+          description:
+            'Optional. Overrides the media asset default for this cover only. Leave empty to use the asset value.',
+          options: {
+            list: imageSizeOverrideOptions,
+            layout: 'radio',
+            direction: 'horizontal',
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'gallery',

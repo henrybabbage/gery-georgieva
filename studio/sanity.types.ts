@@ -15,6 +15,29 @@
 export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: ../sanity.schema.json
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type Press = {
+  _id: string
+  _type: 'press'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  orderRank?: string
+  linkText: string
+  url?: string
+  pdf?: {
+    asset?: SanityFileAssetReference
+    media?: unknown
+    _type: 'file'
+  }
+}
+
 export type ExhibitionReference = {
   _ref: string
   _type: 'reference'
@@ -142,6 +165,7 @@ export type Work = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
+    sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
     _type: 'image'
   }
   gallery?: Array<
@@ -213,6 +237,7 @@ export type MediaImage = {
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
   isAudiencePhoto?: boolean
+  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   caption?: string
   credit?: string
 }
@@ -315,13 +340,6 @@ export type VimeoVideoReference = {
 export type Vimeo = {
   _type: 'vimeo'
   asset?: VimeoVideoReference
-}
-
-export type SanityFileAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
 }
 
 export type MediaVideoFile = {
@@ -640,6 +658,8 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
+  | SanityFileAssetReference
+  | Press
   | ExhibitionReference
   | CvEntry
   | WorkReference
@@ -656,7 +676,6 @@ export type AllSanitySchemaTypes =
   | YoutubeVideo
   | VimeoVideoReference
   | Vimeo
-  | SanityFileAssetReference
   | MediaVideoFile
   | SiteSettings
   | SanityAssistInstructionTask
