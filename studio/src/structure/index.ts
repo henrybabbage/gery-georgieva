@@ -1,4 +1,4 @@
-import {Asterisk, FlowerTulip, ListDashes, Spiral} from '@phosphor-icons/react'
+import {Asterisk, FlowerTulip, GearSix, ListDashes, Spiral} from '@phosphor-icons/react'
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import type {StructureResolver} from 'sanity/structure'
 
@@ -6,6 +6,12 @@ export const structure: StructureResolver = (S, context) =>
   S.list()
     .title('Content')
     .items([
+      S.listItem()
+        .title('Site Settings')
+        .icon(GearSix)
+        .child(
+          S.document().schemaType('siteSettings').documentId('siteSettings'),
+        ),
       S.listItem()
         .title('Work')
         .icon(Spiral)
@@ -29,11 +35,12 @@ export const structure: StructureResolver = (S, context) =>
             {field: 'year', direction: 'desc'},
           ]),
         ),
-      orderableDocumentListDeskItem({
-        type: 'cvEntry',
-        title: 'CV Entries',
-        icon: ListDashes,
-        S,
-        context,
-      }),
+      S.listItem()
+        .title('CV Entries')
+        .icon(ListDashes)
+        .child(
+          S.documentTypeList('cvEntry').defaultOrdering([
+            {field: 'year', direction: 'desc'},
+          ]),
+        ),
     ])

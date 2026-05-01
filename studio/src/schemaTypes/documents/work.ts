@@ -2,12 +2,14 @@ import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
+import {yearDescOrdering} from '../shared/yearDescOrdering'
+
 export const work = defineType({
   name: 'work',
   title: 'Work',
   type: 'document',
   icon: Spiral,
-  orderings: [orderRankOrdering],
+  orderings: [yearDescOrdering, orderRankOrdering],
   fields: [
     orderRankField({type: 'work', hidden: true}),
     defineField({
@@ -43,9 +45,21 @@ export const work = defineType({
       options: {layout: 'grid'},
     }),
     defineField({
-      name: 'isFeature',
-      title: 'Featured',
-      type: 'boolean',
+      name: 'exhibition',
+      title: 'Primary exhibition',
+      type: 'reference',
+      to: [{type: 'exhibition'}],
+      description:
+        'Used when this work is added to the homepage carousel in Site Settings: the slide ' +
+        'links here. Also used for “Exhibited in” on the work page when set.',
+    }),
+    defineField({
+      name: 'carouselImage',
+      title: 'Homepage carousel image',
+      type: 'mediaImage',
+      description:
+        'Image for this work on the homepage carousel. If unset, the first still image in ' +
+        'Gallery is used, then Cover Image.',
     }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),

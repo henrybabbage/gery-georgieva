@@ -112,6 +112,7 @@ export const workQuery = defineQuery(`
     medium,
     dimensions,
     description,
+    carouselImage { ${galleryUnionFields} },
     coverImage {
       ...,
       "asset": asset-> {
@@ -136,15 +137,26 @@ export const workQuery = defineQuery(`
       }
     },
     tags,
-    "exhibitions": *[_type == "exhibition" && references(^._id)] {
-      _id,
-      title,
-      "slug": slug.current,
-      year,
-      venue,
-      location,
-      hidePublicPage
-    }
+    "exhibitions": select(
+      defined(exhibition) => [exhibition-> {
+        _id,
+        title,
+        "slug": slug.current,
+        year,
+        venue,
+        location,
+        hidePublicPage
+      }],
+      *[_type == "exhibition" && references(^._id)] {
+        _id,
+        title,
+        "slug": slug.current,
+        year,
+        venue,
+        location,
+        hidePublicPage
+      }
+    )
   }
 `)
 
@@ -169,6 +181,7 @@ export const exhibitionQuery = defineQuery(`
     exhibitionType,
     description,
     externalDocumentationLink,
+    carouselImage { ${galleryUnionFields} },
     relatedWorks[]-> {
       ${workCardFields}
     },
@@ -187,16 +200,33 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-export const featureExhibitionListQuery = defineQuery(`
-  *[_type == "exhibition" && defined(slug.current)]
-  | order(orderRank asc) {
-    _id,
-    title,
-    "slug": slug.current,
-    year,
-    venue,
-    location,
-    hidePublicPage
+export const homepageCarouselQuery = defineQuery(`
+  *[_type == "siteSettings" && _id == "siteSettings"][0] {
+    homepageCarousel[] {
+      _key,
+      _type,
+      "workSlide": select(_type == "homepageCarouselWork" => @-> {
+        _id,
+        title,
+        carouselImage { ${galleryUnionFields} },
+        "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
+        coverImage { ..., asset-> },
+        "exhibition": exhibition-> {
+          _id,
+          title,
+          "slug": slug.current,
+          hidePublicPage
+        }
+      }),
+      "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {
+        _id,
+        title,
+        "slug": slug.current,
+        hidePublicPage,
+        carouselImage { ${galleryUnionFields} },
+        "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }
+      })
+    }
   }
 `)
 
@@ -241,7 +271,7 @@ export const ephemeraSlugQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const cvQuery = defineQuery(`
-  *[_type == "cvEntry"] | order(orderRank asc) {
+  *[_type == "cvEntry"] | order(year desc, title asc) {
     _id,
     title,
     year,

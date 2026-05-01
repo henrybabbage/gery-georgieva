@@ -7,7 +7,10 @@ import {exhibition} from './documents/exhibition'
 import {cvEntry} from './documents/cvEntry'
 import {sanityImageAsset} from './documents/sanityImageAsset'
 
+import {siteSettings} from './documents/siteSettings'
+
 export const schemaTypes = [
+  siteSettings,
   mediaImage,
   mediaVideoFile,
   mediaVideoLink,

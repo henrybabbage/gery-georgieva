@@ -88,7 +88,7 @@ export default defineConfig({
         mainDocuments: defineDocuments([
           {
             route: '/',
-            filter: `_type in ["work", "ephemera"]`,
+            filter: `_type == "siteSettings"`,
           },
           {
             route: '/work/:slug',
@@ -108,6 +108,11 @@ export default defineConfig({
           },
         ]),
         locations: {
+          siteSettings: defineLocations({
+            locations: [homeLocation],
+            message: 'Homepage carousel: add works and exhibitions here, drag to reorder.',
+            tone: 'positive',
+          }),
           work: defineLocations({
             select: {title: 'title', slug: 'slug.current'},
             resolve: (doc) => ({

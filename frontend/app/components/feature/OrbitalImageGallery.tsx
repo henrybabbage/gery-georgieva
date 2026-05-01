@@ -9,13 +9,25 @@ import styles from './orbital-image-gallery.module.css'
 
 const TAU = Math.PI * 2
 
-/** radians per px of vertical wheel delta */
-const WHEEL_RAD_PER_PX = 0.0035
+function hasCarouselImageSrc (src: string): boolean {
+	return typeof src === 'string' && src.trim().length > 0
+}
+
+/** radians per px of vertical wheel delta (lower = slower orbit) */
+const WHEEL_RAD_PER_PX = 0.001
 /** Same feel for drag on touch screens */
-const TOUCH_RAD_PER_PX = 0.008
+const TOUCH_RAD_PER_PX = 0.00235
+/** Exponential smoothing rate (rad/s scale; higher = snappier) */
+const PHASE_SMOOTHING = 6.5
+/** Stop rAF when |target − display| is below this (radians) */
+const PHASE_EPS = 5e-5
+/** Cap dt when tab was backgrounded — avoids single-frame leaps */
+const PHASE_MAX_DT = 48 / 1000
 
 export interface OrbitalImageGalleryProps {
 	imageSrcs: readonly string[]
+	/** Stable React keys per slide; defaults to `imageSrcs` entries. */
+	slideKeys?: readonly string[]
 	/** Per-slide exhibition URLs; same order and length as `imageSrcs`. */
 	slideHrefs?: readonly (string | null)[]
 	/** Exhibition (or slide) titles; same order and length as `imageSrcs`. */
@@ -24,12 +36,12 @@ export interface OrbitalImageGalleryProps {
 
 export default function OrbitalImageGallery ({
 	imageSrcs,
+	slideKeys = [],
 	slideHrefs = [],
 	slideTitles = [],
 }: OrbitalImageGalleryProps) {
 	const viewportRef = useRef<HTMLDivElement>(null)
 	const captionRef = useRef<HTMLParagraphElement>(null)
-	const phaseRef = useRef(0)
 
 	useEffect(() => {
 		const viewport = viewportRef.current
@@ -131,11 +143,44 @@ export default function OrbitalImageGallery ({
 			return () => ro.disconnect()
 		}
 
+		let phaseTarget = 0
+		let phaseDisplay = 0
+		let rafId = 0
+		let lastTs = performance.now()
+
+		function kickPhaseLoop () {
+			if (rafId !== 0) return
+			lastTs = performance.now()
+			rafId = requestAnimationFrame(tickPhase)
+		}
+
+		function tickPhase (ts: number) {
+			const dt = Math.min((ts - lastTs) / 1000, PHASE_MAX_DT)
+			lastTs = ts
+
+			let diff = phaseTarget - phaseDisplay
+			if (Math.abs(diff) <= PHASE_EPS) {
+				phaseDisplay = phaseTarget
+				applyPhase(phaseDisplay)
+				rafId = 0
+				return
+			}
+
+			const alpha = 1 - Math.exp(-PHASE_SMOOTHING * dt)
+			phaseDisplay += diff * alpha
+			diff = phaseTarget - phaseDisplay
+			if (Math.abs(diff) <= PHASE_EPS) {
+				phaseDisplay = phaseTarget
+			}
+			applyPhase(phaseDisplay)
+			rafId = requestAnimationFrame(tickPhase)
+		}
+
 		const onWheel = (e: WheelEvent) => {
 			e.preventDefault()
 			e.stopPropagation()
-			phaseRef.current += e.deltaY * WHEEL_RAD_PER_PX
-			applyPhase(phaseRef.current)
+			phaseTarget += e.deltaY * WHEEL_RAD_PER_PX
+			kickPhaseLoop()
 		}
 
 		const onTouchStart = (e: TouchEvent) => {
@@ -149,28 +194,44 @@ export default function OrbitalImageGallery ({
 			lastTouchY = y
 			e.preventDefault()
 			e.stopPropagation()
-			phaseRef.current += dy * TOUCH_RAD_PER_PX
-			applyPhase(phaseRef.current)
+			phaseTarget += dy * TOUCH_RAD_PER_PX
+			kickPhaseLoop()
+		}
+
+		const onVisibility = () => {
+			if (document.visibilityState !== 'hidden') return
+			if (rafId !== 0) {
+				cancelAnimationFrame(rafId)
+				rafId = 0
+			}
+			phaseDisplay = phaseTarget
+			applyPhase(phaseDisplay)
+			lastTs = performance.now()
 		}
 
 		viewportEl.addEventListener('wheel', onWheel, {passive: false})
 		viewportEl.addEventListener('touchstart', onTouchStart, {passive: true})
 		viewportEl.addEventListener('touchmove', onTouchMove, {passive: false})
+		document.addEventListener('visibilitychange', onVisibility)
 
-		applyPhase(phaseRef.current)
+		applyPhase(phaseDisplay)
 
 		const observer = new ResizeObserver(() => {
-			applyPhase(phaseRef.current)
+			applyPhase(phaseDisplay)
 		})
 		observer.observe(viewportEl)
 
 		return () => {
+			if (rafId !== 0) cancelAnimationFrame(rafId)
+			document.removeEventListener('visibilitychange', onVisibility)
 			viewportEl.removeEventListener('wheel', onWheel)
 			viewportEl.removeEventListener('touchstart', onTouchStart)
 			viewportEl.removeEventListener('touchmove', onTouchMove)
 			observer.disconnect()
 		}
 	}, [imageSrcs, slideTitles])
+
+	const firstImageIndex = imageSrcs.findIndex(hasCarouselImageSrc)
 
 	return (
 		<div
@@ -183,24 +244,37 @@ export default function OrbitalImageGallery ({
 			<div className={styles.stage}>
 				{imageSrcs.map((src, index) => {
 					const href = slideHrefs[index] ?? null
+					const slideKey = slideKeys[index] ?? src
+					const showImage = hasCarouselImageSrc(src)
 					const inner = (
 						<div className={styles.orbitInner}>
-							<Image
-								src={src}
-								alt={
-									(slideTitles[index] ?? '').trim() ||
-									`Gery Georgieva, gallery image ${index + 1}`
-								}
-								fill
-								className="object-contain"
-								sizes="(max-width: 1023px) min(72vw, 48vh), min(42vw, 52vh)"
-								priority={index === 0}
-							/>
+							{showImage ? (
+								<Image
+									src={src}
+									alt={
+										(slideTitles[index] ?? '').trim() ||
+										`Gery Georgieva, gallery image ${index + 1}`
+									}
+									fill
+									className="object-contain"
+									sizes="(max-width: 1023px) min(72vw, 48vh), min(42vw, 52vh)"
+									priority={firstImageIndex === index}
+								/>
+							) : (
+								<div
+									className={styles.orbitPlaceholder}
+									role="img"
+									aria-label={
+										(slideTitles[index] ?? '').trim() ||
+										`Placeholder, no image for slide ${index + 1}`
+									}
+								/>
+							)}
 						</div>
 					)
 					return (
 						<div
-							key={src}
+							key={slideKey}
 							className={styles.orbitItem}
 							data-orbit-item="true"
 						>

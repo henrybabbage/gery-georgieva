@@ -3,12 +3,14 @@ import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list
 import type {Image, PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
+import {yearDescOrdering} from '../shared/yearDescOrdering'
+
 export const exhibition = defineType({
   name: 'exhibition',
   title: 'Exhibition',
   type: 'document',
   icon: Asterisk,
-  orderings: [orderRankOrdering],
+  orderings: [yearDescOrdering, orderRankOrdering],
   fields: [
     orderRankField({type: 'exhibition', hidden: true}),
     defineField({
@@ -31,6 +33,14 @@ export const exhibition = defineType({
       description:
         'When on, there is no live /exhibition/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
       initialValue: false,
+    }),
+    defineField({
+      name: 'carouselImage',
+      title: 'Homepage carousel image',
+      type: 'mediaImage',
+      description:
+        'Image when this exhibition is added to the homepage carousel in Site Settings. ' +
+        'If unset, the first still image in Installation Images is used.',
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
@@ -81,10 +91,14 @@ export const exhibition = defineType({
       title: 'title',
       venue: 'venue',
       year: 'year',
+      carouselImage: 'carouselImage',
       installationImages: 'installationImages',
     },
-    prepare({title, venue, year, installationImages}): PreviewValue {
-      const raw = installationImages?.[0]
+    prepare({title, venue, year, carouselImage, installationImages}): PreviewValue {
+      const raw =
+        carouselImage && typeof carouselImage === 'object' && '_type' in carouselImage
+          ? carouselImage
+          : installationImages?.[0]
       const media =
         raw && typeof raw === 'object' && '_type' in raw && raw._type === 'mediaImage'
           ? (raw as Image)

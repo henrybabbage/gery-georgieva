@@ -4,54 +4,35 @@ import {useLenis} from 'lenis/react'
 import {useEffect, useMemo} from 'react'
 
 import OrbitalImageGallery from '@/app/components/feature/OrbitalImageGallery'
-
-export interface FeatureExhibitionRow {
-	_id: string
-	title: string | null
-	slug: string | null
-	year?: number | null
-	venue?: string | null
-	location?: string | null
-	hidePublicPage?: boolean | null
-}
+import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
 
 export interface FeatureShowcaseProps {
-	imageSrcs: readonly string[]
-	exhibitions: FeatureExhibitionRow[] | null | undefined
+	slides: readonly HomepageCarouselSlide[]
 }
 
 export default function FeatureShowcase ({
-	imageSrcs,
-	exhibitions,
+	slides,
 }: FeatureShowcaseProps) {
 	const lenis = useLenis()
 
+	const imageSrcs = useMemo(
+		() => slides.map((s) => s.imageUrl) as readonly string[],
+		[slides],
+	)
+
 	const slideTitles = useMemo(
-		() =>
-			imageSrcs.map((_, i) => {
-				const list = exhibitions ?? []
-				const raw = list[i]?.title
-				return typeof raw === 'string' ? raw.trim() : ''
-			}),
-		[imageSrcs, exhibitions],
+		() => slides.map((s) => s.title),
+		[slides],
 	)
 
 	const slideHrefs = useMemo(
-		() =>
-			imageSrcs.map((_, i) => {
-				const row = exhibitions?.[i]
-				const slug = row?.slug
-				const hidden = row?.hidePublicPage === true
-				if (
-					hidden ||
-					typeof slug !== 'string' ||
-					slug.length === 0
-				) {
-					return null
-				}
-				return `/exhibition/${slug}`
-			}),
-		[imageSrcs, exhibitions],
+		() => slides.map((s) => s.href),
+		[slides],
+	)
+
+	const slideKeys = useMemo(
+		() => slides.map((s) => s.key) as readonly string[],
+		[slides],
 	)
 
 	useEffect(() => {
@@ -81,6 +62,7 @@ export default function FeatureShowcase ({
 				<div className="absolute inset-0">
 					<OrbitalImageGallery
 						imageSrcs={imageSrcs}
+						slideKeys={slideKeys}
 						slideHrefs={slideHrefs}
 						slideTitles={slideTitles}
 					/>
