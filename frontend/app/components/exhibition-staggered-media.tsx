@@ -6,7 +6,11 @@ import {
   ExhibitionExpandableGalleryImage,
   type ExhibitionExpandableGalleryImageProps,
 } from '@/app/components/exhibition-expandable-gallery-image'
-import {getEffectiveImageSizeOverride, getImageSizePreset} from '@/sanity/lib/imageSize'
+import {
+  getEffectiveImageSizeOverride,
+  getImageSizePreset,
+  type ImageSizeOverride,
+} from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
 
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */
@@ -57,6 +61,83 @@ function justifyForIndex(index: number, title: string): RowJustify {
 
 type Orientation = 'portrait' | 'landscape'
 
+/** Tier for grid + portrait cap: videos use `md` anchor. */
+function getInstallationLayoutTier(item: ExhibitionInstallationImage): ImageSizeOverride {
+  if (item._type !== 'mediaImage') return 'md'
+  return getEffectiveImageSizeOverride(item) ?? 'md'
+}
+
+/** Subtle portrait height steps; `md` matches historical single cap. */
+const EXHIBITION_PORTRAIT_MAX: Record<ImageSizeOverride, string> = {
+  sm: 'max-h-[min(78vh,820px)]',
+  md: 'max-h-[min(85vh,900px)]',
+  lg: 'max-h-[min(88vh,940px)]',
+  xl: 'max-h-[min(91vh,980px)]',
+}
+
+const COL_SPAN: Record<number, string> = {
+  1: 'col-span-1',
+  2: 'col-span-2',
+  3: 'col-span-3',
+  4: 'col-span-4',
+  5: 'col-span-5',
+  6: 'col-span-6',
+  7: 'col-span-7',
+  8: 'col-span-8',
+  9: 'col-span-9',
+  10: 'col-span-10',
+  11: 'col-span-11',
+  12: 'col-span-12',
+}
+
+/** `col-start-{13 - imgSpan}` so a right-aligned image block ends at column 12. */
+const RIGHT_IMAGE_START: Record<number, string> = {
+  3: 'col-start-10',
+  4: 'col-start-9',
+  5: 'col-start-8',
+  6: 'col-start-7',
+  7: 'col-start-6',
+  8: 'col-start-5',
+}
+
+function leftRightImageColSpan(orientation: Orientation, tier: ImageSizeOverride): number {
+  if (orientation === 'portrait') {
+    const byTier: Record<ImageSizeOverride, number> = {sm: 3, md: 4, lg: 5, xl: 6}
+    return byTier[tier]
+  }
+  /** `md` was identical to `lg` here (both 6) — landscape never grew for lg; step by column. */
+  const byTier: Record<ImageSizeOverride, number> = {sm: 5, md: 6, lg: 7, xl: 8}
+  return byTier[tier]
+}
+
+function getCenterRowSpans(
+  orientation: Orientation,
+  tier: ImageSizeOverride,
+): {lead: number; img: number; tail: number} {
+  if (orientation === 'portrait') {
+    switch (tier) {
+      case 'sm':
+        return {lead: 4, img: 3, tail: 5}
+      case 'md':
+        return {lead: 3, img: 4, tail: 5}
+      case 'lg':
+        return {lead: 3, img: 5, tail: 4}
+      case 'xl':
+        return {lead: 2, img: 6, tail: 4}
+    }
+  }
+  switch (tier) {
+    case 'sm':
+      return {lead: 3, img: 5, tail: 4}
+    case 'md':
+      return {lead: 2, img: 6, tail: 4}
+    case 'lg':
+      return {lead: 1, img: 7, tail: 4}
+    case 'xl':
+      return {lead: 1, img: 8, tail: 3}
+  }
+}
+
 function getItemOrientation(item: ExhibitionInstallationImage): Orientation {
   if (item._type === 'mediaImage') {
     const d = item.asset?.metadata?.dimensions
@@ -88,7 +169,8 @@ function getExpandableImageProps(
   sizes: string,
   orientation: Orientation,
 ): ExhibitionExpandableGalleryImageProps | null {
-  const preset = getImageSizePreset(getEffectiveImageSizeOverride(item))
+  const tier = getInstallationLayoutTier(item)
+  const preset = getImageSizePreset(getEffectiveImageSizeOverride(item) ?? 'md')
   const url = item.asset ? urlForImage(item)?.width(preset.width).auto('format').url() : null
   if (!url) return null
 
@@ -133,6 +215,7 @@ function getExpandableImageProps(
     credit: item.credit,
     popupLqip,
     popupPlaceholderColor,
+    portraitMaxClass: orientation === 'portrait' ? EXHIBITION_PORTRAIT_MAX[tier] : '',
   }
 }
 
@@ -147,10 +230,11 @@ function GalleryMediaTile({
   sizes: string
   orientation: Orientation
 }) {
-  const portraitMax = 'max-h-[min(85vh,900px)]'
+  const tier = getInstallationLayoutTier(item)
+  const portraitMax = orientation === 'portrait' ? EXHIBITION_PORTRAIT_MAX[tier] : ''
 
   if (item._type === 'mediaImage') {
-    const preset = getImageSizePreset(getEffectiveImageSizeOverride(item))
+    const preset = getImageSizePreset(getEffectiveImageSizeOverride(item) ?? 'md')
     const url = item.asset ? urlForImage(item)?.width(preset.width).auto('format').url() : null
     const meta = item.asset?.metadata?.dimensions
     const ratio =
@@ -296,9 +380,16 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
   const hasSideCaption = !!(item.caption?.trim() || item.credit?.trim())
   const sizes = orientation === 'portrait' ? GRID_SIZES_PORTRAIT : GRID_SIZES_LANDSCAPE
 
-  const imgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
-  const capSpan = orientation === 'portrait' ? 'col-span-8' : 'col-span-6'
-  const rightImageStart = orientation === 'portrait' ? 'col-start-9' : 'col-start-7'
+  const tier = getInstallationLayoutTier(item)
+  const imgColN = leftRightImageColSpan(orientation, tier)
+  const capColN = 12 - imgColN
+  const imgSpan = COL_SPAN[imgColN]
+  const capSpan = COL_SPAN[capColN]
+  const rightImageStart = RIGHT_IMAGE_START[imgColN]
+  const centerSpans = getCenterRowSpans(orientation, tier)
+  const leadSpacerClass = COL_SPAN[centerSpans.lead]
+  const centerImgSpanClass = COL_SPAN[centerSpans.img]
+  const tailCaptionClass = COL_SPAN[centerSpans.tail]
 
   const expandableProps =
     item._type === 'mediaImage' ? getExpandableImageProps(item, altBase, sizes, orientation) : null
@@ -334,17 +425,14 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
       </div>
     )
   } else {
-    const leadSpacer = orientation === 'portrait' ? 'col-span-3' : 'col-span-2'
-    const centerImgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
-    const tailCaption = orientation === 'portrait' ? 'col-span-5' : 'col-span-4'
     grid = (
       <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={`${leadSpacer} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpan} flex flex-col justify-end self-stretch`}>{media}</div>
+        <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
+        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col justify-end self-stretch`}>{media}</div>
         {captionEl ? (
-          <div className={captionCellClassCenter(tailCaption)}>{captionEl}</div>
+          <div className={captionCellClassCenter(tailCaptionClass)}>{captionEl}</div>
         ) : (
-          <div className={`min-w-0 ${tailCaption}`} aria-hidden />
+          <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
         )}
       </div>
     )

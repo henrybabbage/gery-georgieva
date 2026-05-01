@@ -22,6 +22,8 @@ export interface ExhibitionExpandableGalleryImageProps {
   popupLqip?: string | null
   /** Sanity palette swatch (e.g. `metadata.palette.dominant.background`) — fills behind image until sharp. */
   popupPlaceholderColor?: string | null
+  /** Installation size tier — caps portrait trigger height on the exhibition page. */
+  portraitMaxClass?: string
 }
 
 function preloadImageUrl(url: string) {
@@ -75,8 +77,10 @@ export function ExhibitionExpandableGalleryImage({
   credit,
   popupLqip,
   popupPlaceholderColor,
+  portraitMaxClass = '',
 }: ExhibitionExpandableGalleryImageProps) {
-  const portraitMax = 'max-h-[min(85vh,900px)]'
+  const portraitMax =
+    portraitMaxClass || (orientation === 'portrait' ? 'max-h-[min(85vh,900px)]' : '')
   const descriptionParts = [caption?.trim(), credit?.trim()].filter(Boolean)
   const descriptionBody = descriptionParts.length ? descriptionParts.join(' — ') : alt
   const description = `${descriptionBody}. Press Escape or click outside the image to close.`
