@@ -200,6 +200,19 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
+/** Public exhibition index (/exhibitions); omits draft-only pages. */
+export const featureExhibitionListQuery = defineQuery(`
+  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
+  | order(orderRank asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    venue,
+    location
+  }
+`)
+
 export const homepageCarouselQuery = defineQuery(`
   *[_type == "siteSettings" && _id == "siteSettings"][0] {
     homepageCarousel[] {
