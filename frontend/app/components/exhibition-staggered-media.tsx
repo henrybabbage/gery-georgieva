@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react'
 import Image from 'next/image'
 import {stegaClean} from '@sanity/client/stega'
 import type {ExhibitionQueryResult} from '@/sanity.types'
@@ -10,89 +11,66 @@ export type ExhibitionInstallationImage = NonNullable<
 >[number]
 
 /**
- * Desktop layout copied from the selected Paper panel (MCP: `get_selection` → Frame `C-0` “Gery Georgieva”):
- * - Row containers: `align-items: flex-start` (Paper MCP), 24-col grid, horizontal gap 12px, `margin` 30px L/R,
- *   `margin-bottom` 100px on each row in Paper — we use a slightly larger gap on web so stacked rows read clearly.
- * - Slot placement from `get_computed_styles` on each row’s direct children (DOM order = slot order).
- * - Long galleries: repeat this full 11-row panel cycle so rhythm matches the design.
- *
- * Row index | Paper node | Slots (col span / start / -100px stagger)
- * 0  D-0  | 8+8+8
- * 1  V-0  | 12+12
- * 2  13-0 | 8+8+8, stagger on 3rd slot
- * 3  1C-0 | start 4, span 18 (single wide)
- * 4  1J-0 | 8+8+8, stagger on 1st slot
- * 5  1X-0 | 8+8+8
- * 6  26-0 | 8+8+8
- * 7  2M-0 | 8+8+8
- * 8  2V-0 | start 4, span 18
- * 9  32-0 | 8+8+8
- * 10 3B-0 | 8+8+8, stagger on 3rd slot
+ * Desktop layout from Paper frame `3K-0` (MCP `get_computed_styles`):
+ * - One image per row, `align-items: flex-end`, `justify-content` cycles below.
+ * - Row spacing ~10% frame width (125.3px on 1253px artboard).
+ * - Image band ~30% width portrait, ~45% landscape (Paper aspect-ratio boxes).
  */
 
-type PaperSlot = {
-  colSpan: 8 | 12 | 18
-  /** Explicit grid column start (1-based). When set with colSpan 18, matches Paper `gridColumnStart: "4"`. */
-  colStart?: number
-  /** Paper uses `marginTop: "-100px"` on specific cells for vertical stagger (desktop only). */
-  staggerUp?: boolean
-}
+type RowJustify = 'left' | 'center' | 'right'
 
-type PaperPanelRow = {slots: PaperSlot[]}
-
-const PAPER_PANEL_ROWS: PaperPanelRow[] = [
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 12}, {colSpan: 12}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8, staggerUp: true}]},
-  {slots: [{colSpan: 18, colStart: 4}]},
-  {slots: [{colSpan: 8, staggerUp: true}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 18, colStart: 4}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8}]},
-  {slots: [{colSpan: 8}, {colSpan: 8}, {colSpan: 8, staggerUp: true}]},
+/** Paper nodes 3L-0 … 4T-0 in order (`flex-start` → left, `flex-end` → right, `space-around` → center). */
+const ROW_JUSTIFY_PATTERN: RowJustify[] = [
+  'left',
+  'left',
+  'right',
+  'center',
+  'right',
+  'right',
+  'left',
+  'center',
+  'left',
+  'center',
+  'center',
 ]
 
-type PlannedPaperRow = {
-  slots: PaperSlot[]
-  items: ExhibitionInstallationImage[]
-}
+const PATTERN_LEN = ROW_JUSTIFY_PATTERN.length
 
-function selectPaperSlots(template: PaperPanelRow, useSlots: number): PaperSlot[] {
-  if (useSlots >= template.slots.length) return template.slots
-  if (useSlots === 1) return [template.slots[Math.floor(template.slots.length / 2)]]
-  if (useSlots === 2 && template.slots.length === 3) return [template.slots[0], template.slots[2]]
-  return template.slots.slice(0, useSlots)
-}
-
-function planRowsFromPaperPanel(items: ExhibitionInstallationImage[]): PlannedPaperRow[] {
-  const rows: PlannedPaperRow[] = []
-  let itemIndex = 0
-  let templateIndex = 0
-
-  while (itemIndex < items.length) {
-    const template = PAPER_PANEL_ROWS[templateIndex % PAPER_PANEL_ROWS.length]
-    templateIndex += 1
-    const remaining = items.length - itemIndex
-    const useSlots = Math.min(template.slots.length, remaining)
-    rows.push({
-      slots: selectPaperSlots(template, useSlots),
-      items: items.slice(itemIndex, itemIndex + useSlots),
-    })
-    itemIndex += useSlots
+/** Stable per-title phase so layout is identical on every visit until title or image order changes. */
+function layoutSeedFromTitle(title: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < title.length; i++) {
+    h ^= title.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
   }
-
-  return rows
+  return h >>> 0
 }
 
-function paperSlotClassName(slot: PaperSlot): string {
-  const spanClass =
-    slot.colSpan === 8 ? 'col-span-8' : slot.colSpan === 12 ? 'col-span-12' : 'col-span-[18]'
-  /** Paper wide blocks use `grid-column: 4 / span 18` only; keep literal for Tailwind JIT. */
-  const startClass = slot.colStart === 4 ? 'col-start-4' : ''
-  const staggerClass = slot.staggerUp ? 'lg:-mt-[100px]' : ''
-  return ['min-w-0', spanClass, startClass, staggerClass].filter(Boolean).join(' ')
+function justifyForIndex(index: number, title: string): RowJustify {
+  const seed = layoutSeedFromTitle(title)
+  return ROW_JUSTIFY_PATTERN[(seed + index) % PATTERN_LEN]
+}
+
+type Orientation = 'portrait' | 'landscape'
+
+function getItemOrientation(item: ExhibitionInstallationImage): Orientation {
+  if (item._type === 'mediaImage') {
+    const d = item.asset?.metadata?.dimensions
+    if (d?.width && d?.height && d.width > 0 && d.height > 0) {
+      return d.height > d.width ? 'portrait' : 'landscape'
+    }
+    return 'landscape'
+  }
+  if (item._type === 'mediaVideoFile') {
+    return 'landscape'
+  }
+  if (item._type === 'mediaVideoLink') {
+    const w = item.vimeo?.asset?.width
+    const h = item.vimeo?.asset?.height
+    if (w && h && w > 0 && h > 0) return h > w ? 'portrait' : 'landscape'
+    return 'landscape'
+  }
+  return 'landscape'
 }
 
 function getImageAlt(item: ExhibitionInstallationImage & {_type: 'mediaImage'}, altBase: string): string {
@@ -104,11 +82,15 @@ function GalleryMediaTile({
   item,
   altBase,
   sizes,
+  orientation,
 }: {
   item: ExhibitionInstallationImage
   altBase: string
   sizes: string
+  orientation: Orientation
 }) {
+  const portraitMax = 'max-h-[min(85vh,900px)]'
+
   if (item._type === 'mediaImage') {
     const preset = getImageSizePreset(getEffectiveImageSizeOverride(item))
     const url = item.asset ? urlForImage(item)?.width(preset.width).auto('format').url() : null
@@ -134,7 +116,9 @@ function GalleryMediaTile({
       meta?.height && meta.height > 0 ? meta.height : Math.round(preset.width / ratio)
 
     return (
-      <div className={`relative w-full bg-placeholder ${frameClass}`}>
+      <div
+        className={`relative w-full bg-placeholder ${frameClass} ${orientation === 'portrait' ? portraitMax : ''}`}
+      >
         <Image
           src={url}
           alt={getImageAlt(item, altBase)}
@@ -153,7 +137,12 @@ function GalleryMediaTile({
       return <div className="aspect-video w-full bg-placeholder" />
     }
     return (
-      <video className="aspect-video w-full bg-black object-contain" controls playsInline preload="metadata">
+      <video
+        className={`aspect-video w-full max-w-full bg-black object-contain ${orientation === 'portrait' ? portraitMax : ''}`}
+        controls
+        playsInline
+        preload="metadata"
+      >
         <source src={src} type={item.asset?.mimeType ?? undefined} />
       </video>
     )
@@ -166,7 +155,7 @@ function GalleryMediaTile({
         return <VideoFallback caption={item.caption} credit={item.credit} />
       }
       return (
-        <div className="relative aspect-video w-full overflow-hidden bg-black">
+        <div className="relative aspect-video w-full max-w-full overflow-hidden bg-black">
           <iframe
             title={item.vimeo?.asset?.name ?? 'Vimeo video'}
             src={`https://player.vimeo.com/video/${id}`}
@@ -185,7 +174,7 @@ function GalleryMediaTile({
         return <VideoFallback caption={item.caption} credit={item.credit} />
       }
       return (
-        <div className="relative aspect-video w-full overflow-hidden bg-black">
+        <div className="relative aspect-video w-full max-w-full overflow-hidden bg-black">
           <iframe
             title={item.youtube?.title ?? 'YouTube video'}
             src={`https://www.youtube-nocookie.com/embed/${id}`}
@@ -215,75 +204,119 @@ function VideoFallback({caption, credit}: {caption?: string | null; credit?: str
   )
 }
 
-function MediaCaption({item}: {item: ExhibitionInstallationImage}) {
+function SideCaption({item}: {item: ExhibitionInstallationImage}) {
   const caption = item.caption?.trim()
   const credit = item.credit?.trim()
   if (!caption && !credit) return null
   return (
-    <div className="mt-2 space-y-0.5 text-base text-[#8a8880]">
+    <div className="space-y-1 text-base leading-snug text-[#8a8880] self-end pb-1">
       {caption && <p>{caption}</p>}
       {credit && <p className="opacity-70">{credit}</p>}
     </div>
   )
 }
 
-/** Match ~1260px artboard layout; below this, single-column scroll (design is desktop-first). */
-const EXHIBITION_DESKTOP_MIN = '(min-width: 1100px)'
+const DESKTOP_MIN = 'min-[1100px]'
+const DESKTOP_SIZES_PORTRAIT = `(min-width: 1100px) 30vw, 100vw`
+const DESKTOP_SIZES_LANDSCAPE = `(min-width: 1100px) 45vw, 100vw`
 
-function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; altBase: string}) {
+/** ~125.3px at 1253px artboard ≈ 10% width */
+const ROW_MARGIN_BOTTOM = 'mb-[min(125px,10vw)]'
+
+type DesktopRowProps = {
+  item: ExhibitionInstallationImage
+  index: number
+  altBase: string
+  layoutTitle: string
+}
+
+function DesktopRow({item, index, altBase, layoutTitle}: DesktopRowProps) {
+  const justify = justifyForIndex(index, layoutTitle)
+  const orientation = getItemOrientation(item)
+  const hasSideCaption = !!(item.caption?.trim() || item.credit?.trim())
+  const sizes = orientation === 'portrait' ? DESKTOP_SIZES_PORTRAIT : DESKTOP_SIZES_LANDSCAPE
+
+  const imgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
+  const capSpan = orientation === 'portrait' ? 'col-span-8' : 'col-span-6'
+  const rightImageStart = orientation === 'portrait' ? 'col-start-9' : 'col-start-7'
+
+  const media = (
+    <GalleryMediaTile item={item} altBase={altBase} sizes={sizes} orientation={orientation} />
+  )
+  const captionEl = hasSideCaption ? <SideCaption item={item} /> : null
+
+  let grid: ReactNode
+
+  if (justify === 'left') {
+    grid = (
+      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
+        <div className={`min-w-0 ${imgSpan}`}>{media}</div>
+        {captionEl && <div className={`min-w-0 ${capSpan} text-left`}>{captionEl}</div>}
+      </div>
+    )
+  } else if (justify === 'right') {
+    grid = (
+      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
+        {captionEl && <div className={`min-w-0 ${capSpan} text-left`}>{captionEl}</div>}
+        <div className={`min-w-0 ${imgSpan} ${captionEl ? '' : rightImageStart}`}>{media}</div>
+      </div>
+    )
+  } else {
+    const leadSpacer = orientation === 'portrait' ? 'col-span-3' : 'col-span-2'
+    const centerImgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
+    const tailCaption = orientation === 'portrait' ? 'col-span-5' : 'col-span-4'
+    grid = (
+      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
+        <div className={`${leadSpacer} min-w-0`} aria-hidden />
+        <div className={`min-w-0 ${centerImgSpan}`}>{media}</div>
+        {captionEl ? (
+          <div className={`min-w-0 ${tailCaption} text-left`}>{captionEl}</div>
+        ) : (
+          <div className={`min-w-0 ${tailCaption}`} aria-hidden />
+        )}
+      </div>
+    )
+  }
+
+  const outerJustify =
+    justify === 'left'
+      ? 'justify-start'
+      : justify === 'right'
+        ? 'justify-end'
+        : 'justify-center'
+
   return (
-    <div className="flex min-[1100px]:hidden w-full min-w-0 flex-col gap-14 sm:gap-16">
-      {items.map((item, i) => (
-        <div key={item._key ?? i} className="min-w-0">
-          <GalleryMediaTile
-            item={item}
-            altBase={altBase}
-            sizes="100vw"
-          />
-          <MediaCaption item={item} />
-        </div>
-      ))}
+    <div className={`flex w-full items-end ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
+      <div className="w-full min-w-0">{grid}</div>
     </div>
   )
 }
 
-function desktopSizesForSlot(slot: PaperSlot): string {
-  if (slot.colSpan === 18) {
-    return `${EXHIBITION_DESKTOP_MIN} min(900px, 75vw), (max-width: 1099px) 100vw`
-  }
-  if (slot.colSpan === 12) {
-    return `${EXHIBITION_DESKTOP_MIN} 50vw, (max-width: 1099px) 100vw`
-  }
-  return `${EXHIBITION_DESKTOP_MIN} 33vw, (max-width: 1099px) 100vw`
-}
-
-/** Vertical space between row groups — Paper row `margin-bottom` is 100px; extra margin reads as “between images” on the web. */
-const ROW_GROUP_MARGIN_BOTTOM = 'mb-[190px]'
-
-function DesktopStagger({items, altBase}: {items: ExhibitionInstallationImage[]; altBase: string}) {
-  const rows = planRowsFromPaperPanel(items)
-
+function MobileStack({
+  items,
+  altBase,
+}: {
+  items: ExhibitionInstallationImage[]
+  altBase: string
+}) {
   return (
-    <div className="hidden min-[1100px]:flex w-full min-w-0 flex-col">
-      {rows.map((row, rowIndex) => {
-        const isLast = rowIndex === rows.length - 1
-        const rowMb = isLast ? '' : ROW_GROUP_MARGIN_BOTTOM
-
+    <div className={`flex ${DESKTOP_MIN}:hidden w-full min-w-0 flex-col gap-14 sm:gap-16`}>
+      {items.map((item, i) => {
+        const orientation = getItemOrientation(item)
         return (
-          <div
-            key={`row-${rowIndex}`}
-            className={`grid w-full grid-cols-[repeat(24,minmax(0,1fr))] items-start gap-x-3 ${rowMb}`}
-          >
-            {row.items.map((item, slotIndex) => {
-              const slot = row.slots[slotIndex]
-              if (!slot) return null
-              return (
-                <div key={item._key ?? `${rowIndex}-${slotIndex}`} className={paperSlotClassName(slot)}>
-                  <GalleryMediaTile item={item} altBase={altBase} sizes={desktopSizesForSlot(slot)} />
-                  <MediaCaption item={item} />
-                </div>
-              )
-            })}
+          <div key={item._key ?? i} className="min-w-0">
+            <GalleryMediaTile
+              item={item}
+              altBase={altBase}
+              sizes="100vw"
+              orientation={orientation}
+            />
+            {(item.caption?.trim() || item.credit?.trim()) && (
+              <div className="mt-3 space-y-1 text-base text-[#8a8880]">
+                {item.caption?.trim() && <p>{item.caption.trim()}</p>}
+                {item.credit?.trim() && <p className="opacity-70">{item.credit.trim()}</p>}
+              </div>
+            )}
           </div>
         )
       })}
@@ -294,16 +327,31 @@ function DesktopStagger({items, altBase}: {items: ExhibitionInstallationImage[];
 export function ExhibitionStaggeredMedia({
   items,
   altBase,
+  layoutTitle,
 }: {
   items: NonNullable<NonNullable<ExhibitionQueryResult>['installationImages']>
   altBase: string
+  /** Exhibition title (or any stable string) — seeds deterministic left/center/right rhythm. */
+  layoutTitle: string
 }) {
   if (!items.length) return null
+
+  const seedSource = layoutTitle.trim() || altBase
 
   return (
     <div className="w-full">
       <MobileStack items={items} altBase={altBase} />
-      <DesktopStagger items={items} altBase={altBase} />
+      <div className={`hidden ${DESKTOP_MIN}:flex w-full min-w-0 flex-col`}>
+        {items.map((item, index) => (
+          <DesktopRow
+            key={item._key ?? index}
+            item={item}
+            index={index}
+            altBase={altBase}
+            layoutTitle={seedSource}
+          />
+        ))}
+      </div>
     </div>
   )
 }

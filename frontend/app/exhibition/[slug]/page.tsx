@@ -72,6 +72,7 @@ export default async function ExhibitionPage({params}: Props) {
           <ExhibitionStaggeredMedia
             items={exhibition.installationImages}
             altBase={exhibition.title ?? 'Installation'}
+            layoutTitle={exhibition.title ?? ''}
           />
         </div>
       )}
