@@ -40,15 +40,17 @@ export const exhibition = defineType({
       type: 'mediaImage',
       description:
         'Image when this exhibition is added to the homepage carousel in Site Settings. ' +
-        'If unset, the first still image in Installation Images is used.',
+        'If unset, the first still image in Installation Images is used. Open the field for Size override below the image.',
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
       name: 'installationImages',
       title: 'Installation Images',
+      description:
+        'List layout: click each image/video row to edit. Size override, caption, and credit appear under the image.',
       type: 'array',
       of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
-      options: {layout: 'grid'},
+      options: {layout: 'list'},
     }),
     defineField({name: 'venue', title: 'Venue', type: 'string'}),
     defineField({name: 'location', title: 'Location', type: 'string'}),

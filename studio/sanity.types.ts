@@ -15,6 +15,58 @@
 export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: ../sanity.schema.json
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type Press = {
+  _id: string
+  _type: 'press'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  orderRank?: string
+  kind?: 'url' | 'pdf' | 'text'
+  linkText: string
+  url?: string
+  pdf?: {
+    asset?: SanityFileAssetReference
+    media?: unknown
+    _type: 'file'
+  }
+  slug?: Slug
+  publishedAt?: string
+  publication?: string
+  author?: string
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
 export type ExhibitionReference = {
   _ref: string
   _type: 'reference'
@@ -107,12 +159,6 @@ export type Ephemera = {
   >
 }
 
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
-}
-
 export type SanityImageAssetReference = {
   _ref: string
   _type: 'reference'
@@ -142,6 +188,7 @@ export type Work = {
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
+    sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
     _type: 'image'
   }
   gallery?: Array<
@@ -212,6 +259,7 @@ export type MediaImage = {
   media?: unknown
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
+  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   isAudiencePhoto?: boolean
   caption?: string
   credit?: string
@@ -315,13 +363,6 @@ export type VimeoVideoReference = {
 export type Vimeo = {
   _type: 'vimeo'
   asset?: VimeoVideoReference
-}
-
-export type SanityFileAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
 }
 
 export type MediaVideoFile = {
@@ -640,11 +681,13 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
+  | SanityFileAssetReference
+  | Press
+  | Slug
   | ExhibitionReference
   | CvEntry
   | WorkReference
   | Ephemera
-  | Slug
   | SanityImageAssetReference
   | EphemeraReference
   | Work
@@ -656,7 +699,6 @@ export type AllSanitySchemaTypes =
   | YoutubeVideo
   | VimeoVideoReference
   | Vimeo
-  | SanityFileAssetReference
   | MediaVideoFile
   | SiteSettings
   | SanityAssistInstructionTask

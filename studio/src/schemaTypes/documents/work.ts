@@ -2,6 +2,7 @@ import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
+import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
 import {yearDescOrdering} from '../shared/yearDescOrdering'
 
 export const work = defineType({
@@ -34,15 +35,31 @@ export const work = defineType({
     defineField({
       name: 'coverImage',
       title: 'Cover Image',
+      description:
+        'After selecting an image, scroll below the crop/hotspot controls for Size override and other options.',
       type: 'image',
       options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'sizeOverride',
+          title: 'Size override',
+          type: 'string',
+          options: {
+            list: imageSizeOverrideOptions,
+            layout: 'radio',
+            direction: 'horizontal',
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'gallery',
       title: 'Gallery',
+      description:
+        'Use list view: click an image row to open it — Size override, caption, and credit are below the image.',
       type: 'array',
       of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
-      options: {layout: 'grid'},
+      options: {layout: 'list'},
     }),
     defineField({
       name: 'exhibition',
@@ -59,7 +76,7 @@ export const work = defineType({
       type: 'mediaImage',
       description:
         'Image for this work on the homepage carousel. If unset, the first still image in ' +
-        'Gallery is used, then Cover Image.',
+        'Gallery is used, then Cover Image. Open the field to set Size override below the image.',
     }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),

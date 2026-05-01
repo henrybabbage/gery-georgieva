@@ -1,6 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import {getImageSizePreset, type ImageSizeOverride} from '@/sanity/lib/imageSize'
+import {
+  getEffectiveImageSizeOverride,
+  getImageSizePreset,
+  type ImageSizeOverride,
+} from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
 
 type GridItem = {
@@ -14,12 +18,13 @@ type GridItem = {
 }
 
 type SanityImageRef = {
+  sizeOverride?: ImageSizeOverride
   asset?: {_ref?: string; url?: string; sizeOverride?: ImageSizeOverride}
   [key: string]: unknown
 }
 
 function TileImage({image, title}: {image: SanityImageRef; title: string}) {
-  const imageSizePreset = getImageSizePreset(image.asset?.sizeOverride)
+  const imageSizePreset = getImageSizePreset(getEffectiveImageSizeOverride(image))
   const url = urlForImage(image)?.width(imageSizePreset.width).auto('format').url()
   if (!url) return <div className="aspect-[4/3] bg-placeholder" />
   return (

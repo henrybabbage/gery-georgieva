@@ -9,9 +9,9 @@ const galleryUnionFields = /* groq */ `
   _type,
   crop,
   hotspot,
+  sizeOverride,
   "asset": asset-> {
     ...,
-    imageType,
     sizeOverride
   },
   isAudiencePhoto,
@@ -49,9 +49,9 @@ const workCardFields = /* groq */ `
   medium,
   coverImage {
     ...,
+    sizeOverride,
     "asset": asset-> {
       ...,
-      imageType,
       sizeOverride
     }
   }
@@ -71,17 +71,17 @@ export const streamQuery = defineQuery(`
     year,
     coverImage {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     },
     "firstImage": images[_type == "mediaImage"][0] {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     }
@@ -115,9 +115,9 @@ export const workQuery = defineQuery(`
     carouselImage { ${galleryUnionFields} },
     coverImage {
       ...,
+      sizeOverride,
       "asset": asset-> {
         ...,
-        imageType,
         sizeOverride
       }
     },
@@ -129,9 +129,9 @@ export const workQuery = defineQuery(`
       category,
       "firstImage": images[_type == "mediaImage"][0] {
         ...,
+        sizeOverride,
         "asset": asset-> {
           ...,
-          imageType,
           sizeOverride
         }
       }
@@ -198,6 +198,19 @@ export const exhibitionQuery = defineQuery(`
 
 export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
+`)
+
+/** Public exhibition index (/exhibitions); omits draft-only pages. */
+export const featureExhibitionListQuery = defineQuery(`
+  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
+  | order(orderRank asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    venue,
+    location
+  }
 `)
 
 export const homepageCarouselQuery = defineQuery(`
@@ -296,8 +309,40 @@ export const cvQuery = defineQuery(`
 export const pressQuery = defineQuery(`
   *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {
     _id,
+    kind,
     linkText,
+    "slug": slug.current,
     url,
-    "pdfUrl": pdf.asset->url
+    "pdfUrl": pdf.asset->url,
+    publishedAt,
+    publication,
+    author,
+    body
+  }
+`)
+
+/** Written articles with a public URL (for static paths and sitemap). */
+export const pressArticleSlugQuery = defineQuery(`
+  *[_type == "press" && defined(slug.current) && (
+    kind == "text"
+    || (!defined(kind) && !defined(url) && !defined(pdf.asset))
+  )] {
+    "slug": slug.current
+  }
+`)
+
+export const pressArticleBySlugQuery = defineQuery(`
+  *[_type == "press" && slug.current == $slug][0] {
+    _id,
+    kind,
+    linkText,
+    "slug": slug.current,
+    url,
+    "pdfUrl": pdf.asset->url,
+    publishedAt,
+    publication,
+    author,
+    articleImages[] { ${galleryUnionFields} },
+    body
   }
 `)
