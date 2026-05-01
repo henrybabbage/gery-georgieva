@@ -16,6 +16,13 @@ type Props = {params: Promise<{slug: string}>}
 
 type PressArticle = NonNullable<PressArticleBySlugQueryResult>
 
+/** New internal press pages remain reachable without a production rebuild (on-demand ISR). */
+export const dynamicParams = true
+
+/** Same staggered layout as exhibition installation images (split when >10). Here: article text first, then gallery beneath. */
+const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
+const INSTALLATION_GALLERY_LEAD_COUNT = 5
+
 const installationGalleryShellClass =
   'mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]'
 
@@ -73,13 +80,23 @@ export default async function PressArticlePage({params}: Props) {
   }
 
   const articleImages = (article.articleImages ?? []) as ExhibitionInstallationImage[]
+  const splitGallery = articleImages.length > INSTALLATION_GALLERY_SPLIT_THRESHOLD
+  const leadArticleImages = splitGallery
+    ? articleImages.slice(0, INSTALLATION_GALLERY_LEAD_COUNT)
+    : articleImages
+  const tailArticleImages = splitGallery
+    ? articleImages.slice(INSTALLATION_GALLERY_LEAD_COUNT)
+    : []
+
   const layoutTitle = article.linkText ?? 'Press'
   const altBase = article.linkText ?? 'Press'
 
   const dateLine = formatPressPublicationDate(article.publishedAt ?? null)
   const publication = article.publication?.trim()
   const author = article.author?.trim()
-  const hasMeta = Boolean(dateLine || publication || author)
+  const hasDescription = (body?.length ?? 0) > 0
+  const hasAboutMeta = Boolean(dateLine || publication || author)
+  const showAboutSection = hasDescription || hasAboutMeta
 
   return (
     <div className="px-5 py-8">
@@ -93,29 +110,50 @@ export default async function PressArticlePage({params}: Props) {
         <h1 className="text-base font-normal">{article.linkText}</h1>
       </header>
 
-      {articleImages.length > 0 && (
-        <div className={installationGalleryShellClass}>
-          <ExhibitionStaggeredMedia
-            items={articleImages}
-            altBase={altBase}
-            layoutTitle={layoutTitle}
-          />
-        </div>
+      {showAboutSection && (
+        <section
+          className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-16 lg:px-[30px]"
+          aria-label="Article"
+        >
+          {hasAboutMeta && (
+            <div
+              className={`max-w-[72ch] space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
+            >
+              {dateLine && <p>{dateLine}</p>}
+              {publication && <p>{publication}</p>}
+              {author && <p>{author}</p>}
+            </div>
+          )}
+          {hasDescription && (
+            <CustomPortableText className="max-w-[72ch] text-base" value={body} />
+          )}
+        </section>
       )}
 
-      <section
-        className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-16 lg:px-[30px]"
-        aria-label="Article"
-      >
-        {hasMeta && (
-          <div className="max-w-[72ch] space-y-2 text-base text-[var(--color-ink)] mb-8">
-            {dateLine && <p>{dateLine}</p>}
-            {publication && <p>{publication}</p>}
-            {author && <p>{author}</p>}
-          </div>
-        )}
-        <CustomPortableText className="max-w-[72ch] text-base" value={body} />
-      </section>
+      {(leadArticleImages.length > 0 || tailArticleImages.length > 0) && (
+        <section aria-label="Images and video" className="w-full">
+          {leadArticleImages.length > 0 && (
+            <div className={installationGalleryShellClass}>
+              <ExhibitionStaggeredMedia
+                items={leadArticleImages}
+                altBase={altBase}
+                layoutTitle={layoutTitle}
+              />
+            </div>
+          )}
+
+          {tailArticleImages.length > 0 && (
+            <div className={installationGalleryShellClass}>
+              <ExhibitionStaggeredMedia
+                items={tailArticleImages}
+                altBase={altBase}
+                layoutTitle={layoutTitle}
+                layoutIndexOffset={INSTALLATION_GALLERY_LEAD_COUNT}
+              />
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }

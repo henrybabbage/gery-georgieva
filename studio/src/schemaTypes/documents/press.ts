@@ -243,7 +243,7 @@ export const press = defineType({
       title: 'Attach images & video (optional)',
       type: 'array',
       description:
-        'Only for archives on this site. Click “Add item” (or the +) to attach stills, Vimeo/YouTube, or video files — same behaviour as exhibition installation images (list layout, caption & credit under each). Leave empty if the piece is text-only. Shown on the archive page above the article text.',
+        'Only for archives on this site. Click “Add item” (or the +) to attach stills, Vimeo/YouTube, or video files — same layout as exhibition installation images (list layout, caption & credit under each). Leave empty if the piece is text-only. On the site, media appears after the article text, like a trailing gallery.',
       of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
       options: {
         layout: 'list',
@@ -256,7 +256,7 @@ export const press = defineType({
       type: 'array',
       of: [{type: 'block'}],
       description:
-        'Full text of the piece. Appears on the archive page after images (if any) and publication details.',
+        'Full text of the piece. On the archive page it appears first (under the title and publication details), then any attached images/video follow.',
       hidden: ({document}) => inferKind(document as PressDoc) !== 'text',
       validation: (Rule) =>
         Rule.custom((value, context) => {
