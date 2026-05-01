@@ -183,7 +183,7 @@ function GalleryMediaTile({
           width={naturalW}
           height={naturalH}
           sizes={sizes}
-          className="h-auto w-full max-w-full object-contain"
+          className="block h-auto w-full max-w-full object-contain"
         />
       </div>
     )
@@ -256,7 +256,7 @@ function VideoFallback({caption, credit}: {caption?: string | null; credit?: str
     return <div className="aspect-video w-full bg-placeholder" />
   }
   return (
-    <div className="flex aspect-video w-full items-center justify-center bg-placeholder px-4 text-center text-base text-[#8a8880]">
+    <div className="flex aspect-video w-full items-center justify-center bg-placeholder px-4 text-center text-sm leading-snug text-[var(--color-muted)]">
       {[caption, credit].filter(Boolean).join(' — ')}
     </div>
   )
@@ -267,9 +267,11 @@ function SideCaption({item}: {item: ExhibitionInstallationImage}) {
   const credit = item.credit?.trim()
   if (!caption && !credit) return null
   return (
-    <div className="space-y-1 text-base leading-snug text-[#8a8880] self-end pb-1">
-      {caption && <p>{caption}</p>}
-      {credit && <p className="opacity-70">{credit}</p>}
+    <div className="flex flex-col gap-px text-sm text-[var(--color-muted)]">
+      {caption && (
+        <p className={`m-0 max-w-prose ${credit ? 'leading-tight' : 'leading-none'}`}>{caption}</p>
+      )}
+      {credit && <p className="m-0 max-w-prose leading-none">{credit}</p>}
     </div>
   )
 }
@@ -311,18 +313,24 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
 
   let grid: ReactNode
 
+  const mediaCellClass = (extra: string) =>
+    `min-w-0 ${imgSpan} flex flex-col justify-end self-stretch ${extra}`.trim()
+  const captionCellClass = `min-w-0 ${capSpan} flex flex-col justify-end self-stretch text-left`
+  const captionCellClassCenter = (span: string) =>
+    `min-w-0 ${span} flex flex-col justify-end self-stretch text-left`
+
   if (justify === 'left') {
     grid = (
-      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
-        <div className={`min-w-0 ${imgSpan}`}>{media}</div>
-        {captionEl && <div className={`min-w-0 ${capSpan} text-left`}>{captionEl}</div>}
+      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
+        <div className={mediaCellClass('')}>{media}</div>
+        {captionEl && <div className={captionCellClass}>{captionEl}</div>}
       </div>
     )
   } else if (justify === 'right') {
     grid = (
-      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
-        {captionEl && <div className={`min-w-0 ${capSpan} text-left`}>{captionEl}</div>}
-        <div className={`min-w-0 ${imgSpan} ${captionEl ? '' : rightImageStart}`}>{media}</div>
+      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
+        {captionEl && <div className={captionCellClass}>{captionEl}</div>}
+        <div className={mediaCellClass(captionEl ? '' : rightImageStart)}>{media}</div>
       </div>
     )
   } else {
@@ -330,11 +338,11 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
     const centerImgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
     const tailCaption = orientation === 'portrait' ? 'col-span-5' : 'col-span-4'
     grid = (
-      <div className="grid w-full grid-cols-12 items-end gap-x-6 gap-y-4">
+      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
         <div className={`${leadSpacer} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpan}`}>{media}</div>
+        <div className={`min-w-0 ${centerImgSpan} flex flex-col justify-end self-stretch`}>{media}</div>
         {captionEl ? (
-          <div className={`min-w-0 ${tailCaption} text-left`}>{captionEl}</div>
+          <div className={captionCellClassCenter(tailCaption)}>{captionEl}</div>
         ) : (
           <div className={`min-w-0 ${tailCaption}`} aria-hidden />
         )}
@@ -376,9 +384,17 @@ function MobileStack({
               orientation={orientation}
             />
             {(item.caption?.trim() || item.credit?.trim()) && (
-              <div className="mt-3 space-y-1 text-base text-[#8a8880]">
-                {item.caption?.trim() && <p>{item.caption.trim()}</p>}
-                {item.credit?.trim() && <p className="opacity-70">{item.credit.trim()}</p>}
+              <div className="mt-3 flex flex-col gap-px text-sm text-[var(--color-muted)]">
+                {item.caption?.trim() && (
+                  <p
+                    className={`m-0 max-w-prose ${item.credit?.trim() ? 'leading-tight' : 'leading-none'}`}
+                  >
+                    {item.caption.trim()}
+                  </p>
+                )}
+                {item.credit?.trim() && (
+                  <p className="m-0 max-w-prose leading-none">{item.credit.trim()}</p>
+                )}
               </div>
             )}
           </div>

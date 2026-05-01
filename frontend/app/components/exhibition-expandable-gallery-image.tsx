@@ -203,7 +203,7 @@ export function ExhibitionExpandableGalleryImage({
             width={width}
             height={height}
             sizes={sizes}
-            className="h-auto w-full max-w-full object-contain"
+            className="block h-auto w-full max-w-full object-contain"
           />
           <span
             className="pointer-events-none absolute inset-0 overflow-visible opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"

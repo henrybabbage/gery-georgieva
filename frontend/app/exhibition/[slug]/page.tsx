@@ -71,7 +71,7 @@ export default async function ExhibitionPage({params}: Props) {
   return (
     <div className="px-5 py-8">
       <header className="mx-auto max-w-3xl mb-10 sm:mb-12">
-        <h1 className="text-[22px] leading-tight sm:text-[28px] font-normal">{exhibition.title}</h1>
+        <h1 className="text-base font-normal">{exhibition.title}</h1>
       </header>
 
       {leadInstallationImages.length > 0 && (
