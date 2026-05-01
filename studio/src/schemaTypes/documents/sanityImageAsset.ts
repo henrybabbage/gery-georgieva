@@ -9,10 +9,8 @@ export const sanityImageAsset = defineType({
   fields: [
     defineField({
       name: 'sizeOverride',
-      title: 'Size Override',
+      title: 'Size override',
       type: 'string',
-      description:
-        'Optional default display size for this asset. Per-placement overrides in galleries take precedence.',
       options: {
         list: imageSizeOverrideOptions,
         layout: 'radio',

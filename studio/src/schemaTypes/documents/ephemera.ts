@@ -49,8 +49,11 @@ export const ephemera = defineType({
     defineField({
       name: 'images',
       title: 'Images',
+      description:
+        'Click an image row to open it — Size override, caption, and credit are below the image.',
       type: 'array',
       of: [{type: 'mediaImage'}, {type: 'mediaVideoFile'}, {type: 'mediaVideoLink'}],
+      options: {layout: 'list'},
     }),
     defineField({
       name: 'relatedWork',
