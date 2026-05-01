@@ -58,7 +58,8 @@ export const work = defineType({
       title: 'Homepage carousel image',
       type: 'mediaImage',
       description:
-        'Image for this work on the homepage carousel (optional if cover image is enough).',
+        'Image for this work on the homepage carousel. If unset, the first still image in ' +
+        'Gallery is used, then Cover Image.',
     }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),

@@ -209,6 +209,7 @@ export const homepageCarouselQuery = defineQuery(`
         _id,
         title,
         carouselImage { ${galleryUnionFields} },
+        "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
         coverImage { ..., asset-> },
         "exhibition": exhibition-> {
           _id,

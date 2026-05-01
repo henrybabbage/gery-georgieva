@@ -17,6 +17,7 @@ export interface HomepageCarouselQueryData {
 			_id: string
 			title?: string | null
 			carouselImage?: SanityImageSource | null
+			firstGalleryImage?: SanityImageSource | null
 			coverImage?: SanityImageSource | null
 			exhibition?: {
 				title?: string | null
@@ -30,6 +31,7 @@ export interface HomepageCarouselQueryData {
 			slug?: string | null
 			hidePublicPage?: boolean | null
 			carouselImage?: SanityImageSource | null
+			/** First still image in installationImages. */
 			firstInstallImage?: SanityImageSource | null
 		} | null
 	}> | null
@@ -65,6 +67,7 @@ export function buildHomepageCarouselSlides (
 		if (w) {
 			const img =
 				(w.carouselImage as SanityImageSource | null | undefined) ??
+				(w.firstGalleryImage as SanityImageSource | null | undefined) ??
 				(w.coverImage as SanityImageSource | null | undefined)
 			const url = img
 				? urlForImage(img)?.width(2400).auto('format').url()

@@ -40,7 +40,7 @@ export const exhibition = defineType({
       type: 'mediaImage',
       description:
         'Image when this exhibition is added to the homepage carousel in Site Settings. ' +
-        'Optional if installation images include at least one still image.',
+        'If unset, the first still image in Installation Images is used.',
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
