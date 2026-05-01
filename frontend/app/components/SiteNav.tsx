@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 const navLinks = [
 	{href: '/feature', label: 'Exhibitions'},
+	{href: '/press', label: 'Press'},
 	{href: '/contact', label: 'Contact'},
 	{href: '/cv', label: 'CV'},
 ] as const

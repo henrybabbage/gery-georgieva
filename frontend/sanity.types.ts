@@ -15,6 +15,29 @@
 export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: ../sanity.schema.json
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type Press = {
+  _id: string
+  _type: 'press'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  orderRank?: string
+  linkText: string
+  url?: string
+  pdf?: {
+    asset?: SanityFileAssetReference
+    media?: unknown
+    _type: 'file'
+  }
+}
+
 export type ExhibitionReference = {
   _ref: string
   _type: 'reference'
@@ -315,13 +338,6 @@ export type VimeoVideoReference = {
 export type Vimeo = {
   _type: 'vimeo'
   asset?: VimeoVideoReference
-}
-
-export type SanityFileAssetReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
 }
 
 export type MediaVideoFile = {
@@ -640,6 +656,8 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
+  | SanityFileAssetReference
+  | Press
   | ExhibitionReference
   | CvEntry
   | WorkReference
@@ -656,7 +674,6 @@ export type AllSanitySchemaTypes =
   | YoutubeVideo
   | VimeoVideoReference
   | Vimeo
-  | SanityFileAssetReference
   | MediaVideoFile
   | SiteSettings
   | SanityAssistInstructionTask
@@ -1592,6 +1609,16 @@ export type CvQueryResult = Array<{
   } | null
 }>
 
+// Source: sanity/lib/queries.ts
+// Variable: pressQuery
+// Query: *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {    _id,    linkText,    url,    "pdfUrl": pdf.asset->url  }
+export type PressQueryResult = Array<{
+  _id: string
+  linkText: string
+  url: string | null
+  pdfUrl: string | null
+}>
+
 // Query TypeMap
 import '@sanity/client'
 declare module '@sanity/client' {
@@ -1606,5 +1633,6 @@ declare module '@sanity/client' {
     '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  "asset": asset-> {\n    ...,\n    imageType,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '\n  *[_type == "cvEntry"] | order(year desc, title asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current,\n      hidePublicPage\n    }\n  }\n': CvQueryResult
+    '\n  *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {\n    _id,\n    linkText,\n    url,\n    "pdfUrl": pdf.asset->url\n  }\n': PressQueryResult
   }
 }
