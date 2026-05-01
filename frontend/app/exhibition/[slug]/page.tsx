@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {draftMode} from 'next/headers'
 import {ExhibitionStaggeredMedia} from '@/app/components/exhibition-staggered-media'
 import CustomPortableText from '@/app/components/PortableText'
+import {formatExhibitionRun, formatExhibitionVenueLine} from '@/lib/format-exhibition-meta'
 import {sanityFetch} from '@/sanity/lib/live'
 import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
 import type {PortableTextBlock} from 'next-sanity'
@@ -10,6 +11,13 @@ import type {Metadata} from 'next'
 import type {ExhibitionQueryResult} from '@/sanity.types'
 
 type Props = {params: Promise<{slug: string}>}
+
+/** Above this count, show 5 images → about → remaining images. */
+const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
+const INSTALLATION_GALLERY_LEAD_COUNT = 5
+
+const installationGalleryShellClass =
+  'mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]'
 
 export async function generateStaticParams() {
   const {data} = await sanityFetch({
@@ -42,37 +50,69 @@ export default async function ExhibitionPage({params}: Props) {
 
   if (!exhibition) notFound()
 
-  const placeLine = [exhibition.venue, exhibition.location].filter(Boolean).join(' · ')
-  const yearPlaceLine = [exhibition.year != null ? String(exhibition.year) : null, placeLine || null]
-    .filter(Boolean)
-    .join(' · ')
+  const runLabel = formatExhibitionRun(exhibition.startDate, exhibition.endDate, exhibition.year)
+  const venueLine = formatExhibitionVenueLine(exhibition.venue, exhibition.location)
+  const hasDescription = (exhibition.description?.length ?? 0) > 0
+  const hasAboutMeta = Boolean(runLabel || venueLine)
+  const showAboutSection = hasDescription || hasAboutMeta
+
+  const installationImages = exhibition.installationImages ?? []
+  const splitInstallationGallery = installationImages.length > INSTALLATION_GALLERY_SPLIT_THRESHOLD
+  const leadInstallationImages = splitInstallationGallery
+    ? installationImages.slice(0, INSTALLATION_GALLERY_LEAD_COUNT)
+    : installationImages
+  const tailInstallationImages = splitInstallationGallery
+    ? installationImages.slice(INSTALLATION_GALLERY_LEAD_COUNT)
+    : []
+
+  const layoutTitle = exhibition.title ?? ''
+  const altBase = exhibition.title ?? 'Installation'
 
   return (
     <div className="px-5 py-8">
       <header className="mx-auto max-w-3xl mb-10 sm:mb-12">
-        <h1 className="text-[22px] leading-tight sm:text-[28px] font-normal mb-3">{exhibition.title}</h1>
-        {yearPlaceLine && <p className="text-base opacity-60 mb-2">{yearPlaceLine}</p>}
-        {(exhibition.startDate || exhibition.endDate) && (
-          <p className="text-sm opacity-50 mb-4">
-            {exhibition.startDate && exhibition.endDate
-              ? `${exhibition.startDate} — ${exhibition.endDate}`
-              : (exhibition.startDate ?? exhibition.endDate)}
-          </p>
-        )}
-        {exhibition.description && exhibition.description.length > 0 && (
-          <CustomPortableText
-            className="text-base opacity-90 max-w-prose"
-            value={exhibition.description as PortableTextBlock[]}
-          />
-        )}
+        <h1 className="text-[22px] leading-tight sm:text-[28px] font-normal">{exhibition.title}</h1>
       </header>
 
-      {exhibition.installationImages && exhibition.installationImages.length > 0 && (
-        <div className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]">
+      {leadInstallationImages.length > 0 && (
+        <div className={installationGalleryShellClass}>
           <ExhibitionStaggeredMedia
-            items={exhibition.installationImages}
-            altBase={exhibition.title ?? 'Installation'}
-            layoutTitle={exhibition.title ?? ''}
+            items={leadInstallationImages}
+            altBase={altBase}
+            layoutTitle={layoutTitle}
+          />
+        </div>
+      )}
+
+      {showAboutSection && (
+        <section
+          className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-16 lg:px-[30px]"
+          aria-label="About this exhibition"
+        >
+          {hasAboutMeta && (
+            <div
+              className={`max-w-[72ch] space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
+            >
+              {runLabel && <p>{runLabel}</p>}
+              {venueLine && <p>{venueLine}</p>}
+            </div>
+          )}
+          {hasDescription && (
+            <CustomPortableText
+              className="max-w-[72ch] text-base"
+              value={exhibition.description as PortableTextBlock[]}
+            />
+          )}
+        </section>
+      )}
+
+      {tailInstallationImages.length > 0 && (
+        <div className={installationGalleryShellClass}>
+          <ExhibitionStaggeredMedia
+            items={tailInstallationImages}
+            altBase={altBase}
+            layoutTitle={layoutTitle}
+            layoutIndexOffset={INSTALLATION_GALLERY_LEAD_COUNT}
           />
         </div>
       )}

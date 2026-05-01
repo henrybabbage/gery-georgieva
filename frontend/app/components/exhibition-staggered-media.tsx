@@ -2,6 +2,10 @@ import type {ReactNode} from 'react'
 import Image from 'next/image'
 import {stegaClean} from '@sanity/client/stega'
 import type {ExhibitionQueryResult} from '@/sanity.types'
+import {
+  ExhibitionExpandableGalleryImage,
+  type ExhibitionExpandableGalleryImageProps,
+} from '@/app/components/exhibition-expandable-gallery-image'
 import {getEffectiveImageSizeOverride, getImageSizePreset} from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
 
@@ -76,6 +80,60 @@ function getItemOrientation(item: ExhibitionInstallationImage): Orientation {
 function getImageAlt(item: ExhibitionInstallationImage & {_type: 'mediaImage'}, altBase: string): string {
   const asset = item.asset as {altText?: string} | null | undefined
   return asset?.altText?.trim() || item.caption?.trim() || altBase
+}
+
+function getExpandableImageProps(
+  item: ExhibitionInstallationImage & {_type: 'mediaImage'},
+  altBase: string,
+  sizes: string,
+  orientation: Orientation,
+): ExhibitionExpandableGalleryImageProps | null {
+  const preset = getImageSizePreset(getEffectiveImageSizeOverride(item))
+  const url = item.asset ? urlForImage(item)?.width(preset.width).auto('format').url() : null
+  if (!url) return null
+
+  const meta = item.asset?.metadata?.dimensions
+  const ratio =
+    meta?.width && meta?.height && meta.width > 0 && meta.height > 0
+      ? meta.width / meta.height
+      : 4 / 3
+
+  const popupPixelW =
+    meta?.width && meta.width > 0 ? Math.min(meta.width, 2400) : Math.min(preset.width * 2, 2400)
+  const popupUrl = item.asset ? urlForImage(item)?.width(popupPixelW).auto('format').url() : null
+  if (!popupUrl) return null
+
+  const naturalW = meta?.width && meta.width > 0 ? meta.width : preset.width
+  const naturalH =
+    meta?.height && meta.height > 0 ? meta.height : Math.round(preset.width / ratio)
+
+  const isAudience = stegaClean(item.isAudiencePhoto)
+  const frameClass = isAudience
+    ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]'
+    : ''
+
+  const palette = item.asset?.metadata?.palette
+  const popupPlaceholderColor =
+    palette?.dominant?.background ??
+    palette?.muted?.background ??
+    palette?.vibrant?.background ??
+    null
+  const popupLqip = item.asset?.metadata?.lqip?.trim() || null
+
+  return {
+    imageUrl: url,
+    popupUrl,
+    width: naturalW,
+    height: naturalH,
+    alt: getImageAlt(item, altBase),
+    sizes,
+    frameClass,
+    orientation,
+    caption: item.caption,
+    credit: item.credit,
+    popupLqip,
+    popupPlaceholderColor,
+  }
 }
 
 function GalleryMediaTile({
@@ -216,33 +274,39 @@ function SideCaption({item}: {item: ExhibitionInstallationImage}) {
   )
 }
 
-const DESKTOP_MIN = 'min-[1100px]'
-const DESKTOP_SIZES_PORTRAIT = `(min-width: 1100px) 30vw, 100vw`
-const DESKTOP_SIZES_LANDSCAPE = `(min-width: 1100px) 45vw, 100vw`
+/** Single-column stack only below `md` (see MobileStack / `md:flex` block). Tablet+: 12-col staggered rows. */
+const GRID_SIZES_PORTRAIT = `(min-width: 768px) 30vw, 100vw`
+const GRID_SIZES_LANDSCAPE = `(min-width: 768px) 45vw, 100vw`
 
 /** ~125.3px at 1253px artboard ≈ 10% width */
 const ROW_MARGIN_BOTTOM = 'mb-[min(125px,10vw)]'
 
-type DesktopRowProps = {
+type StaggeredGridRowProps = {
   item: ExhibitionInstallationImage
   index: number
   altBase: string
   layoutTitle: string
 }
 
-function DesktopRow({item, index, altBase, layoutTitle}: DesktopRowProps) {
+function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowProps) {
   const justify = justifyForIndex(index, layoutTitle)
   const orientation = getItemOrientation(item)
   const hasSideCaption = !!(item.caption?.trim() || item.credit?.trim())
-  const sizes = orientation === 'portrait' ? DESKTOP_SIZES_PORTRAIT : DESKTOP_SIZES_LANDSCAPE
+  const sizes = orientation === 'portrait' ? GRID_SIZES_PORTRAIT : GRID_SIZES_LANDSCAPE
 
   const imgSpan = orientation === 'portrait' ? 'col-span-4' : 'col-span-6'
   const capSpan = orientation === 'portrait' ? 'col-span-8' : 'col-span-6'
   const rightImageStart = orientation === 'portrait' ? 'col-start-9' : 'col-start-7'
 
-  const media = (
-    <GalleryMediaTile item={item} altBase={altBase} sizes={sizes} orientation={orientation} />
-  )
+  const expandableProps =
+    item._type === 'mediaImage' ? getExpandableImageProps(item, altBase, sizes, orientation) : null
+
+  const media =
+    expandableProps != null ? (
+      <ExhibitionExpandableGalleryImage {...expandableProps} />
+    ) : (
+      <GalleryMediaTile item={item} altBase={altBase} sizes={sizes} orientation={orientation} />
+    )
   const captionEl = hasSideCaption ? <SideCaption item={item} /> : null
 
   let grid: ReactNode
@@ -300,7 +364,7 @@ function MobileStack({
   altBase: string
 }) {
   return (
-    <div className={`flex ${DESKTOP_MIN}:hidden w-full min-w-0 flex-col gap-14 sm:gap-16`}>
+    <div className={`flex w-full min-w-0 flex-col gap-14 sm:gap-16 md:hidden`}>
       {items.map((item, i) => {
         const orientation = getItemOrientation(item)
         return (
@@ -328,11 +392,14 @@ export function ExhibitionStaggeredMedia({
   items,
   altBase,
   layoutTitle,
+  layoutIndexOffset = 0,
 }: {
   items: NonNullable<NonNullable<ExhibitionQueryResult>['installationImages']>
   altBase: string
   /** Exhibition title (or any stable string) — seeds deterministic left/center/right rhythm. */
   layoutTitle: string
+  /** When the gallery is split across sections, offset so desktop row rhythm continues (e.g. 5 after first block of 5). */
+  layoutIndexOffset?: number
 }) {
   if (!items.length) return null
 
@@ -341,12 +408,12 @@ export function ExhibitionStaggeredMedia({
   return (
     <div className="w-full">
       <MobileStack items={items} altBase={altBase} />
-      <div className={`hidden ${DESKTOP_MIN}:flex w-full min-w-0 flex-col`}>
+      <div className={`hidden w-full min-w-0 flex-col md:flex`}>
         {items.map((item, index) => (
-          <DesktopRow
+          <StaggeredGridRow
             key={item._key ?? index}
             item={item}
-            index={index}
+            index={index + layoutIndexOffset}
             altBase={altBase}
             layoutTitle={seedSource}
           />

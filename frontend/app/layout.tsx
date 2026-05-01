@@ -36,7 +36,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   if (holdShell) {
     return (
       <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
-        <body className="min-h-screen text-base font-sans antialiased">
+        <body className="isolate min-h-screen text-base font-sans antialiased">
           {children}
         </body>
       </html>
@@ -45,7 +45,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   return (
     <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
-      <body className="min-h-screen text-base font-sans antialiased">
+      <body className="isolate min-h-screen text-base font-sans antialiased">
         <LenisRoot>
           <Toaster position="bottom-center" />
           {isDraftMode && (
