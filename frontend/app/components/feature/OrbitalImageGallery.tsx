@@ -24,7 +24,7 @@ const PHASE_EPS = 5e-5
 /** Cap dt when tab was backgrounded — avoids single-frame leaps */
 const PHASE_MAX_DT = 48 / 1000
 /** Orbit radius as fraction of min(viewport w, h); higher = more space between slides */
-const ORBIT_RADIUS_RATIO = 0.92
+const ORBIT_RADIUS_RATIO = 0.68
 /** Max lateral offset from centre (±fraction of min(viewport w, h)); per-slide amount from hash */
 const HORIZONTAL_STAGGER_RATIO = 0.1
 
@@ -146,8 +146,8 @@ export default function OrbitalImageGallery ({
 					bestCz = cz
 					frontIndex = i
 				}
-				const y = Math.sin(theta) * R
-				const z = Math.cos(theta) * R
+				const y = Math.sin(theta) * R * 0.9
+				const z = Math.cos(theta) * R * 0.9
 				const x = lateralNormByIndex[i] * span
 				gsap.set(el, {
 					xPercent: -50,
