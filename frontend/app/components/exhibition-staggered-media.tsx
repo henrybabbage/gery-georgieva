@@ -12,6 +12,10 @@ import {
   type ImageSizeOverride,
 } from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
+import {
+  ExhibitionVimeoEmbed,
+  ExhibitionVimeoPlaybackProvider,
+} from '@/app/components/exhibition-vimeo-embed'
 
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */
 export type ExhibitionInstallationImage = NonNullable<
@@ -224,11 +228,14 @@ function GalleryMediaTile({
   altBase,
   sizes,
   orientation,
+  playbackKey,
 }: {
   item: ExhibitionInstallationImage
   altBase: string
   sizes: string
   orientation: Orientation
+  /** Stable id for single-active Vimeo playback within the gallery. */
+  playbackKey?: string
 }) {
   const tier = getInstallationLayoutTier(item)
   const portraitMax = orientation === 'portrait' ? EXHIBITION_PORTRAIT_MAX[tier] : ''
@@ -296,17 +303,16 @@ function GalleryMediaTile({
       if (!id) {
         return <VideoFallback caption={item.caption} credit={item.credit} />
       }
+      const vimeoWrap = `relative aspect-video w-full max-w-full overflow-hidden bg-black ${orientation === 'portrait' ? portraitMax : ''}`
       return (
-        <div className="relative aspect-video w-full max-w-full overflow-hidden bg-black">
-          <iframe
-            title={item.vimeo?.asset?.name ?? 'Vimeo video'}
-            src={`https://player.vimeo.com/video/${id}`}
-            className="absolute inset-0 h-full w-full border-0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-            loading="lazy"
-          />
-        </div>
+        <ExhibitionVimeoEmbed
+          vimeoId={id}
+          play={item.vimeo?.asset?.play ?? undefined}
+          title={item.vimeo?.asset?.name ?? 'Vimeo video'}
+          posterUrl={item.vimeo?.asset?.thumbnail ?? null}
+          playbackId={playbackKey ?? id}
+          className={vimeoWrap}
+        />
       )
     }
 
@@ -398,7 +404,13 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
     expandableProps != null ? (
       <ExhibitionExpandableGalleryImage {...expandableProps} />
     ) : (
-      <GalleryMediaTile item={item} altBase={altBase} sizes={sizes} orientation={orientation} />
+      <GalleryMediaTile
+        item={item}
+        altBase={altBase}
+        sizes={sizes}
+        orientation={orientation}
+        playbackKey={item._key}
+      />
     )
   const captionEl = hasSideCaption ? <SideCaption item={item} /> : null
 
@@ -470,6 +482,7 @@ function MobileStack({
               altBase={altBase}
               sizes="100vw"
               orientation={orientation}
+              playbackKey={item._key}
             />
             {(item.caption?.trim() || item.credit?.trim()) && (
               <div className="mt-3 flex flex-col gap-px text-sm text-[var(--color-muted)]">
@@ -498,7 +511,7 @@ export function ExhibitionStaggeredMedia({
   layoutTitle,
   layoutIndexOffset = 0,
 }: {
-  items: NonNullable<NonNullable<ExhibitionQueryResult>['installationImages']>
+  items: ExhibitionInstallationImage[]
   altBase: string
   /** Exhibition title (or any stable string) — seeds deterministic left/center/right rhythm. */
   layoutTitle: string
@@ -510,19 +523,21 @@ export function ExhibitionStaggeredMedia({
   const seedSource = layoutTitle.trim() || altBase
 
   return (
-    <div className="w-full">
-      <MobileStack items={items} altBase={altBase} />
-      <div className={`hidden w-full min-w-0 flex-col md:flex`}>
-        {items.map((item, index) => (
-          <StaggeredGridRow
-            key={item._key ?? index}
-            item={item}
-            index={index + layoutIndexOffset}
-            altBase={altBase}
-            layoutTitle={seedSource}
-          />
-        ))}
+    <ExhibitionVimeoPlaybackProvider>
+      <div className="w-full">
+        <MobileStack items={items} altBase={altBase} />
+        <div className={`hidden w-full min-w-0 flex-col md:flex`}>
+          {items.map((item, index) => (
+            <StaggeredGridRow
+              key={item._key ?? index}
+              item={item}
+              index={index + layoutIndexOffset}
+              altBase={altBase}
+              layoutTitle={seedSource}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </ExhibitionVimeoPlaybackProvider>
   )
 }

@@ -309,8 +309,40 @@ export const cvQuery = defineQuery(`
 export const pressQuery = defineQuery(`
   *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {
     _id,
+    kind,
     linkText,
+    "slug": slug.current,
     url,
-    "pdfUrl": pdf.asset->url
+    "pdfUrl": pdf.asset->url,
+    publishedAt,
+    publication,
+    author,
+    body
+  }
+`)
+
+/** Written articles with a public URL (for static paths and sitemap). */
+export const pressArticleSlugQuery = defineQuery(`
+  *[_type == "press" && defined(slug.current) && (
+    kind == "text"
+    || (!defined(kind) && !defined(url) && !defined(pdf.asset))
+  )] {
+    "slug": slug.current
+  }
+`)
+
+export const pressArticleBySlugQuery = defineQuery(`
+  *[_type == "press" && slug.current == $slug][0] {
+    _id,
+    kind,
+    linkText,
+    "slug": slug.current,
+    url,
+    "pdfUrl": pdf.asset->url,
+    publishedAt,
+    publication,
+    author,
+    articleImages[] { ${galleryUnionFields} },
+    body
   }
 `)

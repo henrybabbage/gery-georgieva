@@ -29,6 +29,7 @@ export type Press = {
   _updatedAt: string
   _rev: string
   orderRank?: string
+  kind?: 'url' | 'pdf' | 'text'
   linkText: string
   url?: string
   pdf?: {
@@ -36,6 +37,34 @@ export type Press = {
     media?: unknown
     _type: 'file'
   }
+  slug?: Slug
+  publishedAt?: string
+  publication?: string
+  author?: string
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
 }
 
 export type ExhibitionReference = {
@@ -128,12 +157,6 @@ export type Ephemera = {
       _key: string
     } & ExhibitionReference
   >
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type SanityImageAssetReference = {
@@ -236,8 +259,8 @@ export type MediaImage = {
   media?: unknown
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
-  isAudiencePhoto?: boolean
   sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
+  isAudiencePhoto?: boolean
   caption?: string
   credit?: string
 }
@@ -660,11 +683,11 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
   | SanityFileAssetReference
   | Press
+  | Slug
   | ExhibitionReference
   | CvEntry
   | WorkReference
   | Ephemera
-  | Slug
   | SanityImageAssetReference
   | EphemeraReference
   | Work

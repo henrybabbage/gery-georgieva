@@ -54,7 +54,7 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
     case 'ephemera':
       return slug ? `/ephemera/${slug}` : undefined
     case 'press':
-      return '/press'
+      return slug ? `/press/${slug}` : '/press'
     default:
       return undefined
   }
@@ -109,6 +109,10 @@ export default defineConfig({
             filter: `_type == "cvEntry"`,
           },
           {
+            route: '/press/:slug',
+            filter: `_type == "press" && slug.current == $slug`,
+          },
+          {
             route: '/press',
             filter: `_type == "press"`,
           },
@@ -160,16 +164,22 @@ export default defineConfig({
             tone: 'positive',
           }),
           press: defineLocations({
-            select: {linkText: 'linkText'},
+            select: {linkText: 'linkText', slug: 'slug.current'},
             resolve: (doc) => ({
               locations: [
-                {
-                  title: doc?.linkText || 'Press',
-                  href: '/press',
-                },
+                doc?.slug
+                  ? {
+                      title: doc?.linkText || 'Press article',
+                      href: resolveHref('press', doc.slug)!,
+                    }
+                  : {
+                      title: doc?.linkText || 'Press',
+                      href: '/press',
+                    },
               ],
             }),
-            message: 'This link appears on the Press page.',
+            message:
+              'On-site archives open at /press/your-slug; live links and PDFs stay on the main Press list only.',
             tone: 'positive',
           }),
         },

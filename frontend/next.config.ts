@@ -1,6 +1,7 @@
 import type {NextConfig} from 'next'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['vimeo-video-element', 'media-chrome', 'ce-la-react'],
   async redirects () {
     return [
       {source: '/features', destination: '/', permanent: true},

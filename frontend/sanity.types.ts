@@ -29,6 +29,7 @@ export type Press = {
   _updatedAt: string
   _rev: string
   orderRank?: string
+  kind?: 'url' | 'pdf' | 'text'
   linkText: string
   url?: string
   pdf?: {
@@ -36,6 +37,45 @@ export type Press = {
     media?: unknown
     _type: 'file'
   }
+  slug?: Slug
+  publishedAt?: string
+  publication?: string
+  author?: string
+  articleImages?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
 }
 
 export type ExhibitionReference = {
@@ -128,12 +168,6 @@ export type Ephemera = {
       _key: string
     } & ExhibitionReference
   >
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type SanityImageAssetReference = {
@@ -236,8 +270,8 @@ export type MediaImage = {
   media?: unknown
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
-  isAudiencePhoto?: boolean
   sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
+  isAudiencePhoto?: boolean
   caption?: string
   credit?: string
 }
@@ -660,11 +694,11 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
   | SanityFileAssetReference
   | Press
+  | Slug
   | ExhibitionReference
   | CvEntry
   | WorkReference
   | Ephemera
-  | Slug
   | SanityImageAssetReference
   | EphemeraReference
   | Work
@@ -742,8 +776,8 @@ export type StreamQueryResult = Array<
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
-        isAudiencePhoto?: boolean
         sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
+        isAudiencePhoto?: boolean
         caption?: string
         credit?: string
       } | null
@@ -1093,8 +1127,8 @@ export type WorkQueryResult = {
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
-      isAudiencePhoto?: boolean
       sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
+      isAudiencePhoto?: boolean
       caption?: string
       credit?: string
     } | null
@@ -1628,13 +1662,204 @@ export type CvQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: pressQuery
-// Query: *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {    _id,    linkText,    url,    "pdfUrl": pdf.asset->url  }
+// Query: *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {    _id,    kind,    linkText,    "slug": slug.current,    url,    "pdfUrl": pdf.asset->url,    publishedAt,    publication,    author,    body  }
 export type PressQueryResult = Array<{
   _id: string
+  kind: 'pdf' | 'text' | 'url' | null
   linkText: string
+  slug: string | null
   url: string | null
   pdfUrl: string | null
+  publishedAt: string | null
+  publication: string | null
+  author: string | null
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }> | null
 }>
+
+// Source: sanity/lib/queries.ts
+// Variable: pressArticleSlugQuery
+// Query: *[_type == "press" && defined(slug.current) && (    kind == "text"    || (!defined(kind) && !defined(url) && !defined(pdf.asset))  )] {    "slug": slug.current  }
+export type PressArticleSlugQueryResult = Array<{
+  slug: string | null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: pressArticleBySlugQuery
+// Query: *[_type == "press" && slug.current == $slug][0] {    _id,    kind,    linkText,    "slug": slug.current,    url,    "pdfUrl": pdf.asset->url,    publishedAt,    publication,    author,    articleImages[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    body  }
+export type PressArticleBySlugQueryResult = {
+  _id: string
+  kind: 'pdf' | 'text' | 'url' | null
+  linkText: string
+  slug: string | null
+  url: string | null
+  pdfUrl: string | null
+  publishedAt: string | null
+  publication: string | null
+  author: string | null
+  articleImages: Array<
+    | {
+        _key: string
+        _type: 'mediaImage'
+        crop: SanityImageCrop | null
+        hotspot: SanityImageHotspot | null
+        sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
+        asset: {
+          _id: string
+          _type: 'sanity.imageAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          metadata?: SanityImageMetadata
+          source?: SanityAssetSourceData
+          sizeOverride: null
+        } | null
+        isAudiencePhoto: boolean | null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoFile'
+        crop: null
+        hotspot: null
+        sizeOverride: null
+        asset: {
+          _id: string
+          _type: 'sanity.fileAsset'
+          _createdAt: string
+          _updatedAt: string
+          _rev: string
+          originalFilename?: string
+          label?: string
+          title?: string
+          description?: string
+          altText?: string
+          sha1hash: string
+          extension: string
+          mimeType: string
+          size: number
+          assetId: string
+          uploadId?: string
+          path: string
+          url: string
+          source?: SanityAssetSourceData
+          sizeOverride: null
+        } | null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: null
+        vimeo: null
+        youtube: null
+      }
+    | {
+        _key: string
+        _type: 'mediaVideoLink'
+        crop: null
+        hotspot: null
+        sizeOverride: null
+        asset: null
+        isAudiencePhoto: null
+        caption: string | null
+        credit: string | null
+        provider: 'vimeo' | 'youtube'
+        vimeo: {
+          asset: {
+            vimeoId: string | null
+            name: string | null
+            duration: number | null
+            width: number | null
+            height: number | null
+            privacy: string | null
+            thumbnail: string | null
+            files: Array<{
+              quality?: string
+              type?: string
+              width?: number
+              height?: number
+              link?: string
+              size?: number
+              _key: string
+            }> | null
+            play: {
+              progressive?: Array<{
+                type?: string
+                rendition?: string
+                width?: number
+                height?: number
+                link?: string
+                _key: string
+              }>
+              dash?: {
+                link?: string
+              }
+              hls?: {
+                link?: string
+              }
+            } | null
+          } | null
+        } | null
+        youtube: {
+          id: string
+          title: string | null
+          description: string | null
+          publishedAt: string | null
+          thumbnails: Array<string> | null
+        } | null
+      }
+  > | null
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }> | null
+} | null
 
 // Query TypeMap
 import '@sanity/client'
@@ -1651,6 +1876,8 @@ declare module '@sanity/client' {
     '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '\n  *[_type == "cvEntry"] | order(year desc, title asc) {\n    _id,\n    title,\n    year,\n    category,\n    role,\n    institution,\n    location,\n    description,\n    internalRef-> {\n      _id,\n      title,\n      "slug": slug.current,\n      hidePublicPage\n    }\n  }\n': CvQueryResult
-    '\n  *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {\n    _id,\n    linkText,\n    url,\n    "pdfUrl": pdf.asset->url\n  }\n': PressQueryResult
+    '\n  *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {\n    _id,\n    kind,\n    linkText,\n    "slug": slug.current,\n    url,\n    "pdfUrl": pdf.asset->url,\n    publishedAt,\n    publication,\n    author,\n    body\n  }\n': PressQueryResult
+    '\n  *[_type == "press" && defined(slug.current) && (\n    kind == "text"\n    || (!defined(kind) && !defined(url) && !defined(pdf.asset))\n  )] {\n    "slug": slug.current\n  }\n': PressArticleSlugQueryResult
+    '\n  *[_type == "press" && slug.current == $slug][0] {\n    _id,\n    kind,\n    linkText,\n    "slug": slug.current,\n    url,\n    "pdfUrl": pdf.asset->url,\n    publishedAt,\n    publication,\n    author,\n    articleImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    body\n  }\n': PressArticleBySlugQueryResult
   }
 }
