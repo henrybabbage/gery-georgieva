@@ -1,18 +1,12 @@
 'use client'
 
+import {useDialKit} from 'dialkit'
 import {gsap} from '@/lib/gsap'
 import Image from 'next/image'
 import Link from 'next/link'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
-import styles from './perspective-tunnel-gallery.module.css'
-
-const SCROLL_SPEED = 2
-const LAYER_GAP = 2500
-const LERP = 0.07
-const EXIT_POINT = 1500
 const INITIAL_SCROLL = 750
-const VISIBLE_DEPTH_MULT = 3
 
 function hasCarouselImageSrc (src: string): boolean {
 	return typeof src === 'string' && src.trim().length > 0
@@ -32,6 +26,39 @@ function calculateOverlay (
 	return 1
 }
 
+function transitionImageBlurPx (
+	z: number,
+	overlay: number,
+	exitPoint: number,
+	visibleDepth: number,
+	enterBlurPx: number,
+	exitBlurPx: number,
+	withBlur: boolean,
+): number {
+	if (
+		!withBlur ||
+		(enterBlurPx <= 0 && exitBlurPx <= 0) ||
+		visibleDepth <= 0 ||
+		exitPoint <= 0
+	) {
+		return 0
+	}
+	const o = Math.min(1, Math.max(0, overlay))
+	if (o <= 0 || o >= 1) return 0
+	const edgePulse = Math.max(0, 4 * o * (1 - o))
+	if (edgePulse <= 0) return 0
+	let w = 0
+	if (enterBlurPx > 0 && z < 0 && z > -visibleDepth) {
+		const t = (-z) / visibleDepth
+		w += enterBlurPx * Math.sin(Math.PI * t)
+	}
+	if (exitBlurPx > 0 && z >= 0 && z < exitPoint) {
+		const t = z / exitPoint
+		w += exitBlurPx * Math.sin(Math.PI * t)
+	}
+	return Math.min(96, Math.max(0, w * edgePulse))
+}
+
 interface TunnelPlane {
 	key: string
 	planeIndex: number
@@ -43,6 +70,7 @@ interface TunnelPlane {
 function buildPlanes (
 	imageSrcs: readonly string[],
 	stableKeys: readonly string[],
+	layerGapPx: number,
 ): TunnelPlane[] {
 	const n = imageSrcs.length
 	if (n === 0) return []
@@ -57,13 +85,15 @@ function buildPlanes (
 			planeIndex: i,
 			slideIndex,
 			angle,
-			baseZ: -i * LAYER_GAP,
+			baseZ: -i * layerGapPx,
 		})
 	}
 	return planes
 }
 
 const EMPTY_SLIDE_KEYS: readonly string[] = []
+
+const TUNNEL_DIALKIT_NAME = 'Perspective Scroll'
 
 export interface PerspectiveTunnelGalleryProps {
 	imageSrcs: readonly string[]
@@ -72,15 +102,44 @@ export interface PerspectiveTunnelGalleryProps {
 	slideTitles?: readonly string[]
 }
 
-const WHEEL_MULT = SCROLL_SPEED
-const TOUCH_SCROLL_MULT = 6
-
 export default function PerspectiveTunnelGallery ({
 	imageSrcs,
 	slideKeys = EMPTY_SLIDE_KEYS,
 	slideHrefs = [],
 	slideTitles = [],
 }: PerspectiveTunnelGalleryProps) {
+	const tunnelDialKit = useDialKit(TUNNEL_DIALKIT_NAME, {
+		layout: {
+			imageWidthFrac: [0.22, 0.08, 0.45],
+			imageHeightFrac: [0.27, 0.1, 0.55],
+			orbitRadiusXFrac: [0.42, 0.15, 0.85],
+			orbitRadiusYFrac: [0.29, 0.1, 0.62],
+			perspectiveFrac: [1.4, 0.75, 2.75],
+			perspectiveMaxPx: [1400, 800, 2200],
+		},
+		spacing: {
+			zGapPx: [2500, 600, 8000],
+			exitDistancePx: [1500, 200, 5000],
+			visibleRepeatsDepth: [3, 1, 10],
+		},
+		tunnelScroll: {
+			wheelMultiplier: [2, 0.25, 10],
+			touchMultiplier: [6, 1, 30],
+			scrollEaseLerp: [0.07, 0.015, 0.35],
+		},
+		transitionEffects: {
+			blurAlongFadeEnabled: false,
+			blurOnEnterPx: [10, 0, 40],
+			blurOnExitPx: [14, 0, 44],
+		},
+	})
+
+	const tunnelDialKitRef = useRef(tunnelDialKit)
+
+	useEffect(() => {
+		tunnelDialKitRef.current = tunnelDialKit
+	}, [tunnelDialKit])
+
 	const viewportRef = useRef<HTMLDivElement>(null)
 	const captionRef = useRef<HTMLParagraphElement>(null)
 	const planeElementsRef = useRef<(HTMLDivElement | null)[]>([])
@@ -94,8 +153,17 @@ export default function PerspectiveTunnelGallery ({
 	}, [imageSrcs, slideKeys])
 
 	const planes = useMemo(
-		() => buildPlanes(imageSrcs, stableKeys),
-		[imageSrcs, stableKeys],
+		() =>
+			buildPlanes(
+				imageSrcs,
+				stableKeys,
+				tunnelDialKit.spacing.zGapPx,
+			),
+		[
+			imageSrcs,
+			stableKeys,
+			tunnelDialKit.spacing.zGapPx,
+		],
 	)
 
 	const tunnelMeta = useMemo(() => {
@@ -103,29 +171,40 @@ export default function PerspectiveTunnelGallery ({
 		if (n === 0) return null
 		const cycles = Math.max(6, Math.ceil(24 / n))
 		const planeCount = n * cycles
-		const tunnelDepth = planeCount * LAYER_GAP
-		const visibleDepth = VISIBLE_DEPTH_MULT * LAYER_GAP
-		return {slideCount: n, planeCount, tunnelDepth, visibleDepth}
-	}, [imageSrcs.length])
+		const layerGap = tunnelDialKit.spacing.zGapPx
+		const tunnelDepth = planeCount * layerGap
+		const visibleDepth =
+			tunnelDialKit.spacing.visibleRepeatsDepth * layerGap
+		return {planeCount, tunnelDepth, visibleDepth}
+	}, [
+		imageSrcs.length,
+		tunnelDialKit.spacing.zGapPx,
+		tunnelDialKit.spacing.visibleRepeatsDepth,
+	])
 
 	const initialVisiblePlaneIndexes = useMemo(() => {
 		if (!tunnelMeta) return new Set<number>()
+		const exitPt = tunnelDialKit.spacing.exitDistancePx
 		const visiblePlaneIndexes = new Set<number>()
-		planes.forEach((_, i) => {
-			const baseZ = -i * LAYER_GAP
+		planes.forEach((plane, i) => {
+			const baseZ = plane.baseZ
 			let z = baseZ + INITIAL_SCROLL
 			z = ((z % tunnelMeta.tunnelDepth) + tunnelMeta.tunnelDepth) %
 				tunnelMeta.tunnelDepth
-			z = z - tunnelMeta.tunnelDepth + EXIT_POINT
+			z = z - tunnelMeta.tunnelDepth + exitPt
 			const overlay = calculateOverlay(
 				z,
 				tunnelMeta.visibleDepth,
-				EXIT_POINT,
+				exitPt,
 			)
 			if (overlay < 1) visiblePlaneIndexes.add(i)
 		})
 		return visiblePlaneIndexes
-	}, [planes, tunnelMeta])
+	}, [
+		planes,
+		tunnelMeta,
+		tunnelDialKit.spacing.exitDistancePx,
+	])
 
 	const [geom, setGeom] = useState({
 		itemW: 180,
@@ -159,23 +238,49 @@ export default function PerspectiveTunnelGallery ({
 	useEffect(() => {
 		const el = viewportRef.current
 		if (!el) return
+		const lay = tunnelDialKit.layout
 		const measure = () => {
 			const r = el.getBoundingClientRect()
 			const vmin = Math.min(r.width, r.height)
-			setGeom({
-				itemW: Math.max(120, vmin * 0.22),
-				itemH: Math.max(150, vmin * 0.27),
-				rx: vmin * 0.42,
-				ry: vmin * 0.29,
-				perspective: Math.min(1400, Math.max(700, vmin * 1.4)),
+			const next = {
+				itemW: Math.max(120, vmin * lay.imageWidthFrac),
+				itemH: Math.max(150, vmin * lay.imageHeightFrac),
+				rx: vmin * lay.orbitRadiusXFrac,
+				ry: vmin * lay.orbitRadiusYFrac,
+				perspective: Math.min(
+					lay.perspectiveMaxPx,
+					Math.max(700, vmin * lay.perspectiveFrac),
+				),
 				vmin,
+			}
+			setGeom((prev) => {
+				const near = (a: number, b: number) =>
+					Math.abs(a - b) < 0.5
+				if (
+					near(prev.itemW, next.itemW) &&
+					near(prev.itemH, next.itemH) &&
+					near(prev.rx, next.rx) &&
+					near(prev.ry, next.ry) &&
+					near(prev.perspective, next.perspective) &&
+					near(prev.vmin, next.vmin)
+				) {
+					return prev
+				}
+				return next
 			})
 		}
 		measure()
 		const ro = new ResizeObserver(measure)
 		ro.observe(el)
 		return () => ro.disconnect()
-	}, [])
+	}, [
+		tunnelDialKit.layout.imageWidthFrac,
+		tunnelDialKit.layout.imageHeightFrac,
+		tunnelDialKit.layout.orbitRadiusXFrac,
+		tunnelDialKit.layout.orbitRadiusYFrac,
+		tunnelDialKit.layout.perspectiveFrac,
+		tunnelDialKit.layout.perspectiveMaxPx,
+	])
 
 	const firstImageIndex = imageSrcs.findIndex(hasCarouselImageSrc)
 
@@ -188,7 +293,7 @@ export default function PerspectiveTunnelGallery ({
 			typeof window !== 'undefined' &&
 			window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-		const {tunnelDepth, visibleDepth, slideCount} = meta
+		const {tunnelDepth, visibleDepth} = meta
 		const hiddenPlaneCache = new Array<boolean | null>(
 			planes.length,
 		).fill(null)
@@ -206,19 +311,35 @@ export default function PerspectiveTunnelGallery ({
 		}
 
 		function applyPlanes (scroll: number) {
+			const exitPt =
+				tunnelDialKitRef.current.spacing.exitDistancePx
+			const transition =
+				tunnelDialKitRef.current.transitionEffects
 			let bestZ = -Infinity
 			let bestSlideIndex = 0
 			planeElementsRef.current.forEach((planeEl, i) => {
 				if (!planeEl || i >= planes.length) return
-				const baseZ = -i * LAYER_GAP
+				const baseZ = planes[i].baseZ
 				let z = baseZ + scroll
 				z = ((z % tunnelDepth) + tunnelDepth) % tunnelDepth
-				z = z - tunnelDepth + EXIT_POINT
-				const overlay = calculateOverlay(z, visibleDepth, EXIT_POINT)
+				z = z - tunnelDepth + exitPt
+				const overlay = calculateOverlay(z, visibleDepth, exitPt)
+				const clipped = Math.min(1, Math.max(0, overlay))
+				const blurPx = transitionImageBlurPx(
+					z,
+					clipped,
+					exitPt,
+					visibleDepth,
+					transition.blurOnEnterPx,
+					transition.blurOnExitPx,
+					transition.blurAlongFadeEnabled,
+				)
+
 				if (overlay >= 1) {
 					if (hiddenPlaneCache[i] !== true) {
 						gsap.set(planeEl, {
 							'--overlay': 1,
+							'--plane-blur': '0px',
 							visibility: 'hidden',
 						})
 						hiddenPlaneCache[i] = true
@@ -228,12 +349,13 @@ export default function PerspectiveTunnelGallery ({
 				hiddenPlaneCache[i] = false
 				gsap.set(planeEl, {
 					z,
-					'--overlay': Math.min(1, Math.max(0, overlay)),
+					'--overlay': clipped,
+					'--plane-blur': `${blurPx}px`,
 					visibility: overlay >= 1 ? 'hidden' : 'visible',
 				})
 				if (overlay < 1 && z > bestZ) {
 					bestZ = z
-					bestSlideIndex = i % slideCount
+					bestSlideIndex = planes[i].slideIndex
 				}
 			})
 			updateCaption(
@@ -261,7 +383,10 @@ export default function PerspectiveTunnelGallery ({
 		const onWheel = (e: WheelEvent) => {
 			e.preventDefault()
 			e.stopPropagation()
-			targetScrollRef.current += e.deltaY * WHEEL_MULT
+			targetScrollRef.current +=
+				e.deltaY *
+				tunnelDialKitRef.current.tunnelScroll
+					.wheelMultiplier
 		}
 
 		let lastTouchY = 0
@@ -275,12 +400,18 @@ export default function PerspectiveTunnelGallery ({
 			lastTouchY = y
 			e.preventDefault()
 			e.stopPropagation()
-			targetScrollRef.current += dy * TOUCH_SCROLL_MULT
+			targetScrollRef.current +=
+				dy *
+				tunnelDialKitRef.current.tunnelScroll
+					.touchMultiplier
 		}
 
 		const tick = () => {
+			const scrollLerp =
+				tunnelDialKitRef.current.tunnelScroll.scrollEaseLerp
 			currentScrollRef.current +=
-				(targetScrollRef.current - currentScrollRef.current) * LERP
+				(targetScrollRef.current - currentScrollRef.current) *
+				scrollLerp
 			applyPlanes(currentScrollRef.current)
 		}
 
@@ -310,11 +441,13 @@ export default function PerspectiveTunnelGallery ({
 		return (
 			<div
 				ref={viewportRef}
-				className={`${styles.spotlight} touch-none bg-transparent`}
+				className="relative size-full overflow-hidden [transform-style:preserve-3d] touch-none bg-transparent"
 				role="region"
 				aria-label="Featured works"
 			>
-				<p className={styles.empty}>No images to display.</p>
+				<p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-base text-[#111]">
+					No images to display.
+				</p>
 			</div>
 		)
 	}
@@ -322,13 +455,13 @@ export default function PerspectiveTunnelGallery ({
 	return (
 		<div
 			ref={viewportRef}
-			className={`${styles.spotlight} touch-none bg-transparent`}
+			className="relative size-full overflow-hidden [transform-style:preserve-3d] touch-none bg-transparent"
 			role="region"
 			aria-roledescription="Perspective tunnel gallery; scroll with wheel or drag on touch"
 			tabIndex={0}
 			style={{perspective: `${geom.perspective}px`}}
 		>
-			<div className={styles.tunnel}>
+			<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 [transform-style:preserve-3d]">
 				{planes.map((plane, pi) => {
 					const src = imageSrcs[plane.slideIndex] ?? ''
 					const href = slideHrefs[plane.slideIndex] ?? null
@@ -348,44 +481,48 @@ export default function PerspectiveTunnelGallery ({
 						Math.sin(plane.angle) * geom.ry - geom.itemH / 2
 					const inner = (
 						<>
-							{showImage ? (
-								<Image
-									src={src}
-									alt={
-										(
-											slideTitles[plane.slideIndex] ?? ''
-										).trim() ||
-										`Gery Georgieva, gallery image ${plane.slideIndex + 1}`
-									}
-									fill
-									className="object-contain"
-									sizes="(max-width: 1023px) min(90vw, 85vmin), min(85vw, 75vmin)"
-									loading={
-										isInitiallyVisiblePlane
-											? 'eager'
-											: 'lazy'
-									}
-									onLoad={(event) => {
-										handleSlideImageLoad(
-											slideKey,
-											event.currentTarget,
-										)
-									}}
-								/>
-							) : (
-								<div
-									className="size-full bg-neutral-200"
-									role="img"
-									aria-label={
-										(
-											slideTitles[plane.slideIndex] ?? ''
-										).trim() ||
-										`Placeholder, no image for slide ${plane.slideIndex + 1}`
-									}
-								/>
-							)}
+							<div className="relative size-full [filter:blur(var(--plane-blur,0px))]">
+								{showImage ? (
+									<Image
+										src={src}
+										alt={
+											(
+												slideTitles[plane.slideIndex] ??
+													''
+											).trim() ||
+											`Gery Georgieva, gallery image ${plane.slideIndex + 1}`
+										}
+										fill
+										className="object-contain"
+										sizes="(max-width: 1023px) min(90vw, 85vmin), min(85vw, 75vmin)"
+										loading={
+											isInitiallyVisiblePlane
+												? 'eager'
+												: 'lazy'
+										}
+										onLoad={(event) => {
+											handleSlideImageLoad(
+												slideKey,
+												event.currentTarget,
+											)
+										}}
+									/>
+								) : (
+									<div
+										className="size-full bg-neutral-200"
+										role="img"
+										aria-label={
+											(
+												slideTitles[plane.slideIndex] ??
+													''
+											).trim() ||
+											`Placeholder, no image for slide ${plane.slideIndex + 1}`
+										}
+									/>
+								)}
+							</div>
 							<div
-								className={styles.itemOverlay}
+								className="pointer-events-none absolute inset-0 bg-[var(--color-paper)] opacity-[var(--overlay,1)]"
 								aria-hidden
 							/>
 						</>
@@ -396,7 +533,7 @@ export default function PerspectiveTunnelGallery ({
 							ref={(el) => {
 								planeElementsRef.current[pi] = el
 							}}
-							className={styles.plane}
+							className="absolute [transform-style:preserve-3d]"
 							style={{
 								left: cx,
 								top: cy,
@@ -406,13 +543,13 @@ export default function PerspectiveTunnelGallery ({
 						>
 							{href ? (
 								<Link
-									className={styles.itemLink}
+									className="relative block size-full"
 									href={href}
 								>
 									{inner}
 								</Link>
 							) : (
-								<div className={styles.itemLink}>{inner}</div>
+								<div className="relative block size-full">{inner}</div>
 							)}
 						</div>
 					)
@@ -420,7 +557,7 @@ export default function PerspectiveTunnelGallery ({
 			</div>
 			<p
 				ref={captionRef}
-				className={styles.activeTitle}
+				className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] right-[max(1.5rem,env(safe-area-inset-right,0px))] z-[2] max-w-[min(90vw,42rem)] text-right text-[clamp(0.875rem,2.5vmin,1.125rem)] leading-[1.35] text-[#111]"
 				aria-live="polite"
 			>
 				{'\u00a0'}
