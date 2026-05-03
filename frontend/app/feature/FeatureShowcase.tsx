@@ -3,7 +3,7 @@
 import {useLenis} from 'lenis/react'
 import {useEffect, useMemo} from 'react'
 
-import OrbitalImageGallery from '@/app/components/feature/OrbitalImageGallery'
+import PerspectiveTunnelGallery from '@/app/components/feature/PerspectiveTunnelGallery'
 import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
 
 export interface FeatureShowcaseProps {
@@ -60,7 +60,7 @@ export default function FeatureShowcase ({
 		<div className="fixed inset-0 z-0 overflow-hidden bg-paper text-[#111]">
 			<div className="relative h-full min-h-0">
 				<div className="absolute inset-0">
-					<OrbitalImageGallery
+					<PerspectiveTunnelGallery
 						imageSrcs={imageSrcs}
 						slideKeys={slideKeys}
 						slideHrefs={slideHrefs}

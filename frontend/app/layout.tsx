@@ -1,6 +1,8 @@
 import './globals.css'
+import 'dialkit/styles.css'
 import 'lenis/dist/lenis.css'
 
+import {DialRoot} from 'dialkit'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
 import {Inter} from 'next/font/google'
@@ -38,6 +40,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
         <body className="isolate min-h-screen text-base font-sans antialiased">
           {children}
+          <DialRoot productionEnabled />
         </body>
       </html>
     )
@@ -56,7 +59,10 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           )}
           <SanityLive onError={handleError} />
           <SiteNav />
-          <main className="pt-12">{children}</main>
+          <main className="pt-12">
+            {children}
+            <DialRoot productionEnabled />
+          </main>
           <SpeedInsights />
         </LenisRoot>
       </body>
