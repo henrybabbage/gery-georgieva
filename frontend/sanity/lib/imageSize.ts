@@ -53,14 +53,6 @@ export function getEffectiveImageSizeOverride(input: {
   )
 }
 
-/** Per-placement `sizeOverride` wins over the dereferenced asset default. */
-export function getEffectiveImageSizeOverride(input: {
-  sizeOverride?: ImageSizeOverride | null
-  asset?: {sizeOverride?: ImageSizeOverride | null} | null
-}): ImageSizeOverride | undefined {
-  return input.sizeOverride ?? input.asset?.sizeOverride ?? undefined
-}
-
 export function getImageSizePreset(sizeOverride?: ImageSizeOverride | null): ImageSizePreset {
   if (!sizeOverride) return defaultImageSizePreset
   return imageSizePresets[sizeOverride] ?? defaultImageSizePreset
