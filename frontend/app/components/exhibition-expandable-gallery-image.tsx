@@ -12,6 +12,9 @@ export interface ExhibitionExpandableGalleryImageProps {
   popupUrl: string
   width: number
   height: number
+  /** Pixel dimensions of `popupUrl` (after Sanity `width()` cap). Keeps lightbox requests from overshooting. */
+  popupIntrinsicWidth: number
+  popupIntrinsicHeight: number
   alt: string
   sizes: string
   frameClass: string
@@ -69,6 +72,8 @@ export function ExhibitionExpandableGalleryImage({
   popupUrl,
   width,
   height,
+  popupIntrinsicWidth,
+  popupIntrinsicHeight,
   alt,
   sizes,
   frameClass,
@@ -196,6 +201,7 @@ export function ExhibitionExpandableGalleryImage({
         onPointerEnter={onTriggerPointerEnter}
         onPointerLeave={onTriggerPointerLeave}
         onPointerMove={onTriggerPointerMove}
+        onPointerDown={onPreloadIntent}
         onFocus={onPreloadIntent}
       >
         <div
@@ -244,15 +250,17 @@ export function ExhibitionExpandableGalleryImage({
             <Image
               src={popupUrl}
               alt={alt}
-              width={width}
-              height={height}
-              sizes="96vw"
+              width={popupIntrinsicWidth}
+              height={popupIntrinsicHeight}
+              sizes="(max-width: 1536px) 96vw, 1400px"
+              unoptimized
               placeholder={useBlurPlaceholder ? 'blur' : 'empty'}
               blurDataURL={useBlurPlaceholder ? lqip! : undefined}
               className={`h-auto max-h-[min(90vh,1180px)] w-auto max-w-[min(96vw,1400px)] object-contain transition-opacity duration-500 ease-out ${
-                useBlurPlaceholder || popupImageReady ? 'opacity-100' : 'opacity-0'
+                !useBlurPlaceholder || popupImageReady ? 'opacity-100' : 'opacity-0'
               }`}
               priority={false}
+              fetchPriority={open ? 'high' : 'low'}
               onLoadingComplete={() => setPopupImageReady(true)}
             />
           </div>

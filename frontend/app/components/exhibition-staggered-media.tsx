@@ -228,6 +228,13 @@ function getExpandableImageProps(
   const naturalH =
     meta?.height && meta.height > 0 ? meta.height : Math.round(preset.width / ratio)
 
+  /** Match `popupUrl` pixel dimensions so the lightbox `Image` doesn’t request 2×–4× upscales via srcset. */
+  const popupIntrinsicW = popupPixelW
+  const popupIntrinsicH =
+    meta?.width && meta?.height && meta.width > 0 && meta.height > 0
+      ? Math.max(1, Math.round((popupPixelW * meta.height) / meta.width))
+      : Math.max(1, Math.round(popupPixelW / ratio))
+
   const isAudience = stegaClean(item.isAudiencePhoto)
   const frameClass = isAudience
     ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]'
@@ -246,6 +253,8 @@ function getExpandableImageProps(
     popupUrl,
     width: naturalW,
     height: naturalH,
+    popupIntrinsicWidth: popupIntrinsicW,
+    popupIntrinsicHeight: popupIntrinsicH,
     alt: getImageAlt(item, altBase),
     sizes,
     frameClass,
