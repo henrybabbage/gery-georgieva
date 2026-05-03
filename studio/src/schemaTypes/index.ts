@@ -8,10 +8,12 @@ import {cvEntry} from './documents/cvEntry'
 import {sanityImageAsset} from './documents/sanityImageAsset'
 
 import {siteSettings} from './documents/siteSettings'
+import {about} from './documents/about'
 import {press} from './documents/press'
 
 export const schemaTypes = [
   siteSettings,
+  about,
   mediaImage,
   mediaVideoFile,
   mediaVideoLink,
