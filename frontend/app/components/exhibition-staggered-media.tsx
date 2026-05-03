@@ -17,6 +17,31 @@ import {
   ExhibitionVimeoPlaybackProvider,
 } from '@/app/components/exhibition-vimeo-embed'
 
+/**
+ * Placeholder caption/credit when Sanity fields are empty (layout QA for side labels).
+ * - **On by default in development** (`next dev`).
+ * - **Off in production** unless `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=true`.
+ * - **Force off in dev:** `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=false`.
+ */
+const EXHIBITION_DUMMY_SIDE_LABELS =
+  process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'false'
+    ? false
+    : process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'true' ||
+      process.env.NODE_ENV === 'development'
+
+const DUMMY_SIDE_CAPTION = 'Installation caption'
+const DUMMY_SIDE_CREDIT = 'Photographer / credit line'
+
+function resolveSideLabels(item: ExhibitionInstallationImage): {caption: string; credit: string} {
+  const caption = item.caption?.trim() ?? ''
+  const credit = item.credit?.trim() ?? ''
+  if (caption !== '' || credit !== '') return {caption, credit}
+  if (EXHIBITION_DUMMY_SIDE_LABELS) {
+    return {caption: DUMMY_SIDE_CAPTION, credit: DUMMY_SIDE_CREDIT}
+  }
+  return {caption: '', credit: ''}
+}
+
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */
 export type ExhibitionInstallationImage = NonNullable<
   NonNullable<ExhibitionQueryResult>['installationImages']
@@ -58,9 +83,19 @@ function layoutSeedFromTitle(title: string): number {
   return h >>> 0
 }
 
-function justifyForIndex(index: number, title: string): RowJustify {
+const FORCED_FIRST_ALIGNMENTS: RowJustify[] = ['left', 'center', 'right']
+
+/**
+ * When the gallery has more than three images, the first three desktop rows are always
+ * left, center, and right so every orientation appears; row 4+ use the seeded Paper rhythm.
+ * `absoluteIndex` is the row index across the whole installation (lead + tail when split).
+ */
+function justifyForIndex(absoluteIndex: number, title: string, galleryImageCount: number): RowJustify {
+  if (galleryImageCount > 3 && absoluteIndex < 3) {
+    return FORCED_FIRST_ALIGNMENTS[absoluteIndex]
+  }
   const seed = layoutSeedFromTitle(title)
-  return ROW_JUSTIFY_PATTERN[(seed + index) % PATTERN_LEN]
+  return ROW_JUSTIFY_PATTERN[(seed + absoluteIndex) % PATTERN_LEN]
 }
 
 type Orientation = 'portrait' | 'landscape'
@@ -352,16 +387,26 @@ function VideoFallback({caption, credit}: {caption?: string | null; credit?: str
   )
 }
 
-function SideCaption({item}: {item: ExhibitionInstallationImage}) {
-  const caption = item.caption?.trim()
-  const credit = item.credit?.trim()
-  if (!caption && !credit) return null
+function SideCaption({
+  caption,
+  credit,
+  align,
+}: {
+  caption: string
+  credit: string
+  align: 'left' | 'right'
+}) {
+  const cap = caption.trim()
+  const cred = credit.trim()
+  if (cap === '' && cred === '') return null
+  const alignClass =
+    align === 'right' ? 'items-end text-right' : 'items-start text-left'
   return (
-    <div className="flex flex-col gap-px text-sm text-[var(--color-muted)]">
-      {caption && (
-        <p className={`m-0 max-w-prose ${credit ? 'leading-tight' : 'leading-none'}`}>{caption}</p>
+    <div className={`flex w-full flex-col gap-px text-sm text-[var(--color-muted)] ${alignClass}`}>
+      {cap !== '' && (
+        <p className={`m-0 max-w-prose ${cred !== '' ? 'leading-tight' : 'leading-none'}`}>{cap}</p>
       )}
-      {credit && <p className="m-0 max-w-prose leading-none">{credit}</p>}
+      {cred !== '' && <p className="m-0 max-w-prose leading-none">{cred}</p>}
     </div>
   )
 }
@@ -370,20 +415,28 @@ function SideCaption({item}: {item: ExhibitionInstallationImage}) {
 const GRID_SIZES_PORTRAIT = `(min-width: 768px) 30vw, 100vw`
 const GRID_SIZES_LANDSCAPE = `(min-width: 768px) 45vw, 100vw`
 
-/** ~125.3px at 1253px artboard ≈ 10% width */
-const ROW_MARGIN_BOTTOM = 'mb-[min(125px,10vw)]'
+/**
+ * Space between installation rows (tablet/desktop). Uses fluid `clamp()` so spacing scales with
+ * the viewport but stays bounded — rem min/max respect zoom; vw in the preferred term tracks width.
+ * Slightly tighter than the old `min(125px,10vw)` cap (~12% less at large widths).
+ */
+const ROW_MARGIN_BOTTOM = 'mb-[clamp(2.5rem,1.875rem+5.25vw,6.875rem)]'
 
 type StaggeredGridRowProps = {
   item: ExhibitionInstallationImage
   index: number
   altBase: string
   layoutTitle: string
+  galleryImageCount: number
 }
 
-function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowProps) {
-  const justify = justifyForIndex(index, layoutTitle)
+function StaggeredGridRow({item, index, altBase, layoutTitle, galleryImageCount}: StaggeredGridRowProps) {
+  const justify = justifyForIndex(index, layoutTitle, galleryImageCount)
   const orientation = getItemOrientation(item)
-  const hasSideCaption = !!(item.caption?.trim() || item.credit?.trim())
+  const {caption: sideCaption, credit: sideCredit} = resolveSideLabels(item)
+  const hasSideCaption = sideCaption !== '' || sideCredit !== ''
+  /** Hug the image: caption after image → align start; caption before image → align end (toward gap). */
+  const sideCaptionAlign: 'left' | 'right' = justify === 'right' ? 'right' : 'left'
   const sizes = orientation === 'portrait' ? GRID_SIZES_PORTRAIT : GRID_SIZES_LANDSCAPE
 
   const tier = getInstallationLayoutTier(item)
@@ -412,13 +465,17 @@ function StaggeredGridRow({item, index, altBase, layoutTitle}: StaggeredGridRowP
         playbackKey={item._key}
       />
     )
-  const captionEl = hasSideCaption ? <SideCaption item={item} /> : null
+  const captionEl = hasSideCaption ? (
+    <SideCaption caption={sideCaption} credit={sideCredit} align={sideCaptionAlign} />
+  ) : null
 
   let grid: ReactNode
 
   const mediaCellClass = (extra: string) =>
     `min-w-0 ${imgSpan} flex flex-col justify-end self-stretch ${extra}`.trim()
-  const captionCellClass = `min-w-0 ${capSpan} flex flex-col justify-end self-stretch text-left`
+  const captionCellClass = `min-w-0 ${capSpan} flex flex-col justify-end self-stretch ${
+    sideCaptionAlign === 'right' ? 'text-right' : 'text-left'
+  }`
   const captionCellClassCenter = (span: string) =>
     `min-w-0 ${span} flex flex-col justify-end self-stretch text-left`
 
@@ -472,9 +529,11 @@ function MobileStack({
   altBase: string
 }) {
   return (
-    <div className={`flex w-full min-w-0 flex-col gap-14 sm:gap-16 md:hidden`}>
+    <div className="flex w-full min-w-0 flex-col gap-[clamp(2.5rem,2rem+4.5vw,4rem)] md:hidden">
       {items.map((item, i) => {
         const orientation = getItemOrientation(item)
+        const {caption: mCap, credit: mCred} = resolveSideLabels(item)
+        const showMobileCaption = mCap !== '' || mCred !== ''
         return (
           <div key={item._key ?? i} className="min-w-0">
             <GalleryMediaTile
@@ -484,20 +543,11 @@ function MobileStack({
               orientation={orientation}
               playbackKey={item._key}
             />
-            {(item.caption?.trim() || item.credit?.trim()) && (
-              <div className="mt-3 flex flex-col gap-px text-sm text-[var(--color-muted)]">
-                {item.caption?.trim() && (
-                  <p
-                    className={`m-0 max-w-prose ${item.credit?.trim() ? 'leading-tight' : 'leading-none'}`}
-                  >
-                    {item.caption.trim()}
-                  </p>
-                )}
-                {item.credit?.trim() && (
-                  <p className="m-0 max-w-prose leading-none">{item.credit.trim()}</p>
-                )}
+            {showMobileCaption ? (
+              <div className="mt-3">
+                <SideCaption caption={mCap} credit={mCred} align="left" />
               </div>
-            )}
+            ) : null}
           </div>
         )
       })}
@@ -510,6 +560,7 @@ export function ExhibitionStaggeredMedia({
   altBase,
   layoutTitle,
   layoutIndexOffset = 0,
+  galleryImageCount: galleryImageCountProp,
 }: {
   items: ExhibitionInstallationImage[]
   altBase: string
@@ -517,10 +568,17 @@ export function ExhibitionStaggeredMedia({
   layoutTitle: string
   /** When the gallery is split across sections, offset so desktop row rhythm continues (e.g. 5 after first block of 5). */
   layoutIndexOffset?: number
+  /**
+   * Total images/videos in this installation (all segments). Pass from the parent when the
+   * gallery is split so the first three rows of the *whole* set can be left / center / right.
+   * Defaults to `items.length` for a single block (e.g. press archive).
+   */
+  galleryImageCount?: number
 }) {
   if (!items.length) return null
 
   const seedSource = layoutTitle.trim() || altBase
+  const galleryImageCount = galleryImageCountProp ?? items.length
 
   return (
     <ExhibitionVimeoPlaybackProvider>
@@ -534,6 +592,7 @@ export function ExhibitionStaggeredMedia({
               index={index + layoutIndexOffset}
               altBase={altBase}
               layoutTitle={seedSource}
+              galleryImageCount={galleryImageCount}
             />
           ))}
         </div>

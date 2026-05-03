@@ -138,6 +138,7 @@ export default async function PressArticlePage({params}: Props) {
                 items={leadArticleImages}
                 altBase={altBase}
                 layoutTitle={layoutTitle}
+                galleryImageCount={articleImages.length}
               />
             </div>
           )}
@@ -149,6 +150,7 @@ export default async function PressArticlePage({params}: Props) {
                 altBase={altBase}
                 layoutTitle={layoutTitle}
                 layoutIndexOffset={INSTALLATION_GALLERY_LEAD_COUNT}
+                galleryImageCount={articleImages.length}
               />
             </div>
           )}
