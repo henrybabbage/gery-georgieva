@@ -14,12 +14,7 @@
 	transform-style: preserve-3d;
 }
 
-.layer {
-	position: absolute;
-	transform-style: preserve-3d;
-}
-
-.item {
+.plane {
 	position: absolute;
 	transform-style: preserve-3d;
 }
@@ -34,18 +29,17 @@
 .itemOverlay {
 	position: absolute;
 	inset: 0;
-	background: #000;
+	background: var(--color-paper);
 	opacity: var(--overlay, 1);
 	pointer-events: none;
 }
 
 .activeTitle {
 	position: absolute;
-	left: 50%;
+	right: max(1.5rem, env(safe-area-inset-right, 0px));
 	bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
-	transform: translateX(-50%);
 	max-width: min(90vw, 42rem);
-	text-align: center;
+	text-align: right;
 	font-size: clamp(0.875rem, 2.5vmin, 1.125rem);
 	line-height: 1.35;
 	color: #111;
