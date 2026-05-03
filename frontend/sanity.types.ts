@@ -778,7 +778,6 @@ export type StreamQueryResult = Array<
         crop?: SanityImageCrop
         sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
         isAudiencePhoto?: boolean
-        sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
         caption?: string
         credit?: string
       } | null
@@ -1131,7 +1130,6 @@ export type WorkQueryResult = {
       crop?: SanityImageCrop
       sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
       isAudiencePhoto?: boolean
-      sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
       caption?: string
       credit?: string
     } | null
