@@ -47,6 +47,7 @@ const workCardFields = /* groq */ `
   "slug": slug.current,
   year,
   medium,
+  "descriptionPlain": pt::text(description),
   coverImage {
     ...,
     sizeOverride,
@@ -183,7 +184,8 @@ export const exhibitionQuery = defineQuery(`
     externalDocumentationLink,
     carouselImage { ${galleryUnionFields} },
     relatedWorks[]-> {
-      ${workCardFields}
+      ${workCardFields},
+      "galleryLead": gallery[0] { ${galleryUnionFields} }
     },
     installationImages[] { ${galleryUnionFields} },
     "relatedEphemera": *[_type == "ephemera" && references(^._id)] {
@@ -191,7 +193,9 @@ export const exhibitionQuery = defineQuery(`
       title,
       "slug": slug.current,
       category,
-      year
+      year,
+      "descriptionPlain": pt::text(description),
+      "imagesLead": images[0] { ${galleryUnionFields} }
     }
   }
 `)
@@ -200,10 +204,10 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition index (/exhibitions); omits draft-only pages. */
+/** Public exhibition index (/exhibitions); omits draft-only pages. Newest year first; same-year ties use orderRank. */
 export const featureExhibitionListQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
-  | order(orderRank asc) {
+  | order(coalesce(year, -1) desc, orderRank asc, title asc) {
     _id,
     title,
     "slug": slug.current,

@@ -1,8 +1,8 @@
 import {notFound} from 'next/navigation'
-import Link from 'next/link'
 import {draftMode} from 'next/headers'
 import {ExhibitionStaggeredMedia} from '@/app/components/exhibition-staggered-media'
 import CustomPortableText from '@/app/components/PortableText'
+import {ExhibitionRelatedPreviewLink} from '@/app/exhibition/exhibition-related-preview-link'
 import {formatExhibitionRun, formatExhibitionVenueLine} from '@/lib/format-exhibition-meta'
 import {sanityFetch} from '@/sanity/lib/live'
 import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
@@ -18,6 +18,20 @@ const INSTALLATION_GALLERY_LEAD_COUNT = 5
 
 const installationGalleryShellClass =
   'mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]'
+
+const EPHEMERA_CATEGORY_LABEL: Record<string, string> = {
+  research: 'Research',
+  sketch: 'Sketch',
+  reference: 'Reference',
+  documentation: 'Documentation',
+  correspondence: 'Correspondence',
+  other: 'Other',
+}
+
+function ephemeraCategoryLabel(category: string): string {
+  return EPHEMERA_CATEGORY_LABEL[category] ?? category
+}
+
 
 export async function generateStaticParams() {
   const {data} = await sanityFetch({
@@ -67,11 +81,15 @@ export default async function ExhibitionPage({params}: Props) {
 
   const layoutTitle = exhibition.title ?? ''
   const altBase = exhibition.title ?? 'Installation'
+  const hasRelatedWorks = (exhibition.relatedWorks?.length ?? 0) > 0
+
+  const textColumnShellClass = 'mx-auto w-full max-w-[1260px] lg:px-[30px]'
+  const textMeasureClass = 'max-w-[72ch]'
 
   return (
     <div className="px-5 py-8">
-      <header className="mx-auto max-w-3xl mb-10 sm:mb-12">
-        <h1 className="text-base font-normal">{exhibition.title}</h1>
+      <header className={`${textColumnShellClass} mb-10 sm:mb-12`}>
+        <h1 className={`${textMeasureClass} text-base font-normal`}>{exhibition.title}</h1>
       </header>
 
       {leadInstallationImages.length > 0 && (
@@ -80,18 +98,19 @@ export default async function ExhibitionPage({params}: Props) {
             items={leadInstallationImages}
             altBase={altBase}
             layoutTitle={layoutTitle}
+            galleryImageCount={installationImages.length}
           />
         </div>
       )}
 
       {showAboutSection && (
         <section
-          className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-16 lg:px-[30px]"
+          className={`${textColumnShellClass} mb-12 lg:mb-16`}
           aria-label="About this exhibition"
         >
           {hasAboutMeta && (
             <div
-              className={`max-w-[72ch] space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
+              className={`${textMeasureClass} space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
             >
               {runLabel && <p>{runLabel}</p>}
               {venueLine && <p>{venueLine}</p>}
@@ -99,7 +118,7 @@ export default async function ExhibitionPage({params}: Props) {
           )}
           {hasDescription && (
             <CustomPortableText
-              className="max-w-[72ch] text-base"
+              className={`${textMeasureClass} text-base`}
               value={exhibition.description as PortableTextBlock[]}
             />
           )}
@@ -113,58 +132,83 @@ export default async function ExhibitionPage({params}: Props) {
             altBase={altBase}
             layoutTitle={layoutTitle}
             layoutIndexOffset={INSTALLATION_GALLERY_LEAD_COUNT}
+            galleryImageCount={installationImages.length}
           />
         </div>
       )}
 
-      <div className="mx-auto max-w-3xl">
-        {/* Works in this exhibition */}
-        {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
-          <section>
-            <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Works</h2>
-            <ul className="space-y-1">
-              {exhibition.relatedWorks.map((work) => (
-                <li key={work._id} className="text-base">
-                  <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
-                    {work.title}
-                  </Link>
-                  {work.year && <span className="opacity-50 ml-2">{work.year}</span>}
-                  {work.medium && <span className="opacity-50 ml-2">{work.medium}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+      <div className={`${textColumnShellClass} text-left`}>
+        <div className={textMeasureClass}>
+          {/* Works in this exhibition */}
+          {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
+            <section>
+              <h2 className="text-base opacity-40 mb-2 text-left">Works</h2>
+              <ul className="space-y-4 text-left">
+                {exhibition.relatedWorks.map((work) => (
+                  <li key={work._id}>
+                    <ExhibitionRelatedPreviewLink
+                      href={`/work/${work.slug}`}
+                      label={work.title}
+                      destination="work"
+                      galleryLead={work.galleryLead}
+                      coverImage={work.coverImage}
+                      meta={
+                        [work.year, work.medium].filter(Boolean).length > 0 ? (
+                          <span className="opacity-50">
+                            {[work.year, work.medium].filter(Boolean).join(', ')}
+                          </span>
+                        ) : null
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-        {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Research & ephemera</h2>
-            <ul className="space-y-1">
-              {exhibition.relatedEphemera.map((ep) => (
-                <li key={ep._id} className="text-base">
-                  <Link href={`/ephemera/${ep.slug}`} className="underline underline-offset-2">
-                    {ep.title}
-                  </Link>
-                  {ep.category && <span className="opacity-50 ml-2">{ep.category}</span>}
-                  {ep.year && <span className="opacity-50 ml-2">{ep.year}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+          {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
+            <section className={hasRelatedWorks ? 'mt-10 lg:mt-12' : 'mt-6'}>
+              <h2 className="text-base opacity-40 mb-2 text-left">Research & Ephemera</h2>
+              <ul className="space-y-4 text-left">
+                {exhibition.relatedEphemera.map((ep) => (
+                  <li key={ep._id}>
+                    <ExhibitionRelatedPreviewLink
+                      href={`/ephemera/${ep.slug}`}
+                      label={ep.title}
+                      destination="ephemera"
+                      galleryLead={ep.imagesLead}
+                      descriptionPlain={ep.descriptionPlain}
+                      meta={
+                        [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
+                          .filter((v) => v != null && v !== '')
+                          .length > 0 ? (
+                          <span className="opacity-50">
+                            {[ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
+                              .filter((v) => v != null && v !== '')
+                              .join(', ')}
+                          </span>
+                        ) : null
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-        {exhibition.externalDocumentationLink && (
-          <p className="mt-6 text-base">
-            <a
-              href={exhibition.externalDocumentationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 opacity-50"
-            >
-              External documentation ↗
-            </a>
-          </p>
-        )}
+          {exhibition.externalDocumentationLink && (
+            <p className="mt-6 text-base text-left">
+              <a
+                href={exhibition.externalDocumentationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 opacity-50"
+              >
+                External documentation ↗
+              </a>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

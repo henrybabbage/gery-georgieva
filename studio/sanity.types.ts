@@ -41,6 +41,17 @@ export type Press = {
   publishedAt?: string
   publication?: string
   author?: string
+  articleImages?: Array<
+    | ({
+        _key: string
+      } & MediaImage)
+    | ({
+        _key: string
+      } & MediaVideoFile)
+    | ({
+        _key: string
+      } & MediaVideoLink)
+  >
   body?: Array<{
     children?: Array<{
       marks?: Array<string>
