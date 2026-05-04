@@ -37,7 +37,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   if (holdShell) {
     return (
-      <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
+      <html lang="en" className={inter.variable}>
         <head>
           <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
         </head>
@@ -50,7 +50,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   }
 
   return (
-    <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
+    <html lang="en" className={inter.variable}>
       <head>
         <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
       </head>

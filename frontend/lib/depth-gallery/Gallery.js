@@ -37,6 +37,11 @@ export class Gallery {
     this.passageEnterCurvePower = 1.35
     this.passageChromaMultiply = 1.25
 
+    this.baseDistortionStrength = 0.35
+    this.baseLightStrength = 0.18
+    this.baseDistortionDepthRampStart = 0.74
+    this.baseDistortionDepthRampEnd = 1
+
     // Parallax
     this.parallaxEnabled = true
     this.parallaxAmountX = 0.16
@@ -123,6 +128,8 @@ export class Gallery {
           uTime: { value: 0 },
           uEdgeDistortionStrength: { value: 1.5 },
           uEdgeWidth: { value: 0.09 },
+          uBaseDistortionStrength: { value: this.baseDistortionStrength },
+          uBaseLightStrength: { value: this.baseLightStrength },
           uPlaneAspect: { value: 1 },
           uImageAspect: { value: aspectRatio },
           uPassageStrength: { value: 0 },
@@ -214,6 +221,37 @@ export class Gallery {
     if (depthSpan <= 0) return 0
 
     return THREE.MathUtils.clamp((nearestZ - cameraZ) / depthSpan, 0, 1)
+  }
+
+  /**
+   * 0 = camera at farthest (scroll start), 1 = at deepest scroll stop.
+   * Uses Scroll bounds when available so the range matches the real journey.
+   */
+  getScrollTravelProgress(cameraZ, scroll) {
+    if (
+      scroll &&
+      Number.isFinite(scroll.minCameraZ) &&
+      Number.isFinite(scroll.maxCameraZ)
+    ) {
+      const span = scroll.maxCameraZ - scroll.minCameraZ
+      if (span > 1e-6) {
+        return THREE.MathUtils.clamp(
+          (scroll.maxCameraZ - cameraZ) / span,
+          0,
+          1,
+        )
+      }
+    }
+    return this.getDepthProgress(cameraZ)
+  }
+
+  getBaseDistortionDepthFactor(cameraZ, scroll) {
+    const p = this.getScrollTravelProgress(cameraZ, scroll)
+    return THREE.MathUtils.smoothstep(
+      p,
+      this.baseDistortionDepthRampStart,
+      this.baseDistortionDepthRampEnd,
+    )
   }
 
   getActivePlaneIndex(cameraZ) {
@@ -428,6 +466,54 @@ export class Gallery {
       options: {
         min: 0,
         max: 1.5,
+        step: 0.01,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery',
+      targetObject: this,
+      property: 'baseDistortionStrength',
+      label: 'Base distort',
+      options: {
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery',
+      targetObject: this,
+      property: 'baseLightStrength',
+      label: 'Base light',
+      options: {
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery',
+      targetObject: this,
+      property: 'baseDistortionDepthRampStart',
+      label: 'Base ramp start',
+      options: {
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery',
+      targetObject: this,
+      property: 'baseDistortionDepthRampEnd',
+      label: 'Base ramp end',
+      options: {
+        min: 0,
+        max: 1,
         step: 0.01,
       },
     })
@@ -702,6 +788,7 @@ export class Gallery {
     this.updatePlaneMotion(scroll)
 
     const blendData = this.getPlaneBlendData(cameraZ)
+    const baseByDepth = this.getBaseDistortionDepthFactor(cameraZ, scroll)
     const tSec = Number.isFinite(time) ? time * 0.001 : 0
     this.planes.forEach((plane, index) => {
       const planeMaterial = plane.material
@@ -712,6 +799,10 @@ export class Gallery {
       planeMaterial.uniforms.uPassageStrength.value = passage.strength
       planeMaterial.uniforms.uPassageEnterPhase.value = passage.enterPhase
       planeMaterial.uniforms.uPassageChromaMultiply.value = this.passageChromaMultiply
+      planeMaterial.uniforms.uBaseDistortionStrength.value =
+        this.baseDistortionStrength * baseByDepth
+      planeMaterial.uniforms.uBaseLightStrength.value =
+        this.baseLightStrength * baseByDepth
     })
   }
 
