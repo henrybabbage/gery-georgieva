@@ -22,7 +22,7 @@ function resolvePressKind(row: PressRow): 'url' | 'pdf' | 'text' {
 }
 
 /** Match exhibition “about” copy: readable measure and ink color. */
-const listShellClass = 'mx-auto w-full max-w-[1260px] lg:px-[30px]'
+const listShellClass = 'w-full max-w-[1260px]'
 const listMeasureClass = 'max-w-[72ch] text-base text-[var(--color-ink)]'
 
 /** Uniform row cursor; links also set !cursor-pointer on the anchor. */
@@ -35,7 +35,7 @@ export default async function PressPage() {
     <div className="px-5 py-8">
       {!items?.length ? (
         <div className={listShellClass}>
-          <p className={`${listMeasureClass} opacity-50`}>No press links yet.</p>
+          <p className={listMeasureClass}>No press links yet.</p>
         </div>
       ) : (
         <div className={listShellClass}>
@@ -60,7 +60,7 @@ export default async function PressPage() {
                   )
                 }
                 return (
-                  <li key={row._id} className={`${rowClass} opacity-50`}>
+                  <li key={row._id} className={rowClass}>
                     <span className="text-base">{row.linkText}</span>
                     <span className="ml-2 text-sm">
                       (add a slug in Studio to publish this page)

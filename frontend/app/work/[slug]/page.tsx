@@ -27,12 +27,12 @@ export default async function WorkPage({params}: Props) {
 
   return (
     <div className="px-5 py-8 max-w-3xl">
-      <p className="text-base opacity-50 mb-6">
+      <p className="text-base mb-6">
         <Link href="/">← Work</Link>
       </p>
 
       <h1 className="text-base font-normal mb-1">{work.title}</h1>
-      <p className="text-base opacity-50 mb-6">
+      <p className="text-base mb-6">
         {[work.year, work.medium, work.dimensions].filter(Boolean).join(', ')}
       </p>
 
@@ -48,7 +48,7 @@ export default async function WorkPage({params}: Props) {
       {/* Relational back-links */}
       {work.exhibitions && work.exhibitions.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Exhibited in</h2>
+          <h2 className="text-base tracking-widest mb-2">Exhibited in</h2>
           <ul className="space-y-1">
             {work.exhibitions.map((ex) => (
               <li key={ex._id} className="text-base">
@@ -59,8 +59,8 @@ export default async function WorkPage({params}: Props) {
                     {ex.title}
                   </Link>
                 )}
-                {ex.venue && <span className="opacity-50 ml-2">{ex.venue}</span>}
-                {ex.year && <span className="opacity-50 ml-2">{ex.year}</span>}
+                {ex.venue && <span className="ml-2">{ex.venue}</span>}
+                {ex.year && <span className="ml-2">{ex.year}</span>}
               </li>
             ))}
           </ul>
@@ -69,12 +69,12 @@ export default async function WorkPage({params}: Props) {
 
       {work.relatedEphemera && work.relatedEphemera.length > 0 && (
         <section>
-          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Related research</h2>
+          <h2 className="text-base tracking-widest mb-2">Related research</h2>
           <ul className="space-y-1">
             {work.relatedEphemera.map((ep) => (
               <li key={ep._id} className="text-base">
                 {ep.title}
-                {ep.category && <span className="opacity-50 ml-2">{ep.category}</span>}
+                {ep.category && <span className="ml-2">{ep.category}</span>}
               </li>
             ))}
           </ul>

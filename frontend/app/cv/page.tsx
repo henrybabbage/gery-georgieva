@@ -69,13 +69,13 @@ export default async function CVPage() {
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category} className="mb-8">
-          <h2 className="text-base uppercase tracking-widest opacity-40 mb-3">
+          <h2 className="text-base tracking-widest mb-3">
             {category.charAt(0).toUpperCase() + category.slice(1)}s
           </h2>
           <ul className="space-y-2">
             {items.map((entry: Entry) => (
               <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-base">
-                <span className="opacity-50 tabular-nums">{entry.year}</span>
+                <span className="tabular-nums">{entry.year}</span>
                 <span>
                   {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
                     <Link
@@ -87,9 +87,9 @@ export default async function CVPage() {
                   ) : (
                     entry.title
                   )}
-                  {entry.institution && <span className="opacity-50">, {entry.institution}</span>}
-                  {entry.location && <span className="opacity-50">, {entry.location}</span>}
-                  {entry.role && <span className="opacity-40 ml-2">({entry.role})</span>}
+                  {entry.institution && <span>, {entry.institution}</span>}
+                  {entry.location && <span>, {entry.location}</span>}
+                  {entry.role && <span className="ml-2">({entry.role})</span>}
                 </span>
               </li>
             ))}

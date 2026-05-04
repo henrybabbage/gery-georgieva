@@ -17,7 +17,7 @@ const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
 const INSTALLATION_GALLERY_LEAD_COUNT = 5
 
 const installationGalleryShellClass =
-  'mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]'
+  'mb-12 w-full max-w-[1260px] lg:mb-[100px]'
 
 const EPHEMERA_CATEGORY_LABEL: Record<string, string> = {
   research: 'Research',
@@ -82,7 +82,7 @@ export default async function ExhibitionPage({params}: Props) {
   const altBase = exhibition.title ?? 'Installation'
   const hasRelatedWorks = (exhibition.relatedWorks?.length ?? 0) > 0
 
-  const textColumnShellClass = 'mx-auto w-full max-w-[1260px] lg:px-[30px]'
+  const textColumnShellClass = 'w-full max-w-[1260px]'
   const textMeasureClass = 'max-w-[72ch]'
 
   return (
@@ -139,7 +139,7 @@ export default async function ExhibitionPage({params}: Props) {
       <div className={`${textColumnShellClass} text-left`}>
         {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
           <section>
-            <h2 className={`${textMeasureClass} text-base opacity-40 mb-2 text-left`}>Works</h2>
+            <h2 className={`${textMeasureClass} text-base mb-2 text-left`}>Works</h2>
             <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
               {exhibition.relatedWorks.map((work) => (
                 <ExhibitionRelatedPreviewLink
@@ -162,7 +162,7 @@ export default async function ExhibitionPage({params}: Props) {
 
         {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
           <section className={hasRelatedWorks ? 'mt-10 lg:mt-12' : 'mt-6'}>
-            <h2 className={`${textMeasureClass} text-base opacity-40 mb-2 text-left`}>
+            <h2 className={`${textMeasureClass} text-base mb-2 text-left`}>
               Research & Ephemera
             </h2>
             <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
@@ -195,7 +195,7 @@ export default async function ExhibitionPage({params}: Props) {
               href={exhibition.externalDocumentationLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline underline-offset-2 opacity-50"
+              className="underline underline-offset-2"
             >
               External documentation ↗
             </a>

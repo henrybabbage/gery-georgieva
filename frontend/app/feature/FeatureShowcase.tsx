@@ -43,7 +43,7 @@ export default function FeatureShowcase({slides}: FeatureShowcaseProps) {
   }, [lenis])
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-paper text-[#111]">
+    <div className="fixed inset-0 z-0 overflow-hidden bg-paper text-[var(--color-ink)]">
       <div className="relative h-full min-h-0">
         <div className="absolute inset-0">
           <PerspectiveTunnelGallery

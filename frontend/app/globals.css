@@ -29,7 +29,7 @@
   --color-paper: #fafafa;
   --color-placeholder: #e6e6e6;
   --color-ink: #1c1b18;
-  --color-muted: #8a8880;
+  --color-muted: #1c1b18;
   --color-hairline: #deded9;
 
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -65,7 +65,7 @@
     --tw-prose-bullets: var(--color-ink);
     --tw-prose-quotes: var(--color-ink);
     --tw-prose-quote-borders: var(--color-hairline);
-    --tw-prose-captions: var(--color-muted);
+    --tw-prose-captions: var(--color-ink);
     --tw-prose-code: var(--color-ink);
     --tw-prose-pre-code: var(--color-ink);
     --tw-prose-th-borders: var(--color-hairline);
