@@ -50,13 +50,14 @@ export class Scroll {
 	velocityVisualizerFillElement: HTMLDivElement | null = null
 	velocityVisualizerValueElement: HTMLParagraphElement | null = null
 
-	onWheel: (event: WheelEvent) => void
-	onTouchStart: (event: TouchEvent) => void
-	onTouchMove: (event: TouchEvent) => void
-	onTouchEnd: (event: TouchEvent) => void
-	onPointerDown: (event: PointerEvent) => void
-	onPointerMove: (event: PointerEvent) => void
-	onPointerUp: (event: PointerEvent) => void
+	/** Typed as `Event` so `HTMLElement.addEventListener` accepts these handlers. */
+	onWheel: (event: Event) => void
+	onTouchStart: (event: Event) => void
+	onTouchMove: (event: Event) => void
+	onTouchEnd: (event: Event) => void
+	onPointerDown: (event: Event) => void
+	onPointerMove: (event: Event) => void
+	onPointerUp: (event: Event) => void
 
 	constructor(camera: THREE.PerspectiveCamera, gallery: Gallery, debug: Debug | null = null) {
 		this.camera = camera
@@ -64,26 +65,30 @@ export class Scroll {
 		this.debug = debug
 		this.cameraStartZ = this.camera.position.z
 
-		this.onWheel = (event: WheelEvent) => {
+		this.onWheel = (event: Event) => {
+			if (!(event instanceof WheelEvent)) return
 			event.preventDefault()
 			const normalizedWheelDelta = this.normalizeWheelDelta(event) * this.wheelScrollSpeed
 			this.addScrollInput(normalizedWheelDelta)
 		}
-		this.onTouchStart = (event: TouchEvent) => {
+		this.onTouchStart = (event: Event) => {
+			if (!(event instanceof TouchEvent)) return
 			this.isTouchDragging = true
 			this.touchY = event.touches[0]?.clientY ?? 0
 		}
-		this.onTouchMove = (event: TouchEvent) => {
+		this.onTouchMove = (event: Event) => {
+			if (!(event instanceof TouchEvent)) return
 			event.preventDefault()
 			const currentTouchY = event.touches[0]?.clientY ?? this.touchY
 			const deltaY = this.touchY - currentTouchY
 			this.addScrollInput(deltaY * this.getTouchScrollMultiplier())
 			this.touchY = currentTouchY
 		}
-		this.onTouchEnd = () => {
+		this.onTouchEnd = (_event: Event) => {
 			this.isTouchDragging = false
 		}
-		this.onPointerDown = (event: PointerEvent) => {
+		this.onPointerDown = (event: Event) => {
+			if (!(event instanceof PointerEvent)) return
 			if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
 			const target = event.currentTarget
 			if (target instanceof HTMLElement) {
@@ -97,7 +102,8 @@ export class Scroll {
 			this.pointerLastY = event.clientY
 			this.isTouchDragging = true
 		}
-		this.onPointerMove = (event: PointerEvent) => {
+		this.onPointerMove = (event: Event) => {
+			if (!(event instanceof PointerEvent)) return
 			if (this.capturedPointerId === null || event.pointerId !== this.capturedPointerId) {
 				return
 			}
@@ -106,7 +112,8 @@ export class Scroll {
 			this.pointerLastY = event.clientY
 			this.addScrollInput(deltaY * this.getTouchScrollMultiplier())
 		}
-		this.onPointerUp = (event: PointerEvent) => {
+		this.onPointerUp = (event: Event) => {
+			if (!(event instanceof PointerEvent)) return
 			if (this.capturedPointerId !== event.pointerId) return
 			const target = event.currentTarget
 			if (target instanceof HTMLElement) {
