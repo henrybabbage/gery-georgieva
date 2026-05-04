@@ -4,7 +4,7 @@ import {featureExhibitionListQuery} from '@/sanity/lib/queries'
 import type {FeatureExhibitionListQueryResult} from '@/sanity.types'
 import type {Metadata} from 'next'
 
-export const metadata: Metadata = {title: 'Exhibitions'}
+export const metadata: Metadata = {title: 'Work'}
 
 export default async function ExhibitionsPage() {
   const {data: exhibitions} = await sanityFetch({
@@ -15,9 +15,9 @@ export default async function ExhibitionsPage() {
   return (
     <div className="px-5 py-8">
       <p className="text-base opacity-50 mb-6 max-w-3xl">
-        <Link href="/">← Work</Link>
+        <Link href="/">← Home</Link>
       </p>
-      <h1 className="text-base font-normal mb-6 max-w-3xl">Exhibitions</h1>
+      <h1 className="text-base font-normal mb-6 max-w-3xl">Work</h1>
       <ul className="max-w-3xl space-y-3">
         {list?.map((ex) => {
           const meta = [ex.venue, ex.location, ex.year].filter(Boolean).join(', ')

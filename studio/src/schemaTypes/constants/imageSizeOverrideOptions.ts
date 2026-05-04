@@ -3,5 +3,5 @@ export const imageSizeOverrideOptions = [
   {title: 'Small', value: 'sm'},
   {title: 'Medium', value: 'md'},
   {title: 'Large', value: 'lg'},
-  {title: 'Extra large', value: 'xl'},
+  {title: 'Extra Large', value: 'xl'},
 ]

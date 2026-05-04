@@ -289,24 +289,29 @@ export const ephemeraSlugQuery = defineQuery(`
 // CV
 // ---------------------------------------------------------------------------
 
-export const cvQuery = defineQuery(`
-  *[_type == "cvEntry"] | order(year desc, title asc) {
+const cvEntryFields = /* groq */ `
+  _id,
+  title,
+  year,
+  category,
+  role,
+  institution,
+  location,
+  description,
+  internalRef-> {
     _id,
     title,
-    year,
-    category,
-    role,
-    institution,
-    location,
-    description,
-    internalRef-> {
-      _id,
-      title,
-      "slug": slug.current,
-      hidePublicPage
-    }
+    "slug": slug.current,
+    hidePublicPage
   }
-`)
+`
+
+export const cvPageQuery = defineQuery(`{
+  "entries": *[_type == "cvEntry"] | order(year desc, title asc) {
+    ${cvEntryFields}
+  },
+  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url
+}`)
 
 // ---------------------------------------------------------------------------
 // Press

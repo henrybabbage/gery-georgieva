@@ -4,10 +4,9 @@ import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 
 const navLinks = [
-	{href: '/work', label: 'Work', match: (p: string) => p === '/work' || p.startsWith('/exhibition/')},
-	{href: '/cv', label: 'CV', match: (p: string) => p === '/cv'},
-	{href: '/press', label: 'Press', match: (p: string) => p === '/press' || p.startsWith('/press/')},
-	{href: '/contact', label: 'Contact', match: (p: string) => p === '/contact'},
+	{href: '/exhibitions', label: 'Work'},
+	{href: '/press', label: 'Press'},
+	{href: '/cv', label: 'CV'},
 ] as const
 
 export default function SiteNav() {
