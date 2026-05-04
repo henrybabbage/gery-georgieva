@@ -7,7 +7,7 @@ import {DialRoot} from 'dialkit'
 import type {Metadata} from 'next'
 import {VisualEditing} from 'next-sanity/visual-editing'
 import {Inter} from 'next/font/google'
-import {draftMode, headers} from 'next/headers'
+import {draftMode} from 'next/headers'
 import {Toaster} from 'sonner'
 
 import {handleError} from '@/app/client-utils'
@@ -33,21 +33,6 @@ const inter = Inter({
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
-  const holdShell = (await headers()).get('x-hold-shell') === '1'
-
-  if (holdShell) {
-    return (
-      <html lang="en" className={inter.variable} suppressHydrationWarning>
-        <head>
-          <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
-        </head>
-        <body className="isolate min-h-screen text-base font-sans antialiased">
-          {children}
-          <DialRoot productionEnabled defaultOpen={false} />
-        </body>
-      </html>
-    )
-  }
 
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
