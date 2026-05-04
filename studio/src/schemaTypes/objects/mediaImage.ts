@@ -1,3 +1,4 @@
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
 import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
@@ -8,6 +9,17 @@ export const mediaImage = defineType({
   description: 'Still image with optional size override, caption, and credit.',
   type: 'image',
   options: {hotspot: true},
+  preview: {
+    select: {media: 'asset', sizeOverride: 'sizeOverride'},
+    prepare({media, sizeOverride}): PreviewValue {
+      const raw =
+        typeof sizeOverride === 'string' ? sizeOverride.trim() : ''
+      const title = raw
+        ? `Image: ${raw.toUpperCase()} size set`
+        : 'Image: Size not set'
+      return {title, media}
+    },
+  },
   fields: [
     defineField({
       name: 'isAudiencePhoto',
