@@ -16,12 +16,16 @@ export class Scroll {
 	scrollCurrent = 0
 	scrollSmoothing = 0.08
 	/** Stronger follow while dragging on touch so motion feels less laggy. */
-	scrollSmoothingTouch = 0.14
+	scrollSmoothingTouch = 0.26
 	scrollToWorldFactor = 0.0045
 	wheelScrollSpeed = 0.5
-	touchScrollSpeed = 0.9
-	/** Extra gain on coarse pointers (phones) so one swipe crosses more depth. */
-	touchScrollSpeedCoarse = 1.85
+	/** Fine-pointer touch (e.g. some tablets); most phones use coarse multiplier. */
+	touchScrollSpeed = 1.15
+	/**
+	 * Coarse pointers (phones): high gain so one full swipe can advance several
+	 * planes instead of many short swipes.
+	 */
+	touchScrollSpeedCoarse = 5.25
 	previousScrollCurrent = 0
 	invertScroll = false
 
@@ -136,10 +140,14 @@ export class Scroll {
 		if (typeof window === 'undefined' || !window.matchMedia) {
 			return this.touchScrollSpeed
 		}
-		if (window.matchMedia('(pointer: coarse)').matches) {
-			return this.touchScrollSpeedCoarse
-		}
-		return this.touchScrollSpeed
+		const coarse = window.matchMedia('(pointer: coarse)').matches
+		const base = coarse ? this.touchScrollSpeedCoarse : this.touchScrollSpeed
+		if (!coarse) return base
+
+		const h = window.innerHeight || 640
+		// Taller viewports get a modest extra boost (full-height swipe = more px).
+		const viewportBoost = THREE.MathUtils.clamp(h / 560, 1.06, 1.5)
+		return base * viewportBoost
 	}
 
 	init(): void {
