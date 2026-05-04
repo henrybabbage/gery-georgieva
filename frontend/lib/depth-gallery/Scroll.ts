@@ -2,6 +2,9 @@ import type {Debug} from '@/lib/depth-gallery/Debug'
 import type {Gallery} from '@/lib/depth-gallery/Gallery'
 import * as THREE from 'three'
 
+const POINTER_EVENTS_SUPPORTED =
+	typeof window !== 'undefined' && typeof window.PointerEvent !== 'undefined'
+
 export class Scroll {
 	isInitialized = false
 	isDebugBound = false
@@ -12,9 +15,13 @@ export class Scroll {
 	scrollTarget = 0
 	scrollCurrent = 0
 	scrollSmoothing = 0.08
+	/** Stronger follow while dragging on touch so motion feels less laggy. */
+	scrollSmoothingTouch = 0.14
 	scrollToWorldFactor = 0.0045
 	wheelScrollSpeed = 0.5
 	touchScrollSpeed = 0.9
+	/** Extra gain on coarse pointers (phones) so one swipe crosses more depth. */
+	touchScrollSpeedCoarse = 1.85
 	previousScrollCurrent = 0
 	invertScroll = false
 
@@ -34,6 +41,11 @@ export class Scroll {
 	showVelocityVisualizer = true
 	debugUiVisible = false
 	touchY = 0
+	isTouchDragging = false
+	capturedPointerId: number | null = null
+	pointerLastY = 0
+	eventRoot: HTMLElement | Window | null = null
+
 	velocityVisualizerElement: HTMLDivElement | null = null
 	velocityVisualizerFillElement: HTMLDivElement | null = null
 	velocityVisualizerValueElement: HTMLParagraphElement | null = null
@@ -41,6 +53,10 @@ export class Scroll {
 	onWheel: (event: WheelEvent) => void
 	onTouchStart: (event: TouchEvent) => void
 	onTouchMove: (event: TouchEvent) => void
+	onTouchEnd: (event: TouchEvent) => void
+	onPointerDown: (event: PointerEvent) => void
+	onPointerMove: (event: PointerEvent) => void
+	onPointerUp: (event: PointerEvent) => void
 
 	constructor(camera: THREE.PerspectiveCamera, gallery: Gallery, debug: Debug | null = null) {
 		this.camera = camera
@@ -54,15 +70,69 @@ export class Scroll {
 			this.addScrollInput(normalizedWheelDelta)
 		}
 		this.onTouchStart = (event: TouchEvent) => {
+			this.isTouchDragging = true
 			this.touchY = event.touches[0]?.clientY ?? 0
 		}
 		this.onTouchMove = (event: TouchEvent) => {
 			event.preventDefault()
 			const currentTouchY = event.touches[0]?.clientY ?? this.touchY
 			const deltaY = this.touchY - currentTouchY
-			this.addScrollInput(deltaY * this.touchScrollSpeed)
+			this.addScrollInput(deltaY * this.getTouchScrollMultiplier())
 			this.touchY = currentTouchY
 		}
+		this.onTouchEnd = () => {
+			this.isTouchDragging = false
+		}
+		this.onPointerDown = (event: PointerEvent) => {
+			if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
+			const target = event.currentTarget
+			if (target instanceof HTMLElement) {
+				try {
+					target.setPointerCapture(event.pointerId)
+				} catch {
+					// ignore if capture unsupported for this element
+				}
+			}
+			this.capturedPointerId = event.pointerId
+			this.pointerLastY = event.clientY
+			this.isTouchDragging = true
+		}
+		this.onPointerMove = (event: PointerEvent) => {
+			if (this.capturedPointerId === null || event.pointerId !== this.capturedPointerId) {
+				return
+			}
+			event.preventDefault()
+			const deltaY = this.pointerLastY - event.clientY
+			this.pointerLastY = event.clientY
+			this.addScrollInput(deltaY * this.getTouchScrollMultiplier())
+		}
+		this.onPointerUp = (event: PointerEvent) => {
+			if (this.capturedPointerId !== event.pointerId) return
+			const target = event.currentTarget
+			if (target instanceof HTMLElement) {
+				try {
+					target.releasePointerCapture(event.pointerId)
+				} catch {
+					// ignore
+				}
+			}
+			this.capturedPointerId = null
+			this.isTouchDragging = false
+		}
+	}
+
+	setEventRoot(root: HTMLElement | null): void {
+		this.eventRoot = root
+	}
+
+	getTouchScrollMultiplier(): number {
+		if (typeof window === 'undefined' || !window.matchMedia) {
+			return this.touchScrollSpeed
+		}
+		if (window.matchMedia('(pointer: coarse)').matches) {
+			return this.touchScrollSpeedCoarse
+		}
+		return this.touchScrollSpeed
 	}
 
 	init(): void {
@@ -87,9 +157,21 @@ export class Scroll {
 	}
 
 	bindEvents(): void {
+		const touchTarget = this.eventRoot ?? window
+
 		window.addEventListener('wheel', this.onWheel, {passive: false})
-		window.addEventListener('touchstart', this.onTouchStart, {passive: true})
-		window.addEventListener('touchmove', this.onTouchMove, {passive: false})
+
+		if (POINTER_EVENTS_SUPPORTED && touchTarget instanceof HTMLElement) {
+			touchTarget.addEventListener('pointerdown', this.onPointerDown, {passive: true})
+			touchTarget.addEventListener('pointermove', this.onPointerMove, {passive: false})
+			touchTarget.addEventListener('pointerup', this.onPointerUp, {passive: true})
+			touchTarget.addEventListener('pointercancel', this.onPointerUp, {passive: true})
+		} else {
+			touchTarget.addEventListener('touchstart', this.onTouchStart, {passive: true})
+			touchTarget.addEventListener('touchmove', this.onTouchMove, {passive: false})
+			touchTarget.addEventListener('touchend', this.onTouchEnd, {passive: true})
+			touchTarget.addEventListener('touchcancel', this.onTouchEnd, {passive: true})
+		}
 	}
 
 	updateCameraBounds(): void {
@@ -207,11 +289,11 @@ export class Scroll {
 
 	update(): void {
 		this.updateCameraBounds()
-		this.scrollCurrent = THREE.MathUtils.lerp(
-			this.scrollCurrent,
-			this.scrollTarget,
-			this.scrollSmoothing,
-		)
+		const smoothing =
+			this.isTouchDragging && this.scrollSmoothingTouch > 0
+				? this.scrollSmoothingTouch
+				: this.scrollSmoothing
+		this.scrollCurrent = THREE.MathUtils.lerp(this.scrollCurrent, this.scrollTarget, smoothing)
 
 		if (this.useScrollBounds) {
 			const minimumScroll = this.scrollFromCameraZ(this.maxCameraZ)
@@ -288,9 +370,21 @@ export class Scroll {
 	}
 
 	dispose(): void {
+		const touchTarget = this.eventRoot ?? window
+
 		window.removeEventListener('wheel', this.onWheel)
-		window.removeEventListener('touchstart', this.onTouchStart)
-		window.removeEventListener('touchmove', this.onTouchMove)
+
+		if (POINTER_EVENTS_SUPPORTED && touchTarget instanceof HTMLElement) {
+			touchTarget.removeEventListener('pointerdown', this.onPointerDown)
+			touchTarget.removeEventListener('pointermove', this.onPointerMove)
+			touchTarget.removeEventListener('pointerup', this.onPointerUp)
+			touchTarget.removeEventListener('pointercancel', this.onPointerUp)
+		} else {
+			touchTarget.removeEventListener('touchstart', this.onTouchStart)
+			touchTarget.removeEventListener('touchmove', this.onTouchMove)
+			touchTarget.removeEventListener('touchend', this.onTouchEnd)
+			touchTarget.removeEventListener('touchcancel', this.onTouchEnd)
+		}
 
 		this.velocityVisualizerElement?.remove()
 		this.velocityVisualizerElement = null
