@@ -36,14 +36,10 @@ export interface HomepageCarouselQueryData {
     workSlide?: {
       _id: string
       title?: string | null
+      slug?: string | null
       carouselImage?: SanityImageSource | null
       firstGalleryImage?: SanityImageSource | null
       coverImage?: SanityImageSource | null
-      exhibition?: {
-        title?: string | null
-        slug?: string | null
-        hidePublicPage?: boolean | null
-      } | null
     } | null
     exhibitionSlide?: {
       _id: string
@@ -116,6 +112,17 @@ function exhibitionHrefAndTitle(
   return {href, title}
 }
 
+function workHrefAndTitle(
+  slug: string | null | undefined,
+  title: string | null | undefined,
+): {href: string | null; title: string} {
+  const href =
+    typeof slug === 'string' && slug.length > 0 ? `/work/${slug}` : null
+  const displayTitle =
+    (typeof title === 'string' ? title.trim() : '') || 'Work'
+  return {href, title: displayTitle}
+}
+
 export function buildHomepageCarouselSlides(
   data: HomepageCarouselQueryData | null | undefined,
 ): HomepageCarouselSlide[] {
@@ -130,10 +137,7 @@ export function buildHomepageCarouselSlides(
       )
       const url = homepageCarouselImageUrl(img)
       const imageUrl = url ?? ''
-      const {href, title} = exhibitionHrefAndTitle(
-        w.exhibition,
-        typeof w.title === 'string' ? w.title.trim() : '',
-      )
+      const {href, title} = workHrefAndTitle(w.slug, w.title)
       if (!href) continue
       const palette = imagePaletteFromResolvedSource(img)
       const moodColors =
