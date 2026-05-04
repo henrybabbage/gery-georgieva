@@ -172,11 +172,7 @@ export function ExhibitionExpandableGalleryImage({
 
   const canUsePortal = typeof document !== 'undefined'
   const showInvertExpandCursor =
-    canUsePortal &&
-    pointerFine &&
-    triggerPointerInside &&
-    !open &&
-    invertCursorPos != null
+    canUsePortal && pointerFine && triggerPointerInside && !open && invertCursorPos != null
 
   const invertCursorHotspot = expandCursorHotspotPx(orientation)
 

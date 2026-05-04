@@ -5,34 +5,28 @@ import {sanityFetch} from '@/sanity/lib/live'
 import {streamQuery} from '@/sanity/lib/queries'
 
 export const metadata: Metadata = {
-	title: 'Exhibitions',
+  title: 'Exhibitions',
 }
 
-export default async function FeaturePage () {
-	const {data: items} = await sanityFetch({query: streamQuery})
+export default async function FeaturePage() {
+  const {data: items} = await sanityFetch({query: streamQuery})
 
-	return (
-		<div className="px-5 py-8">
-			<ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-				{items?.map((item) => (
-					<li key={item._id}>
-						<Link
-							href={
-								item._type === 'work'
-									? `/work/${item.slug}`
-									: `/ephemera/${item.slug}`
-							}
-							className="block text-base"
-						>
-							<div className="aspect-[4/3] bg-placeholder mb-1" />
-							<span>{item.title}</span>
-							{item.year && (
-								<span className="ml-2 opacity-50">{item.year}</span>
-							)}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	)
+  return (
+    <div className="px-5 py-8">
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {items?.map((item) => (
+          <li key={item._id}>
+            <Link
+              href={item._type === 'work' ? `/work/${item.slug}` : `/ephemera/${item.slug}`}
+              className="block text-base"
+            >
+              <div className="aspect-[4/3] bg-placeholder mb-1" />
+              <span>{item.title}</span>
+              {item.year && <span className="ml-2 opacity-50">{item.year}</span>}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }

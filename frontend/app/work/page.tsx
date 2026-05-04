@@ -60,7 +60,9 @@ export default async function WorkIndexPage() {
           <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
             {list.map((ex) => {
               const lead = leadMediaForExhibition(ex)
-              const metaLine = [ex.venue, ex.location, ex.year].filter((v) => v != null && v !== '').join(', ')
+              const metaLine = [ex.venue, ex.location, ex.year]
+                .filter((v) => v != null && v !== '')
+                .join(', ')
               return (
                 <Link
                   key={ex._id}

@@ -22,8 +22,7 @@ function resolvePressKind(row: PressRow): 'url' | 'pdf' | 'text' {
 }
 
 /** Match exhibition “about” copy: readable measure and ink color. */
-const listShellClass =
-  'mx-auto w-full max-w-[1260px] lg:px-[30px]'
+const listShellClass = 'mx-auto w-full max-w-[1260px] lg:px-[30px]'
 const listMeasureClass = 'max-w-[72ch] text-base text-[var(--color-ink)]'
 
 /** Uniform row cursor; links also set !cursor-pointer on the anchor. */
@@ -45,7 +44,8 @@ export default async function PressPage() {
               const kind = resolvePressKind(row)
 
               if (kind === 'text') {
-                const slug = typeof row.slug === 'string' && row.slug.trim() ? row.slug.trim() : null
+                const slug =
+                  typeof row.slug === 'string' && row.slug.trim() ? row.slug.trim() : null
                 if (slug) {
                   return (
                     <li key={row._id} className={rowClass}>

@@ -40,10 +40,7 @@ export default async function WorkPage({params}: Props) {
       {work.gallery && work.gallery.length > 0 && (
         <div className="space-y-2 mb-8">
           {work.gallery.map((item, i) => (
-            <div
-              key={item._key ?? i}
-              className="bg-placeholder aspect-video"
-            />
+            <div key={item._key ?? i} className="bg-placeholder aspect-video" />
           ))}
         </div>
       )}
@@ -58,10 +55,7 @@ export default async function WorkPage({params}: Props) {
                 {ex.hidePublicPage === true ? (
                   <span>{ex.title}</span>
                 ) : (
-                  <Link
-                    href={`/exhibition/${ex.slug}`}
-                    className="underline underline-offset-2"
-                  >
+                  <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
                     {ex.title}
                   </Link>
                 )}

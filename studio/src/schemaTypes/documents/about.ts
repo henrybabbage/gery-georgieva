@@ -20,7 +20,7 @@ export const about = defineType({
     }),
   ],
   preview: {
-    prepare () {
+    prepare() {
       return {title: 'About'}
     },
   },

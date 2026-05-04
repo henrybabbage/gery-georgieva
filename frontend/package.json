@@ -1,7 +1,6 @@
 {
   "name": "frontend",
   "private": true,
-  "prettier": "@sanity/prettier-config",
   "scripts": {
     "prebuild": "sanity typegen generate",
     "build": "next build",
@@ -13,6 +12,7 @@
     "start": "next start",
     "type-check": "tsc --noEmit"
   },
+  "prettier": "@sanity/prettier-config",
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@paper-design/shaders-react": "^0.0.76",

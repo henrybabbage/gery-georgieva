@@ -97,7 +97,11 @@ export default function CustomPortableText({
       link: ({children, value: link}) => {
         const href = link?.href ?? link?.url ?? '#'
         return (
-          <a href={href} target={link?.openInNewTab ? '_blank' : undefined} rel="noopener noreferrer">
+          <a
+            href={href}
+            target={link?.openInNewTab ? '_blank' : undefined}
+            rel="noopener noreferrer"
+          >
             {children}
           </a>
         )

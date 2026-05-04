@@ -90,7 +90,11 @@ const FORCED_FIRST_ALIGNMENTS: RowJustify[] = ['left', 'center', 'right']
  * left, center, and right so every orientation appears; row 4+ use the seeded Paper rhythm.
  * `absoluteIndex` is the row index across the whole installation (lead + tail when split).
  */
-function justifyForIndex(absoluteIndex: number, title: string, galleryImageCount: number): RowJustify {
+function justifyForIndex(
+  absoluteIndex: number,
+  title: string,
+  galleryImageCount: number,
+): RowJustify {
   if (galleryImageCount > 3 && absoluteIndex < 3) {
     return FORCED_FIRST_ALIGNMENTS[absoluteIndex]
   }
@@ -197,7 +201,10 @@ function getItemOrientation(item: ExhibitionInstallationImage): Orientation {
   return 'landscape'
 }
 
-function getImageAlt(item: ExhibitionInstallationImage & {_type: 'mediaImage'}, altBase: string): string {
+function getImageAlt(
+  item: ExhibitionInstallationImage & {_type: 'mediaImage'},
+  altBase: string,
+): string {
   const asset = item.asset as {altText?: string} | null | undefined
   return asset?.altText?.trim() || item.caption?.trim() || altBase
 }
@@ -225,8 +232,7 @@ function getExpandableImageProps(
   if (!popupUrl) return null
 
   const naturalW = meta?.width && meta.width > 0 ? meta.width : preset.width
-  const naturalH =
-    meta?.height && meta.height > 0 ? meta.height : Math.round(preset.width / ratio)
+  const naturalH = meta?.height && meta.height > 0 ? meta.height : Math.round(preset.width / ratio)
 
   /** Match `popupUrl` pixel dimensions so the lightbox `Image` doesn’t request 2×–4× upscales via srcset. */
   const popupIntrinsicW = popupPixelW
@@ -236,9 +242,7 @@ function getExpandableImageProps(
       : Math.max(1, Math.round(popupPixelW / ratio))
 
   const isAudience = stegaClean(item.isAudiencePhoto)
-  const frameClass = isAudience
-    ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]'
-    : ''
+  const frameClass = isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''
 
   const palette = item.asset?.metadata?.palette
   const popupPlaceholderColor =
@@ -294,13 +298,14 @@ function GalleryMediaTile({
         : 4 / 3
 
     const isAudience = stegaClean(item.isAudiencePhoto)
-    const frameClass = isAudience
-      ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]'
-      : ''
+    const frameClass = isAudience ? 'outline outline-1 outline-offset-[-4px] outline-[#deded9]' : ''
 
     if (!url) {
       return (
-        <div className={`relative w-full overflow-hidden bg-placeholder ${frameClass}`} style={{aspectRatio: ratio}} />
+        <div
+          className={`relative w-full overflow-hidden bg-placeholder ${frameClass}`}
+          style={{aspectRatio: ratio}}
+        />
       )
     }
 
@@ -408,8 +413,7 @@ function SideCaption({
   const cap = caption.trim()
   const cred = credit.trim()
   if (cap === '' && cred === '') return null
-  const alignClass =
-    align === 'right' ? 'items-end text-right' : 'items-start text-left'
+  const alignClass = align === 'right' ? 'items-end text-right' : 'items-start text-left'
   return (
     <div className={`flex w-full flex-col gap-px text-sm text-[var(--color-muted)] ${alignClass}`}>
       {cap !== '' && (
@@ -439,7 +443,13 @@ type StaggeredGridRowProps = {
   galleryImageCount: number
 }
 
-function StaggeredGridRow({item, index, altBase, layoutTitle, galleryImageCount}: StaggeredGridRowProps) {
+function StaggeredGridRow({
+  item,
+  index,
+  altBase,
+  layoutTitle,
+  galleryImageCount,
+}: StaggeredGridRowProps) {
   const justify = justifyForIndex(index, layoutTitle, galleryImageCount)
   const orientation = getItemOrientation(item)
   const {caption: sideCaption, credit: sideCredit} = resolveSideLabels(item)
@@ -506,7 +516,9 @@ function StaggeredGridRow({item, index, altBase, layoutTitle, galleryImageCount}
     grid = (
       <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
         <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col justify-end self-stretch`}>{media}</div>
+        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col justify-end self-stretch`}>
+          {media}
+        </div>
         {captionEl ? (
           <div className={captionCellClassCenter(tailCaptionClass)}>{captionEl}</div>
         ) : (
@@ -517,11 +529,7 @@ function StaggeredGridRow({item, index, altBase, layoutTitle, galleryImageCount}
   }
 
   const outerJustify =
-    justify === 'left'
-      ? 'justify-start'
-      : justify === 'right'
-        ? 'justify-end'
-        : 'justify-center'
+    justify === 'left' ? 'justify-start' : justify === 'right' ? 'justify-end' : 'justify-center'
 
   return (
     <div className={`flex w-full items-end ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
@@ -530,13 +538,7 @@ function StaggeredGridRow({item, index, altBase, layoutTitle, galleryImageCount}
   )
 }
 
-function MobileStack({
-  items,
-  altBase,
-}: {
-  items: ExhibitionInstallationImage[]
-  altBase: string
-}) {
+function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; altBase: string}) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-[clamp(2.5rem,2rem+4.5vw,4rem)] md:hidden">
       {items.map((item, i) => {

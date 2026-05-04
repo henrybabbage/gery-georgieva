@@ -23,9 +23,7 @@ export default async function CVPage() {
   const {data} = await sanityFetch({query: cvPageQuery})
   const entries = data?.entries
   const cvFileUrl =
-    typeof data?.cvFileUrl === 'string' && data.cvFileUrl.trim()
-      ? data.cvFileUrl.trim()
-      : null
+    typeof data?.cvFileUrl === 'string' && data.cvFileUrl.trim() ? data.cvFileUrl.trim() : null
 
   if (!entries) return null
 
@@ -63,10 +61,7 @@ export default async function CVPage() {
           </a>
         </li>
         <li>
-          <a
-            href="mailto:emailgery@gmail.com"
-            className="underline-offset-4 hover:underline"
-          >
+          <a href="mailto:emailgery@gmail.com" className="underline-offset-4 hover:underline">
             Email
           </a>
         </li>
@@ -82,8 +77,7 @@ export default async function CVPage() {
               <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-base">
                 <span className="opacity-50 tabular-nums">{entry.year}</span>
                 <span>
-                  {entry.internalRef &&
-                  entry.internalRef.hidePublicPage !== true ? (
+                  {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
                     <Link
                       href={`/exhibition/${entry.internalRef.slug}`}
                       className="underline underline-offset-2"
@@ -93,15 +87,9 @@ export default async function CVPage() {
                   ) : (
                     entry.title
                   )}
-                  {entry.institution && (
-                    <span className="opacity-50">, {entry.institution}</span>
-                  )}
-                  {entry.location && (
-                    <span className="opacity-50">, {entry.location}</span>
-                  )}
-                  {entry.role && (
-                    <span className="opacity-40 ml-2">({entry.role})</span>
-                  )}
+                  {entry.institution && <span className="opacity-50">, {entry.institution}</span>}
+                  {entry.location && <span className="opacity-50">, {entry.location}</span>}
+                  {entry.role && <span className="opacity-40 ml-2">({entry.role})</span>}
                 </span>
               </li>
             ))}

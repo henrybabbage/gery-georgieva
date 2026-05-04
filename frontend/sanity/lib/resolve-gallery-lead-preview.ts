@@ -13,7 +13,9 @@ export type GalleryLeadPreview =
 
 function imageUrlFromSanity(source: SanityImageSource | null | undefined): string | null {
   if (source == null) return null
-  return urlForImage(source)?.width(PREVIEW_W).height(PREVIEW_H).fit('max').auto('format').url() ?? null
+  return (
+    urlForImage(source)?.width(PREVIEW_W).height(PREVIEW_H).fit('max').auto('format').url() ?? null
+  )
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {

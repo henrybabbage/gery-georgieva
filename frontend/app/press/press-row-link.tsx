@@ -25,8 +25,8 @@ export function PressRowLink({variant, href, title, children}: Props) {
   const decoration = variant === 'pdf' ? 'decoration-dotted' : ''
 
   const iconProps = {
-    className: `${iconClass} size-[1em]`,
-    strokeWidth: 1.75,
+    'className': `${iconClass} size-[1em]`,
+    'strokeWidth': 1.75,
     'aria-hidden': true as const,
   }
 

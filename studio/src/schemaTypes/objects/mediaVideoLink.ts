@@ -51,15 +51,13 @@ export const mediaVideoLink = defineType({
       name: 'vimeo',
       title: 'Vimeo',
       type: 'vimeo',
-      hidden: ({parent}: {parent: MediaVideoLinkParent}) =>
-        parent?.provider !== 'vimeo',
+      hidden: ({parent}: {parent: MediaVideoLinkParent}) => parent?.provider !== 'vimeo',
     }),
     defineField({
       name: 'youtube',
       title: 'YouTube',
       type: 'youtubeVideo',
-      hidden: ({parent}: {parent: MediaVideoLinkParent}) =>
-        parent?.provider !== 'youtube',
+      hidden: ({parent}: {parent: MediaVideoLinkParent}) => parent?.provider !== 'youtube',
     }),
     defineField({name: 'caption', title: 'Caption', type: 'text', rows: 2}),
     defineField({name: 'credit', title: 'Credit', type: 'string'}),
@@ -68,11 +66,7 @@ export const mediaVideoLink = defineType({
     select: {provider: 'provider', caption: 'caption', credit: 'credit'},
     prepare({provider, caption, credit}): PreviewValue {
       const fallback =
-        provider === 'vimeo'
-          ? 'Vimeo'
-          : provider === 'youtube'
-            ? 'YouTube'
-            : 'Video link'
+        provider === 'vimeo' ? 'Vimeo' : provider === 'youtube' ? 'YouTube' : 'Video link'
       return {
         title: (caption as string | undefined)?.trim() || fallback,
         subtitle: credit,

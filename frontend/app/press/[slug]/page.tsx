@@ -84,9 +84,7 @@ export default async function PressArticlePage({params}: Props) {
   const leadArticleImages = splitGallery
     ? articleImages.slice(0, INSTALLATION_GALLERY_LEAD_COUNT)
     : articleImages
-  const tailArticleImages = splitGallery
-    ? articleImages.slice(INSTALLATION_GALLERY_LEAD_COUNT)
-    : []
+  const tailArticleImages = splitGallery ? articleImages.slice(INSTALLATION_GALLERY_LEAD_COUNT) : []
 
   const layoutTitle = article.linkText ?? 'Press'
   const altBase = article.linkText ?? 'Press'
@@ -124,9 +122,7 @@ export default async function PressArticlePage({params}: Props) {
               {author && <p>{author}</p>}
             </div>
           )}
-          {hasDescription && (
-            <CustomPortableText className="max-w-[72ch] text-base" value={body} />
-          )}
+          {hasDescription && <CustomPortableText className="max-w-[72ch] text-base" value={body} />}
         </section>
       )}
 

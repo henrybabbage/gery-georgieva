@@ -32,7 +32,6 @@ function ephemeraCategoryLabel(category: string): string {
   return EPHEMERA_CATEGORY_LABEL[category] ?? category
 }
 
-
 export async function generateStaticParams() {
   const {data} = await sanityFetch({
     query: exhibitionSlugQuery,
@@ -176,8 +175,9 @@ export default async function ExhibitionPage({params}: Props) {
                   galleryLead={ep.imagesLead}
                   descriptionPlain={ep.descriptionPlain}
                   subtitle={
-                    [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
-                      .filter((v) => v != null && v !== '').length > 0
+                    [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year].filter(
+                      (v) => v != null && v !== '',
+                    ).length > 0
                       ? [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
                           .filter((v) => v != null && v !== '')
                           .join(', ')

@@ -103,7 +103,12 @@ function DestinationPreviewBlock({preview, label}: {preview: GalleryLeadPreview;
                 : 'flex size-9 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-ink)_6%,#fff)] text-[var(--color-ink)] shadow-sm'
             }
           >
-            <svg className="size-3.5 translate-x-px sm:size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <svg
+              className="size-3.5 translate-x-px sm:size-4"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden
+            >
               <path d="M8 5v14l11-7z" />
             </svg>
           </span>
@@ -115,16 +120,15 @@ function DestinationPreviewBlock({preview, label}: {preview: GalleryLeadPreview;
   if (preview.kind === 'text') {
     return (
       <div className="flex aspect-[4/3] w-full items-start overflow-hidden border border-hairline bg-paper p-3">
-        <p className="m-0 line-clamp-5 text-left text-sm leading-snug text-[var(--color-muted)]">{preview.text}</p>
+        <p className="m-0 line-clamp-5 text-left text-sm leading-snug text-[var(--color-muted)]">
+          {preview.text}
+        </p>
       </div>
     )
   }
 
   return (
-    <div
-      className="flex aspect-[4/3] w-full items-end bg-placeholder p-3"
-      aria-hidden
-    >
+    <div className="flex aspect-[4/3] w-full items-end bg-placeholder p-3" aria-hidden>
       <span className="text-sm text-[var(--color-muted)]">{label}</span>
     </div>
   )

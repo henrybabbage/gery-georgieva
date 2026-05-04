@@ -23,9 +23,7 @@ export const mediaImage = defineType({
       name: 'isAudiencePhoto',
       title: 'Audience Photo',
       type: 'boolean',
-      description:
-        'Mark if this is an audience/vernissage photo, not official ' +
-        'documentation.',
+      description: 'Mark if this is an audience/vernissage photo, not official ' + 'documentation.',
       initialValue: false,
     }),
     defineField({
