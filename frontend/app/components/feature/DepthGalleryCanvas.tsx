@@ -52,6 +52,7 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
 		const engine = new Engine(canvas, experience, {
 			enableDebugInfrastructure: isDev,
 			onActivePlaneIndexChange: setActivePlaneIndex,
+			scrollEventRoot: rootRef.current,
 		})
 
 		void engine.init().catch((error) => {

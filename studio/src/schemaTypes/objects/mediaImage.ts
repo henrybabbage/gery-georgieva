@@ -2,6 +2,7 @@ import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
 import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
+import {staggeredGalleryCaptionEmptyWarning} from '../../lib/staggeredGalleryCaptionCreditValidation'
 
 export const mediaImage = defineType({
   name: 'mediaImage',
@@ -40,7 +41,16 @@ export const mediaImage = defineType({
         direction: 'horizontal',
       },
     }),
-    defineField({name: 'caption', title: 'Caption', type: 'text', rows: 2}),
+    defineField({
+      name: 'caption',
+      title: 'Caption',
+      type: 'text',
+      rows: 2,
+      validation: (Rule) =>
+        Rule.custom((caption, context) =>
+          staggeredGalleryCaptionEmptyWarning(caption, context),
+        ),
+    }),
     defineField({name: 'credit', title: 'Photo Credit', type: 'string'}),
   ],
 })

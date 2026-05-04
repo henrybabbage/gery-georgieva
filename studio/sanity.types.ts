@@ -286,7 +286,6 @@ export type Exhibition = {
   title: string
   slug: Slug
   hidePublicPage?: boolean
-  showOnShowsIndex?: boolean
   carouselImage?: MediaImage
   year?: number
   installationImages?: Array<

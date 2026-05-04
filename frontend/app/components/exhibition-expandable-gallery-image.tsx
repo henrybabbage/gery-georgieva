@@ -249,7 +249,7 @@ export function ExhibitionExpandableGalleryImage({
         <Cambio.Popup className="z-[1001] max-h-[min(92vh,1200px)] max-w-[min(96vw,1400px)] overflow-visible border-0 bg-transparent p-0 shadow-none outline-none ring-0">
           <Cambio.Title className="sr-only">{alt}</Cambio.Title>
           <Cambio.Description className="sr-only">{description}</Cambio.Description>
-          <div className="relative flex max-h-[min(90vh,1180px)] w-full items-center justify-center overflow-hidden rounded-sm bg-transparent">
+          <div className="relative flex max-h-[min(90vh,1180px)] w-full items-center justify-center overflow-hidden bg-transparent">
             <Image
               src={popupUrl}
               alt={alt}

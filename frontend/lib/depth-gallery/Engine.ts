@@ -6,6 +6,11 @@ import * as THREE from 'three'
 const IS_DEV = process.env.NODE_ENV === 'development'
 
 export interface EngineCreateOptions {
+	/**
+	 * Element that receives touch / pointer scroll (wheel stays on window).
+	 * Improves mobile: `touch-action: none` + pointer capture on this subtree.
+	 */
+	scrollEventRoot?: HTMLElement | null
 	/** Fired only when visible plane index changes. */
 	onActivePlaneIndexChange?: (planeIndex: number) => void
 	/**
@@ -37,6 +42,7 @@ export class Engine {
 	lastActivePlaneIndex = -1
 	onActivePlaneIndexChange?: (planeIndex: number) => void
 	enableDebugInfrastructure: boolean
+	scrollEventRoot: HTMLElement | null
 
 	constructor(canvas: HTMLCanvasElement, experience: Experience, options: EngineCreateOptions = {}) {
 		if (!(canvas instanceof HTMLCanvasElement)) {
@@ -48,6 +54,7 @@ export class Engine {
 		this.debug = experience.debug
 		this.onActivePlaneIndexChange = options.onActivePlaneIndexChange
 		this.enableDebugInfrastructure = options.enableDebugInfrastructure ?? false
+		this.scrollEventRoot = options.scrollEventRoot ?? null
 
 		this.scene = new THREE.Scene()
 
@@ -86,6 +93,7 @@ export class Engine {
 
 			await this.experience.init(this.scene, this.camera)
 			this.scroll.init()
+			this.scroll.setEventRoot(this.scrollEventRoot)
 			if (IS_DEV && this.enableDebugInfrastructure) {
 				this.initStats()
 				this.bindDebug()
