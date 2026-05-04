@@ -320,7 +320,8 @@ export const cvPageQuery = defineQuery(`{
   "entries": *[_type == "cvEntry"] | order(year desc, title asc) {
     ${cvEntryFields}
   },
-  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url
+  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url,
+  "cvSectionOrder": *[_type == "about" && _id == "about"][0].cvSectionOrder
 }`)
 
 // ---------------------------------------------------------------------------
