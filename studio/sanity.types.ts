@@ -399,6 +399,18 @@ export type About = {
     media?: unknown
     _type: 'file'
   }
+  cvSectionOrder?: Array<
+    | 'exhibition'
+    | 'education'
+    | 'award'
+    | 'residency'
+    | 'publication'
+    | 'performance'
+    | 'screening'
+    | 'commission'
+    | 'lecture'
+    | 'other'
+  >
 }
 
 export type SiteSettings = {

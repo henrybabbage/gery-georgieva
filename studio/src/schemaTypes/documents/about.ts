@@ -1,19 +1,7 @@
 import {UserCircle} from '@phosphor-icons/react'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-/** Same values as `cvEntry.category` — keep in sync. */
-const CV_SECTION_LIST = [
-  {title: 'Exhibition', value: 'exhibition'},
-  {title: 'Education', value: 'education'},
-  {title: 'Award', value: 'award'},
-  {title: 'Residency', value: 'residency'},
-  {title: 'Publication', value: 'publication'},
-  {title: 'Performance', value: 'performance'},
-  {title: 'Screening', value: 'screening'},
-  {title: 'Commission', value: 'commission'},
-  {title: 'Lecture', value: 'lecture'},
-  {title: 'Other', value: 'other'},
-] as const
+import {CV_CATEGORY_OPTIONS} from '../constants/cvCategoryOptions'
 
 export const about = defineType({
   name: 'about',
@@ -43,7 +31,7 @@ export const about = defineType({
         defineArrayMember({
           type: 'string',
           options: {
-            list: [...CV_SECTION_LIST],
+            list: [...CV_CATEGORY_OPTIONS],
           },
         }),
       ],

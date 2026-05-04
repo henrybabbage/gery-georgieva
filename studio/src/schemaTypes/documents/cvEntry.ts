@@ -1,5 +1,13 @@
-import {defineField, defineType} from 'sanity'
 import {ListDashes} from '@phosphor-icons/react'
+import {defineField, defineType} from 'sanity'
+
+import {CV_CATEGORY_OPTIONS} from '../constants/cvCategoryOptions'
+
+function categoryPreviewTitle(category: string | undefined) {
+  if (!category) return ''
+  const found = CV_CATEGORY_OPTIONS.find((o) => o.value === category)
+  return found?.title ?? category
+}
 
 export const cvEntry = defineType({
   name: 'cvEntry',
@@ -31,18 +39,7 @@ export const cvEntry = defineType({
       title: 'Category',
       type: 'string',
       options: {
-        list: [
-          {title: 'Exhibition', value: 'exhibition'},
-          {title: 'Education', value: 'education'},
-          {title: 'Award', value: 'award'},
-          {title: 'Residency', value: 'residency'},
-          {title: 'Publication', value: 'publication'},
-          {title: 'Performance', value: 'performance'},
-          {title: 'Screening', value: 'screening'},
-          {title: 'Commission', value: 'commission'},
-          {title: 'Lecture', value: 'lecture'},
-          {title: 'Other', value: 'other'},
-        ],
+        list: [...CV_CATEGORY_OPTIONS],
       },
       validation: (Rule) => Rule.required(),
     }),
@@ -63,7 +60,7 @@ export const cvEntry = defineType({
     prepare({title, year, category}) {
       return {
         title,
-        subtitle: `${year} — ${category}`,
+        subtitle: `${year} — ${categoryPreviewTitle(category)}`,
         media: ListDashes,
       }
     },
