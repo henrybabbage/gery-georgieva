@@ -3,10 +3,15 @@ import {Scroll} from '@/lib/depth-gallery/Scroll'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import * as THREE from 'three'
 
+const IS_DEV = process.env.NODE_ENV === 'development'
+
 export interface EngineCreateOptions {
 	/** Fired only when visible plane index changes. */
 	onActivePlaneIndexChange?: (planeIndex: number) => void
-	/** Enables Stats FPS, Tweakepane, and Scroll velocity HUD. */
+	/**
+	 * Stats, Tweakepane, scroll velocity HUD, and D-key toggle.
+	 * Honored only when `NODE_ENV === 'development'`.
+	 */
 	enableDebugInfrastructure?: boolean
 }
 
@@ -63,7 +68,7 @@ export class Engine {
 			this.resize()
 		}
 		this.onKeyDown = (event: KeyboardEvent) => {
-			if (!this.enableDebugInfrastructure) return
+			if (!IS_DEV || !this.enableDebugInfrastructure) return
 			if (event.repeat) return
 			if (event.key.toLowerCase() !== 'd') return
 			this.setDebugUiVisible(!this.isDebugUiVisible)
@@ -81,7 +86,7 @@ export class Engine {
 
 			await this.experience.init(this.scene, this.camera)
 			this.scroll.init()
-			if (this.enableDebugInfrastructure) {
+			if (IS_DEV && this.enableDebugInfrastructure) {
 				this.initStats()
 				this.bindDebug()
 				this.setDebugUiVisible(false)

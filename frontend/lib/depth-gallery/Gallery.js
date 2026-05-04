@@ -36,6 +36,9 @@ export class Gallery {
     this.passageEnterFadeSpan = 0.42
     this.passageEnterCurvePower = 1.35
     this.passageChromaMultiply = 1.25
+    this.passageExitFinaleStart = 0.55
+    this.passageExitFinaleStrength = 1.5
+    this.passageExitEdgeDispersal = 0.65
 
     this.baseDistortionStrength = 0.35
     this.baseLightStrength = 0.18
@@ -135,6 +138,7 @@ export class Gallery {
           uPassageStrength: { value: 0 },
           uPassageEnterPhase: { value: 0 },
           uPassageChromaMultiply: { value: this.passageChromaMultiply },
+          uPassageEdgeDispersal: { value: 0 },
           opacity: { value: index === 0 ? 1 : 0 },
         },
         side: THREE.DoubleSide,
@@ -320,7 +324,8 @@ export class Gallery {
   }
 
   getPassageDataForPlane(planeIndex, blendData) {
-    if (!blendData) return { strength: 0, enterPhase: 0 }
+    const empty = { strength: 0, enterPhase: 0, edgeDispersal: 0 }
+    if (!blendData) return empty
 
     const {
       currentPlaneIndex,
@@ -328,15 +333,21 @@ export class Gallery {
       blend,
     } = blendData
 
-    if (currentPlaneIndex === nextPlaneIndex) return { strength: 0, enterPhase: 0 }
+    if (currentPlaneIndex === nextPlaneIndex) return empty
 
     let exitRaw = 0
+    let exitFinale = 0
     if (planeIndex === currentPlaneIndex) {
       const b = THREE.MathUtils.clamp(blend, 0, 1)
       if (b > this.passageExitBlendStart) {
         const span = Math.max(1 - this.passageExitBlendStart, 1e-6)
-        const u = (b - this.passageExitBlendStart) / span
-        exitRaw = Math.pow(THREE.MathUtils.clamp(u, 0, 1), this.passageExitCurvePower)
+        const uLin = THREE.MathUtils.clamp((b - this.passageExitBlendStart) / span, 0, 1)
+        exitRaw = Math.pow(uLin, this.passageExitCurvePower)
+        exitFinale = THREE.MathUtils.smoothstep(
+          this.passageExitFinaleStart,
+          1.0,
+          uLin,
+        )
       }
     }
 
@@ -349,10 +360,25 @@ export class Gallery {
     }
 
     const raw = exitRaw + enterRaw
-    const strength = THREE.MathUtils.clamp(raw * this.passageMaxStrength, 0, 1)
+    let strength = THREE.MathUtils.clamp(raw * this.passageMaxStrength, 0, 1)
+    if (planeIndex === currentPlaneIndex && exitFinale > 0) {
+      const finaleCeiling = Math.max(
+        1,
+        this.passageMaxStrength * (1 + this.passageExitFinaleStrength),
+      )
+      strength = THREE.MathUtils.clamp(
+        strength * (1 + this.passageExitFinaleStrength * exitFinale),
+        0,
+        finaleCeiling,
+      )
+    }
     const enterPhase = enterRaw > exitRaw ? 1 : 0
+    const edgeDispersal =
+      planeIndex === currentPlaneIndex
+        ? exitFinale * this.passageExitEdgeDispersal
+        : 0
 
-    return { strength, enterPhase }
+    return { strength, enterPhase, edgeDispersal }
   }
 
   getPlaneBlendData(cameraZ) {
@@ -683,6 +709,42 @@ export class Gallery {
       },
     })
 
+    this.debug.addBinding({
+      folderTitle: 'Gallery passage',
+      targetObject: this,
+      property: 'passageExitFinaleStart',
+      label: 'Exit finale start',
+      options: {
+        min: 0,
+        max: 0.99,
+        step: 0.01,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery passage',
+      targetObject: this,
+      property: 'passageExitFinaleStrength',
+      label: 'Exit finale strength',
+      options: {
+        min: 0,
+        max: 3,
+        step: 0.05,
+      },
+    })
+
+    this.debug.addBinding({
+      folderTitle: 'Gallery passage',
+      targetObject: this,
+      property: 'passageExitEdgeDispersal',
+      label: 'Exit edge dispersal',
+      options: {
+        min: 0,
+        max: 1,
+        step: 0.02,
+      },
+    })
+
     this.isDebugBound = true
   }
 
@@ -799,6 +861,7 @@ export class Gallery {
       planeMaterial.uniforms.uPassageStrength.value = passage.strength
       planeMaterial.uniforms.uPassageEnterPhase.value = passage.enterPhase
       planeMaterial.uniforms.uPassageChromaMultiply.value = this.passageChromaMultiply
+      planeMaterial.uniforms.uPassageEdgeDispersal.value = passage.edgeDispersal
       planeMaterial.uniforms.uBaseDistortionStrength.value =
         this.baseDistortionStrength * baseByDepth
       planeMaterial.uniforms.uBaseLightStrength.value =
