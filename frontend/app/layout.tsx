@@ -1,20 +1,20 @@
-import './globals.css'
 import 'dialkit/styles.css'
 import 'lenis/dist/lenis.css'
+import './globals.css'
 
-import {DialRoot} from 'dialkit'
 import {SpeedInsights} from '@vercel/speed-insights/next'
+import {DialRoot} from 'dialkit'
 import type {Metadata} from 'next'
+import {VisualEditing} from 'next-sanity/visual-editing'
 import {Inter} from 'next/font/google'
 import {draftMode, headers} from 'next/headers'
-import {VisualEditing} from 'next-sanity/visual-editing'
 import {Toaster} from 'sonner'
 
-import DraftModeToast from '@/app/components/DraftModeToast'
-import SiteNav from '@/app/components/SiteNav'
-import LenisRoot from '@/app/components/LenisRoot'
-import {SanityLive} from '@/sanity/lib/live'
 import {handleError} from '@/app/client-utils'
+import DraftModeToast from '@/app/components/DraftModeToast'
+import LenisRoot from '@/app/components/LenisRoot'
+import SiteNav from '@/app/components/SiteNav'
+import {SanityLive} from '@/sanity/lib/live'
 
 export const metadata: Metadata = {
   title: {
@@ -38,6 +38,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   if (holdShell) {
     return (
       <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
+        <head>
+          <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
+        </head>
         <body className="isolate min-h-screen text-base font-sans antialiased">
           {children}
           <DialRoot productionEnabled />
@@ -48,6 +51,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   return (
     <html lang="en" className={inter.variable} style={{background: '#fafafa', color: '#1c1b18'}}>
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
+      </head>
       <body className="isolate min-h-screen text-base font-sans antialiased">
         <LenisRoot>
           <Toaster position="bottom-center" />
