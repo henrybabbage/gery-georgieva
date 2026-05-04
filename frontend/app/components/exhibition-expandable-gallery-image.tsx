@@ -1,5 +1,6 @@
 'use client'
 
+import {stegaClean} from '@sanity/client/stega'
 import {Cambio} from 'cambio'
 import Image from 'next/image'
 import {useCallback, useEffect, useState} from 'react'
@@ -96,10 +97,16 @@ export function ExhibitionExpandableGalleryImage({
   const lqip =
     popupLqip && (popupLqip.startsWith('data:') || popupLqip.startsWith('http')) ? popupLqip : null
   const useBlurPlaceholder = Boolean(lqip)
-  const underlayColor =
-    popupPlaceholderColor?.trim() || 'var(--color-placeholder)'
-  const dominantAccent =
-    popupPlaceholderColor?.trim() || 'var(--color-ink)'
+  const rawPalette = popupPlaceholderColor?.trim()
+  const dominantAccent = rawPalette ? stegaClean(rawPalette) : ''
+  /**
+   * Light translucent scrim (dominant-tinted). Alpha is in the color itself — do not set `opacity`
+   * on the backdrop or Cambio’s open animation will force opacity to 1 and block the page behind.
+   */
+  const backdropTint =
+    dominantAccent !== ''
+      ? `color-mix(in srgb, ${dominantAccent} 14%, rgb(255 255 255 / 0.58))`
+      : 'color-mix(in srgb, var(--color-muted) 10%, rgb(255 255 255 / 0.58))'
 
   const [pointerFine, setPointerFine] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches,
@@ -165,11 +172,7 @@ export function ExhibitionExpandableGalleryImage({
 
   const canUsePortal = typeof document !== 'undefined'
   const showInvertExpandCursor =
-    canUsePortal &&
-    pointerFine &&
-    triggerPointerInside &&
-    !open &&
-    invertCursorPos != null
+    canUsePortal && pointerFine && triggerPointerInside && !open && invertCursorPos != null
 
   const invertCursorHotspot = expandCursorHotspotPx(orientation)
 
@@ -221,32 +224,32 @@ export function ExhibitionExpandableGalleryImage({
           >
             <span
               className="absolute left-0 top-0 h-2 w-2 -translate-x-[calc(100%+1px)] -translate-y-[calc(100%+1px)] border-l border-t border-solid"
-              style={{borderColor: dominantAccent}}
+              style={{borderColor: dominantAccent || 'var(--color-ink)'}}
             />
             <span
               className="absolute right-0 top-0 h-2 w-2 translate-x-[calc(100%+1px)] -translate-y-[calc(100%+1px)] border-r border-t border-solid"
-              style={{borderColor: dominantAccent}}
+              style={{borderColor: dominantAccent || 'var(--color-ink)'}}
             />
             <span
               className="absolute bottom-0 left-0 h-2 w-2 -translate-x-[calc(100%+1px)] translate-y-[calc(100%+1px)] border-b border-l border-solid"
-              style={{borderColor: dominantAccent}}
+              style={{borderColor: dominantAccent || 'var(--color-ink)'}}
             />
             <span
               className="absolute bottom-0 right-0 h-2 w-2 translate-x-[calc(100%+1px)] translate-y-[calc(100%+1px)] border-b border-r border-solid"
-              style={{borderColor: dominantAccent}}
+              style={{borderColor: dominantAccent || 'var(--color-ink)'}}
             />
           </span>
         </div>
       </Cambio.Trigger>
       <Cambio.Portal>
-        <Cambio.Backdrop className="fixed inset-0 z-[1000] bg-black/75" />
+        <Cambio.Backdrop
+          className="fixed inset-0 z-[1000]"
+          style={{backgroundColor: backdropTint}}
+        />
         <Cambio.Popup className="z-[1001] max-h-[min(92vh,1200px)] max-w-[min(96vw,1400px)] overflow-visible border-0 bg-transparent p-0 shadow-none outline-none ring-0">
           <Cambio.Title className="sr-only">{alt}</Cambio.Title>
           <Cambio.Description className="sr-only">{description}</Cambio.Description>
-          <div
-            className="relative flex max-h-[min(90vh,1180px)] w-full items-center justify-center overflow-hidden rounded-sm"
-            style={{backgroundColor: underlayColor}}
-          >
+          <div className="relative flex max-h-[min(90vh,1180px)] w-full items-center justify-center overflow-hidden rounded-sm bg-transparent">
             <Image
               src={popupUrl}
               alt={alt}

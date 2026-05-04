@@ -3,8 +3,7 @@
 import {Water, type WaterProps} from '@paper-design/shaders-react'
 
 /** Demo asset used on https://shaders.paper.design/water */
-export const PAPER_WATER_SHADER_DEFAULT_IMAGE =
-  'https://paper.design/flowers.webp'
+export const PAPER_WATER_SHADER_DEFAULT_IMAGE = 'https://paper.design/flowers.webp'
 
 /**
  * Defaults from the Paper Design Water shader playground

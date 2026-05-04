@@ -17,9 +17,7 @@ export const structure: StructureResolver = (S, context) =>
       S.listItem()
         .title('Home')
         .icon(GearSix)
-        .child(
-          S.document().schemaType('siteSettings').documentId('siteSettings'),
-        ),
+        .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
       S.listItem()
         .title('About')
         .icon(UserCircle)
@@ -27,11 +25,7 @@ export const structure: StructureResolver = (S, context) =>
       S.listItem()
         .title('Work')
         .icon(Spiral)
-        .child(
-          S.documentTypeList('work').defaultOrdering([
-            {field: 'year', direction: 'desc'},
-          ]),
-        ),
+        .child(S.documentTypeList('work').defaultOrdering([{field: 'year', direction: 'desc'}])),
       orderableDocumentListDeskItem({
         type: 'ephemera',
         title: 'Ephemera',
@@ -43,9 +37,7 @@ export const structure: StructureResolver = (S, context) =>
         .title('Exhibitions')
         .icon(Asterisk)
         .child(
-          S.documentTypeList('exhibition').defaultOrdering([
-            {field: 'year', direction: 'desc'},
-          ]),
+          S.documentTypeList('exhibition').defaultOrdering([{field: 'year', direction: 'desc'}]),
         ),
       orderableDocumentListDeskItem({
         type: 'press',
@@ -57,9 +49,5 @@ export const structure: StructureResolver = (S, context) =>
       S.listItem()
         .title('CV Entries')
         .icon(ListDashes)
-        .child(
-          S.documentTypeList('cvEntry').defaultOrdering([
-            {field: 'year', direction: 'desc'},
-          ]),
-        ),
+        .child(S.documentTypeList('cvEntry').defaultOrdering([{field: 'year', direction: 'desc'}])),
     ])

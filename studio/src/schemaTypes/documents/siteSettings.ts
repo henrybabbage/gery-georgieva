@@ -11,17 +11,13 @@ const homepageCarouselRefSearchOptions = {
 
 type HomepageCarouselItem = {_ref?: string} | null | undefined
 
-function homepageCarouselUniqueRefs (
-  items: HomepageCarouselItem[] | undefined,
-): true | string {
+function homepageCarouselUniqueRefs(items: HomepageCarouselItem[] | undefined): true | string {
   if (!items?.length) {
     return true
   }
   const refs = items
     .map((item) => item?._ref)
-    .filter(
-      (ref): ref is string => typeof ref === 'string' && ref.length > 0,
-    )
+    .filter((ref): ref is string => typeof ref === 'string' && ref.length > 0)
   if (refs.length !== new Set(refs).size) {
     return 'Each work or exhibition can only appear once in the carousel'
   }
@@ -65,7 +61,7 @@ export const siteSettings = defineType({
     }),
   ],
   preview: {
-    prepare () {
+    prepare() {
       return {title: 'Site Settings'}
     },
   },

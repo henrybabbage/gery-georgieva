@@ -12,14 +12,7 @@ import {
   MediaTimeDisplay,
   MediaTimeRange,
 } from 'media-chrome/react'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  type ReactNode,
-} from 'react'
+import {createContext, useCallback, useContext, useMemo, useRef, type ReactNode} from 'react'
 import {buildVimeoPlayerSrc} from '@/lib/vimeo-player-src'
 
 type VimeoPlayPayload = Parameters<typeof buildVimeoPlayerSrc>[1]
@@ -89,9 +82,7 @@ export function ExhibitionVimeoEmbed({
 
   return (
     <div
-      className={
-        className ?? 'relative aspect-video w-full max-w-full overflow-hidden bg-black'
-      }
+      className={className ?? 'relative aspect-video w-full max-w-full overflow-hidden bg-black'}
     >
       <MediaController
         aria-label={title?.trim() || 'Vimeo video'}

@@ -6,9 +6,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src:
-    url('/fonts/Maxisud/for-maxisudunlicensedtrial-regular.otf')
-    format('opentype');
+  src: url('/fonts/Maxisud/for-maxisudunlicensedtrial-regular.otf') format('opentype');
 }
 
 @font-face {
@@ -16,9 +14,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src:
-    url('/fonts/Maxisud/for-maxisudunlicensedtrial-medium.otf')
-    format('opentype');
+  src: url('/fonts/Maxisud/for-maxisudunlicensedtrial-medium.otf') format('opentype');
 }
 
 @font-face {
@@ -26,9 +22,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src:
-    url('/fonts/Maxisud/for-maxisudunlicensedtrial-bold.otf')
-    format('opentype');
+  src: url('/fonts/Maxisud/for-maxisudunlicensedtrial-bold.otf') format('opentype');
 }
 
 @theme {
@@ -78,27 +72,28 @@
     --tw-prose-td-borders: var(--color-hairline);
   }
 
-  .prose.prose-uniform :where(
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    li,
-    td,
-    th,
-    blockquote,
-    figcaption,
-    dt,
-    dd,
-    small,
-    code,
-    pre,
-    kbd,
-    samp
-  ) {
+  .prose.prose-uniform
+    :where(
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      li,
+      td,
+      th,
+      blockquote,
+      figcaption,
+      dt,
+      dd,
+      small,
+      code,
+      pre,
+      kbd,
+      samp
+    ) {
     font-size: inherit;
     color: var(--color-ink);
   }
@@ -112,7 +107,9 @@
    * Pair of numbers = hotspot (x y) from the image’s top-left.
    */
   .cursor-exhibition-expand {
-    cursor: url('/cursors/exhibition-expand.svg') 12 12, pointer;
+    cursor:
+      url('/cursors/exhibition-expand.svg') 12 12,
+      pointer;
   }
 }
 

@@ -160,7 +160,10 @@ export const press = defineType({
           if (inferKind(doc) !== 'pdf') {
             return true
           }
-          const asset = value && typeof value === 'object' && 'asset' in value ? (value as {asset?: {_ref?: string}}).asset : undefined
+          const asset =
+            value && typeof value === 'object' && 'asset' in value
+              ? (value as {asset?: {_ref?: string}}).asset
+              : undefined
           return asset?._ref ? true : 'Upload a PDF'
         }),
     }),
@@ -189,7 +192,10 @@ export const press = defineType({
           if (inferKind(doc) !== 'text') {
             return true
           }
-          const current = value && typeof value === 'object' && 'current' in value ? (value as {current?: string}).current : undefined
+          const current =
+            value && typeof value === 'object' && 'current' in value
+              ? (value as {current?: string}).current
+              : undefined
           return current?.trim() ? true : 'Set a slug so the article has a public URL'
         }),
     }),
@@ -197,7 +203,8 @@ export const press = defineType({
       name: 'publishedAt',
       title: 'Publication date',
       type: 'date',
-      description: 'Original publication or review date (shown under the title on the archive page).',
+      description:
+        'Original publication or review date (shown under the title on the archive page).',
       hidden: ({document}) => inferKind(document as PressDoc) !== 'text',
       validation: (Rule) =>
         Rule.custom((value, context) => {
@@ -212,7 +219,8 @@ export const press = defineType({
       name: 'publication',
       title: 'Publication or website',
       type: 'string',
-      description: 'Outlet where it first appeared — magazine, newspaper, or site (e.g. The White Review, Frieze).',
+      description:
+        'Outlet where it first appeared — magazine, newspaper, or site (e.g. The White Review, Frieze).',
       hidden: ({document}) => inferKind(document as PressDoc) !== 'text',
       validation: (Rule) =>
         Rule.custom((value, context) => {
@@ -220,7 +228,9 @@ export const press = defineType({
           if (inferKind(doc) !== 'text') {
             return true
           }
-          return typeof value === 'string' && value.trim().length > 0 ? true : 'Add the publication or website name'
+          return typeof value === 'string' && value.trim().length > 0
+            ? true
+            : 'Add the publication or website name'
         }),
     }),
     defineField({
@@ -235,7 +245,9 @@ export const press = defineType({
           if (inferKind(doc) !== 'text') {
             return true
           }
-          return typeof value === 'string' && value.trim().length > 0 ? true : 'Add the author byline'
+          return typeof value === 'string' && value.trim().length > 0
+            ? true
+            : 'Add the author byline'
         }),
     }),
     defineField({
@@ -282,16 +294,19 @@ export const press = defineType({
       const resolvedKind = inferKind({kind, url, pdf, body} as PressDoc)
       const hasPdf = Boolean(
         pdf &&
-          typeof pdf === 'object' &&
-          'asset' in pdf &&
-          pdf.asset &&
-          typeof pdf.asset === 'object' &&
-          '_ref' in pdf.asset &&
-          pdf.asset._ref,
+        typeof pdf === 'object' &&
+        'asset' in pdf &&
+        pdf.asset &&
+        typeof pdf.asset === 'object' &&
+        '_ref' in pdf.asset &&
+        pdf.asset._ref,
       )
       let subtitle: string
       if (resolvedKind === 'text') {
-        const slugCurrent = slug && typeof slug === 'object' && 'current' in slug ? (slug as {current?: string}).current : undefined
+        const slugCurrent =
+          slug && typeof slug === 'object' && 'current' in slug
+            ? (slug as {current?: string}).current
+            : undefined
         const dateHint = typeof publishedAt === 'string' && publishedAt ? publishedAt : ''
         subtitle = slugCurrent ? `/press/${slugCurrent}` : 'Article'
         if (dateHint) {

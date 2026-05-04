@@ -50,11 +50,7 @@ export default function StreamGrid({items}: {items: GridItem[]}) {
         const img = item.coverImage ?? item.firstImage
 
         return (
-          <Link
-            key={item._id}
-            href={href}
-            className="group col-span-12 block sm:col-span-6"
-          >
+          <Link key={item._id} href={href} className="group col-span-12 block sm:col-span-6">
             {img ? (
               <TileImage image={img} title={item.title} />
             ) : (
@@ -64,9 +60,7 @@ export default function StreamGrid({items}: {items: GridItem[]}) {
             )}
             <div className="px-1 pt-2 pb-4">
               <p className="text-base text-[#1c1b18] leading-snug">{item.title}</p>
-              {item.year && (
-                <p className="text-base text-[#8a8880]">{item.year}</p>
-              )}
+              {item.year && <p className="text-base text-[#8a8880]">{item.year}</p>}
             </div>
           </Link>
         )
