@@ -27,6 +27,15 @@ export const work = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'hidePublicPage',
+      title: 'Hide page',
+      type: 'boolean',
+      description:
+        'When on, there is no live /work/… URL, this work does not appear on the Work grid ' +
+        'or the homepage carousel, and direct URLs 404 unless preview/draft is enabled.',
+      initialValue: true,
+    }),
+    defineField({
       name: 'year',
       title: 'Year',
       type: 'number',
@@ -99,6 +108,15 @@ export const work = defineType({
       type: 'array',
       of: [{type: 'reference', to: [{type: 'ephemera'}]}],
       options: {layout: 'grid'},
+    }),
+    defineField({
+      name: 'showRelatedResearchSection',
+      title: 'Show related research on work page',
+      type: 'boolean',
+      description:
+        'Off: the Related research list stays hidden at the bottom of the public work page. ' +
+        'On: show linked ephemera when any exist.',
+      initialValue: false,
     }),
     defineField({
       name: 'tags',

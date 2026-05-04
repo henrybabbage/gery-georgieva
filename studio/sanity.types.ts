@@ -193,6 +193,7 @@ export type Work = {
   orderRank?: string
   title: string
   slug: Slug
+  hidePublicPage?: boolean
   year: number
   coverImage?: {
     asset?: SanityImageAssetReference
@@ -259,6 +260,7 @@ export type Work = {
       _key: string
     } & EphemeraReference
   >
+  showRelatedResearchSection?: boolean
   tags?: Array<string>
   collaborators?: Array<string>
   commissionedBy?: string
@@ -397,6 +399,18 @@ export type About = {
     media?: unknown
     _type: 'file'
   }
+  cvSectionOrder?: Array<
+    | 'exhibition'
+    | 'education'
+    | 'award'
+    | 'residency'
+    | 'publication'
+    | 'performance'
+    | 'screening'
+    | 'commission'
+    | 'lecture'
+    | 'other'
+  >
 }
 
 export type SiteSettings = {

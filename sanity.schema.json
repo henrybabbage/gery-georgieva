@@ -1126,6 +1126,13 @@
         },
         "optional": false
       },
+      "hidePublicPage": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "year": {
         "type": "objectAttribute",
         "value": {
@@ -1676,6 +1683,13 @@
               "name": "ephemera.reference"
             }
           }
+        },
+        "optional": true
+      },
+      "showRelatedResearchSection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
         },
         "optional": true
       },
@@ -2580,6 +2594,58 @@
                 "value": "file"
               }
             }
+          }
+        },
+        "optional": true
+      },
+      "cvSectionOrder": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "exhibition"
+              },
+              {
+                "type": "string",
+                "value": "education"
+              },
+              {
+                "type": "string",
+                "value": "award"
+              },
+              {
+                "type": "string",
+                "value": "residency"
+              },
+              {
+                "type": "string",
+                "value": "publication"
+              },
+              {
+                "type": "string",
+                "value": "performance"
+              },
+              {
+                "type": "string",
+                "value": "screening"
+              },
+              {
+                "type": "string",
+                "value": "commission"
+              },
+              {
+                "type": "string",
+                "value": "lecture"
+              },
+              {
+                "type": "string",
+                "value": "other"
+              }
+            ]
           }
         },
         "optional": true

@@ -72,6 +72,7 @@ export type WorkCard = {
   year?: number
   medium?: string
   isFeature?: boolean
+  hidePublicPage?: boolean | null
   coverImage?: SanityImageSource & {
     sizeOverride?: ImageSizeOverride
     asset?: SanityImageSource & SanityImageAssetMetadata

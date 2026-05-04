@@ -21,7 +21,12 @@ export const structure: StructureResolver = (S, context) =>
       S.listItem()
         .title('About')
         .icon(UserCircle)
-        .child(S.document().schemaType('about').documentId('about')),
+        .child(
+          S.document()
+            .schemaType('about')
+            .documentId('about')
+            .title('about'),
+        ),
       S.listItem()
         .title('Work')
         .icon(Spiral)
