@@ -15,7 +15,7 @@ import type {
 
 export const metadata: Metadata = {title: 'Work'}
 
-const shellClass = 'w-full max-w-[1260px]'
+const shellClass = 'w-full max-w-[1260px] mx-auto'
 
 type ExhibitionItem = FeatureExhibitionListQueryResult[number]
 type WorkItem = WorkPublicGridQueryResult[number]

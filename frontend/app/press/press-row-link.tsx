@@ -9,7 +9,7 @@ import {ExternalLink, FileText, Newspaper} from 'lucide-react'
  * Newspaper for a press article hosted on this site.
  */
 const linkClass =
-  'group inline-flex max-w-full !cursor-pointer items-center gap-1.5'
+  'group inline-flex max-w-full !cursor-pointer items-start gap-1.5'
 
 const iconClass =
   'pointer-events-none shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'
