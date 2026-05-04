@@ -34,10 +34,6 @@ export default async function PressPage() {
 
   return (
     <div className="px-5 py-8">
-      <header className="mx-auto max-w-3xl mb-10 sm:mb-12">
-        <h1 className="text-base font-normal">Press</h1>
-      </header>
-
       {!items?.length ? (
         <div className={listShellClass}>
           <p className={`${listMeasureClass} opacity-50`}>No press links yet.</p>

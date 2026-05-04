@@ -138,77 +138,69 @@ export default async function ExhibitionPage({params}: Props) {
       )}
 
       <div className={`${textColumnShellClass} text-left`}>
-        <div className={textMeasureClass}>
-          {/* Works in this exhibition */}
-          {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
-            <section>
-              <h2 className="text-base opacity-40 mb-2 text-left">Works</h2>
-              <ul className="space-y-4 text-left">
-                {exhibition.relatedWorks.map((work) => (
-                  <li key={work._id}>
-                    <ExhibitionRelatedPreviewLink
-                      href={`/work/${work.slug}`}
-                      label={work.title}
-                      destination="work"
-                      galleryLead={work.galleryLead}
-                      coverImage={work.coverImage}
-                      meta={
-                        [work.year, work.medium].filter(Boolean).length > 0 ? (
-                          <span className="opacity-50">
-                            {[work.year, work.medium].filter(Boolean).join(', ')}
-                          </span>
-                        ) : null
-                      }
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+        {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
+          <section>
+            <h2 className={`${textMeasureClass} text-base opacity-40 mb-2 text-left`}>Works</h2>
+            <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
+              {exhibition.relatedWorks.map((work) => (
+                <ExhibitionRelatedPreviewLink
+                  key={work._id}
+                  href={`/work/${work.slug}`}
+                  label={work.title}
+                  destination="work"
+                  galleryLead={work.galleryLead}
+                  coverImage={work.coverImage}
+                  subtitle={
+                    [work.year, work.medium].filter(Boolean).length > 0
+                      ? [work.year, work.medium].filter(Boolean).join(', ')
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
-          {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
-            <section className={hasRelatedWorks ? 'mt-10 lg:mt-12' : 'mt-6'}>
-              <h2 className="text-base opacity-40 mb-2 text-left">Research & Ephemera</h2>
-              <ul className="space-y-4 text-left">
-                {exhibition.relatedEphemera.map((ep) => (
-                  <li key={ep._id}>
-                    <ExhibitionRelatedPreviewLink
-                      href={`/ephemera/${ep.slug}`}
-                      label={ep.title}
-                      destination="ephemera"
-                      galleryLead={ep.imagesLead}
-                      descriptionPlain={ep.descriptionPlain}
-                      meta={
-                        [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
+        {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
+          <section className={hasRelatedWorks ? 'mt-10 lg:mt-12' : 'mt-6'}>
+            <h2 className={`${textMeasureClass} text-base opacity-40 mb-2 text-left`}>
+              Research & Ephemera
+            </h2>
+            <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
+              {exhibition.relatedEphemera.map((ep) => (
+                <ExhibitionRelatedPreviewLink
+                  key={ep._id}
+                  href={`/ephemera/${ep.slug}`}
+                  label={ep.title}
+                  destination="ephemera"
+                  galleryLead={ep.imagesLead}
+                  descriptionPlain={ep.descriptionPlain}
+                  subtitle={
+                    [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
+                      .filter((v) => v != null && v !== '').length > 0
+                      ? [ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
                           .filter((v) => v != null && v !== '')
-                          .length > 0 ? (
-                          <span className="opacity-50">
-                            {[ep.category ? ephemeraCategoryLabel(ep.category) : null, ep.year]
-                              .filter((v) => v != null && v !== '')
-                              .join(', ')}
-                          </span>
-                        ) : null
-                      }
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+                          .join(', ')
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
-          {exhibition.externalDocumentationLink && (
-            <p className="mt-6 text-base text-left">
-              <a
-                href={exhibition.externalDocumentationLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 opacity-50"
-              >
-                External documentation ↗
-              </a>
-            </p>
-          )}
-        </div>
+        {exhibition.externalDocumentationLink && (
+          <p className={`${textMeasureClass} mt-6 text-base text-left`}>
+            <a
+              href={exhibition.externalDocumentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 opacity-50"
+            >
+              External documentation ↗
+            </a>
+          </p>
+        )}
       </div>
     </div>
   )

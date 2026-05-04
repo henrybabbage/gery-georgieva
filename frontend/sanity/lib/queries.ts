@@ -204,7 +204,7 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition index (/exhibitions); omits draft-only pages. Newest year first; same-year ties use orderRank. */
+/** Public exhibition lists (/exhibitions, /work); omits draft-only pages. Newest year first; same-year ties use orderRank. */
 export const featureExhibitionListQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
@@ -213,7 +213,9 @@ export const featureExhibitionListQuery = defineQuery(`
     "slug": slug.current,
     year,
     venue,
-    location
+    location,
+    carouselImage { ${galleryUnionFields} },
+    "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }
   }
 `)
 
