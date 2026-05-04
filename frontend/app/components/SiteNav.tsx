@@ -3,9 +3,8 @@
 import Link from 'next/link'
 
 const navLinks = [
-	{href: '/exhibitions', label: 'Exhibitions'},
+	{href: '/exhibitions', label: 'Work'},
 	{href: '/press', label: 'Press'},
-	{href: '/contact', label: 'Contact'},
 	{href: '/cv', label: 'CV'},
 ] as const
 

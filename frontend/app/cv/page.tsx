@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {sanityFetch} from '@/sanity/lib/live'
-import {cvQuery} from '@/sanity/lib/queries'
+import {cvPageQuery} from '@/sanity/lib/queries'
 import type {Metadata} from 'next'
 
 export const metadata: Metadata = {title: 'CV'}
@@ -20,7 +20,12 @@ const CATEGORY_ORDER = [
 ]
 
 export default async function CVPage() {
-  const {data: entries} = await sanityFetch({query: cvQuery})
+  const {data} = await sanityFetch({query: cvPageQuery})
+  const entries = data?.entries
+  const cvFileUrl =
+    typeof data?.cvFileUrl === 'string' && data.cvFileUrl.trim()
+      ? data.cvFileUrl.trim()
+      : null
 
   if (!entries) return null
 
@@ -34,7 +39,38 @@ export default async function CVPage() {
 
   return (
     <div className="px-5 py-8 max-w-2xl">
-      <h1 className="text-base font-normal mb-8">Gery Georgieva — CV</h1>
+      <ul className="flex flex-col gap-4 text-base mb-10">
+        {cvFileUrl && (
+          <li>
+            <a
+              href={cvFileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-4 hover:underline"
+            >
+              CV
+            </a>
+          </li>
+        )}
+        <li>
+          <a
+            href="https://www.instagram.com/_gery_georgieva/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-4 hover:underline"
+          >
+            Instagram
+          </a>
+        </li>
+        <li>
+          <a
+            href="mailto:emailgery@gmail.com"
+            className="underline-offset-4 hover:underline"
+          >
+            Email
+          </a>
+        </li>
+      </ul>
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category} className="mb-8">

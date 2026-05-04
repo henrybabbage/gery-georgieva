@@ -5,6 +5,7 @@ import {
   ListDashes,
   Newspaper,
   Spiral,
+  UserCircle,
 } from '@phosphor-icons/react'
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import type {StructureResolver} from 'sanity/structure'
@@ -19,6 +20,10 @@ export const structure: StructureResolver = (S, context) =>
         .child(
           S.document().schemaType('siteSettings').documentId('siteSettings'),
         ),
+      S.listItem()
+        .title('About')
+        .icon(UserCircle)
+        .child(S.document().schemaType('about').documentId('about')),
       S.listItem()
         .title('Work')
         .icon(Spiral)
