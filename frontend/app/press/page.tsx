@@ -32,7 +32,7 @@ export default async function PressPage() {
   const {data: items} = await sanityFetch({query: pressQuery})
 
   return (
-    <div className="px-5 py-8">
+    <div className="px-5 py-8 pb-20">
       {!items?.length ? (
         <div className={listShellClass}>
           <p className={listMeasureClass}>No press links yet.</p>
@@ -99,6 +99,18 @@ export default async function PressPage() {
           </ul>
         </div>
       )}
+      <a
+        href="https://www.contiguous.studio/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={
+          'fixed bottom-3 right-5 z-10 text-sm text-[var(--color-ink)] ' +
+          'transition-opacity hover:opacity-80 ' +
+          'focus-visible:outline-2 focus-visible:outline-offset-2'
+        }
+      >
+        Contiguous Studio
+      </a>
     </div>
   )
 }

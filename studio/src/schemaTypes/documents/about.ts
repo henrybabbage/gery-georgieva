@@ -25,8 +25,9 @@ export const about = defineType({
       title: 'CV section order',
       type: 'array',
       description:
-        'Drag sections to set the order on the public CV page. Leave empty to use the ' +
-        'default order. Categories with entries but not listed here still appear at the end.',
+        'Drag sections to set the order on the public CV page (solo exhibitions, group ' +
+        'exhibitions, education, and so on). Leave empty to use the default order. Categories ' +
+        'with entries but not listed here still appear at the end.',
       of: [
         defineArrayMember({
           type: 'string',

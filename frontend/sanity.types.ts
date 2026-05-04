@@ -94,7 +94,8 @@ export type CvEntry = {
   title: string
   year: number
   category:
-    | 'exhibition'
+    | 'solo'
+    | 'group'
     | 'education'
     | 'award'
     | 'residency'
@@ -400,7 +401,8 @@ export type About = {
     _type: 'file'
   }
   cvSectionOrder?: Array<
-    | 'exhibition'
+    | 'solo'
+    | 'group'
     | 'education'
     | 'award'
     | 'residency'
@@ -2115,13 +2117,14 @@ export type CvPageQueryResult = {
       | 'award'
       | 'commission'
       | 'education'
-      | 'exhibition'
+      | 'group'
       | 'lecture'
       | 'other'
       | 'performance'
       | 'publication'
       | 'residency'
       | 'screening'
+      | 'solo'
     role: string | null
     institution: string | null
     location: string | null
@@ -2138,13 +2141,14 @@ export type CvPageQueryResult = {
     | 'award'
     | 'commission'
     | 'education'
-    | 'exhibition'
+    | 'group'
     | 'lecture'
     | 'other'
     | 'performance'
     | 'publication'
     | 'residency'
     | 'screening'
+    | 'solo'
   > | null
 }
 

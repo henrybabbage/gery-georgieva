@@ -94,7 +94,8 @@ export type CvEntry = {
   title: string
   year: number
   category:
-    | 'exhibition'
+    | 'solo'
+    | 'group'
     | 'education'
     | 'award'
     | 'residency'
@@ -400,7 +401,8 @@ export type About = {
     _type: 'file'
   }
   cvSectionOrder?: Array<
-    | 'exhibition'
+    | 'solo'
+    | 'group'
     | 'education'
     | 'award'
     | 'residency'
