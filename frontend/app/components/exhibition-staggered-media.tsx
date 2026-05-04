@@ -395,7 +395,7 @@ function VideoFallback({caption, credit}: {caption?: string | null; credit?: str
     return <div className="aspect-video w-full bg-placeholder" />
   }
   return (
-    <div className="flex aspect-video w-full items-center justify-center bg-placeholder px-4 text-center text-sm leading-snug text-[var(--color-muted)]">
+    <div className="flex aspect-video w-full items-center justify-center bg-placeholder px-4 text-center text-sm leading-snug text-[var(--color-ink)]">
       {[caption, credit].filter(Boolean).join(' — ')}
     </div>
   )
@@ -415,7 +415,7 @@ function SideCaption({
   if (cap === '' && cred === '') return null
   const alignClass = align === 'right' ? 'items-end text-right' : 'items-start text-left'
   return (
-    <div className={`flex w-full flex-col gap-px text-sm text-[var(--color-muted)] ${alignClass}`}>
+    <div className={`flex w-full flex-col gap-px text-sm text-[var(--color-ink)] ${alignClass}`}>
       {cap !== '' && (
         <p className={`m-0 max-w-prose ${cred !== '' ? 'leading-tight' : 'leading-none'}`}>{cap}</p>
       )}

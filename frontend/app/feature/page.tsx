@@ -22,7 +22,7 @@ export default async function FeaturePage() {
             >
               <div className="aspect-[4/3] bg-placeholder mb-1" />
               <span>{item.title}</span>
-              {item.year && <span className="ml-2 opacity-50">{item.year}</span>}
+              {item.year && <span className="ml-2">{item.year}</span>}
             </Link>
           </li>
         ))}

@@ -24,7 +24,7 @@ const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
 const INSTALLATION_GALLERY_LEAD_COUNT = 5
 
 const installationGalleryShellClass =
-  'mx-auto mb-12 w-full max-w-[1260px] lg:mb-[100px] lg:px-[30px]'
+  'mb-12 w-full max-w-[1260px] lg:mb-[100px]'
 
 function isWrittenPressArticle(article: PressArticle): boolean {
   if (article.kind === 'url' || article.kind === 'pdf') {
@@ -98,19 +98,19 @@ export default async function PressArticlePage({params}: Props) {
 
   return (
     <div className="px-5 py-8">
-      <p className="mx-auto max-w-3xl mb-6 text-base">
-        <Link href="/press" className="underline underline-offset-2 opacity-50">
+      <p className="max-w-3xl mb-6 text-base">
+        <Link href="/press" className="underline underline-offset-2">
           Press
         </Link>
       </p>
 
-      <header className="mx-auto max-w-3xl mb-10 sm:mb-12">
+      <header className="max-w-3xl mb-10 sm:mb-12">
         <h1 className="text-base font-normal">{article.linkText}</h1>
       </header>
 
       {showAboutSection && (
         <section
-          className="mx-auto mb-12 w-full max-w-[1260px] lg:mb-16 lg:px-[30px]"
+          className="mb-12 w-full max-w-[1260px] lg:mb-16"
           aria-label="Article"
         >
           {hasAboutMeta && (

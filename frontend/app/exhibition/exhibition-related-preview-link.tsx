@@ -8,7 +8,7 @@ import {
 } from '@/sanity/lib/resolve-gallery-lead-preview'
 
 /**
- * Tile matching /work index: 4:3 media, title + subtitle beneath in muted small type.
+ * Tile matching /work index: 4:3 media, title + subtitle beneath in small type.
  */
 export function ExhibitionRelatedPreviewLink({
   href,
@@ -45,7 +45,7 @@ export function ExhibitionRelatedPreviewLink({
         {hasSubtitle ? `. ${sub}` : ''}
       </span>
       <DestinationPreviewBlock preview={resolved} label={label} />
-      <div className="mt-2 flex flex-col gap-px text-left text-sm leading-snug text-[var(--color-muted)]">
+      <div className="mt-2 flex flex-col gap-px text-left text-sm leading-snug text-[var(--color-ink)]">
         <p className="m-0">{label}</p>
         {hasSubtitle ? <p className="m-0">{sub}</p> : null}
       </div>
@@ -120,7 +120,7 @@ function DestinationPreviewBlock({preview, label}: {preview: GalleryLeadPreview;
   if (preview.kind === 'text') {
     return (
       <div className="flex aspect-[4/3] w-full items-start overflow-hidden border border-hairline bg-paper p-3">
-        <p className="m-0 line-clamp-5 text-left text-sm leading-snug text-[var(--color-muted)]">
+        <p className="m-0 line-clamp-5 text-left text-sm leading-snug text-[var(--color-ink)]">
           {preview.text}
         </p>
       </div>
@@ -129,7 +129,7 @@ function DestinationPreviewBlock({preview, label}: {preview: GalleryLeadPreview;
 
   return (
     <div className="flex aspect-[4/3] w-full items-end bg-placeholder p-3" aria-hidden>
-      <span className="text-sm text-[var(--color-muted)]">{label}</span>
+      <span className="text-sm text-[var(--color-ink)]">{label}</span>
     </div>
   )
 }

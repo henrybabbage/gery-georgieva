@@ -33,13 +33,13 @@ export default async function EphemeraPage({params}: Props) {
 
   return (
     <div className="px-5 py-8 max-w-2xl">
-      <p className="text-base opacity-50 mb-6">
+      <p className="text-base mb-6">
         <Link href="/">← Work</Link>
       </p>
 
       <h1 className="text-base font-normal mb-1">{item.title}</h1>
       {(item.category || item.year) && (
-        <p className="text-base opacity-50 mb-6">
+        <p className="text-base mb-6">
           {[item.category, item.year].filter(Boolean).join(', ')}
         </p>
       )}
@@ -53,15 +53,15 @@ export default async function EphemeraPage({params}: Props) {
 
       {item.relatedWork && item.relatedWork.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Works</h2>
+          <h2 className="text-base tracking-widest mb-2">Works</h2>
           <ul className="space-y-1">
             {item.relatedWork.map((work) => (
               <li key={work._id} className="text-base">
                 <Link href={`/work/${work.slug}`} className="underline underline-offset-2">
                   {work.title}
                 </Link>
-                {work.year && <span className="opacity-50 ml-2">{work.year}</span>}
-                {work.medium && <span className="opacity-50 ml-2">{work.medium}</span>}
+                {work.year && <span className="ml-2">{work.year}</span>}
+                {work.medium && <span className="ml-2">{work.medium}</span>}
               </li>
             ))}
           </ul>
@@ -70,7 +70,7 @@ export default async function EphemeraPage({params}: Props) {
 
       {item.relatedExhibitions && item.relatedExhibitions.length > 0 && (
         <section>
-          <h2 className="text-base uppercase tracking-widest opacity-40 mb-2">Exhibitions</h2>
+          <h2 className="text-base tracking-widest mb-2">Exhibitions</h2>
           <ul className="space-y-1">
             {item.relatedExhibitions.map((ex) => (
               <li key={ex._id} className="text-base">
@@ -81,9 +81,9 @@ export default async function EphemeraPage({params}: Props) {
                     {ex.title}
                   </Link>
                 )}
-                {ex.venue && <span className="opacity-50 ml-2">{ex.venue}</span>}
-                {ex.location && <span className="opacity-50 ml-2">{ex.location}</span>}
-                {ex.year && <span className="opacity-50 ml-2">{ex.year}</span>}
+                {ex.venue && <span className="ml-2">{ex.venue}</span>}
+                {ex.location && <span className="ml-2">{ex.location}</span>}
+                {ex.year && <span className="ml-2">{ex.year}</span>}
               </li>
             ))}
           </ul>

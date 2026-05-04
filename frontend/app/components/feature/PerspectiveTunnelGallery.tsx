@@ -380,7 +380,7 @@ export default function PerspectiveTunnelGallery({
         role="region"
         aria-label="Featured works"
       >
-        <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-base text-[#111]">
+        <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-base text-[var(--color-ink)]">
           No images to display.
         </p>
       </div>
@@ -471,7 +471,7 @@ export default function PerspectiveTunnelGallery({
       </div>
       <p
         ref={captionRef}
-        className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] right-[max(1.5rem,env(safe-area-inset-right,0px))] z-[2] max-w-[min(90vw,42rem)] text-right text-[clamp(0.875rem,2.5vmin,1.125rem)] leading-[1.35] text-[#111]"
+        className="pointer-events-none absolute bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] right-[max(1.5rem,env(safe-area-inset-right,0px))] z-[2] max-w-[min(90vw,42rem)] text-right text-[clamp(0.875rem,2.5vmin,1.125rem)] leading-[1.35] text-[var(--color-ink)]"
         aria-live="polite"
       >
         {'\u00a0'}
