@@ -411,6 +411,15 @@ export type About = {
     | 'lecture'
     | 'other'
   >
+  metaTitle?: string
+  metaDescription?: string
+  ogImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
 }
 
 export type SiteSettings = {

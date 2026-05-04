@@ -46,6 +46,31 @@ export const about = defineType({
           return true
         }),
     }),
+    defineField({
+      name: 'metaTitle',
+      title: 'Meta title',
+      type: 'string',
+      description:
+        'Default HTML & Open Graph title for the site (homepage and browser tab when a page ' +
+        'has no specific title). Leave empty to use “Gery Georgieva”.',
+    }),
+    defineField({
+      name: 'metaDescription',
+      title: 'Meta description',
+      type: 'text',
+      rows: 3,
+      description:
+        'Default meta description for the site and social previews when a page does not set ' +
+        'its own. Leave empty to use “Artist”.',
+    }),
+    defineField({
+      name: 'ogImage',
+      title: 'Open Graph image',
+      type: 'image',
+      description:
+        'Default social sharing image (e.g. 1200×630). Shown when a page has no specific image.',
+      options: {hotspot: true},
+    }),
   ],
   preview: {
     prepare() {

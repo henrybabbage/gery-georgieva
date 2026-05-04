@@ -411,6 +411,15 @@ export type About = {
     | 'lecture'
     | 'other'
   >
+  metaTitle?: string
+  metaDescription?: string
+  ogImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
 }
 
 export type SiteSettings = {
@@ -765,6 +774,25 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint
+
+// Source: sanity/lib/queries.ts
+// Variable: aboutSiteMetadataQuery
+// Query: *[_type == "about" && _id == "about"][0] {    metaTitle,    metaDescription,    ogImage {      crop,      hotspot,      "asset": asset-> {        _id,        _type,        url,        metadata,        altText      }    }  }
+export type AboutSiteMetadataQueryResult = {
+  metaTitle: string | null
+  metaDescription: string | null
+  ogImage: {
+    crop: SanityImageCrop | null
+    hotspot: SanityImageHotspot | null
+    asset: {
+      _id: string
+      _type: 'sanity.imageAsset'
+      url: string
+      metadata: SanityImageMetadata | null
+      altText: string | null
+    } | null
+  } | null
+} | null
 
 // Source: sanity/lib/queries.ts
 // Variable: streamQuery
@@ -2325,6 +2353,7 @@ export type PressArticleBySlugQueryResult = {
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
+    '\n  *[_type == "about" && _id == "about"][0] {\n    metaTitle,\n    metaDescription,\n    ogImage {\n      crop,\n      hotspot,\n      "asset": asset-> {\n        _id,\n        _type,\n        url,\n        metadata,\n        altText\n      }\n    }\n  }\n': AboutSiteMetadataQueryResult
     '\n  *[_type in ["work", "ephemera"] && defined(slug.current) && (_type != "work" || hidePublicPage != true)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    },\n    "firstImage": images[_type == "mediaImage"][0] {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    }\n  }\n': StreamQueryResult
     '\n  *[_type == "work" && defined(slug.current) && year < 2015 && hidePublicPage != true]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n\n  }\n': ArchiveQueryResult
     '\n  *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    coverImage {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    showRelatedResearchSection,\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] {\n        ...,\n        sizeOverride,\n        "asset": asset-> {\n          ...,\n          sizeOverride\n        }\n      }\n    },\n    tags,\n    "exhibitions": select(\n      defined(exhibition) => [exhibition-> {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }],\n      *[_type == "exhibition" && references(^._id)] {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }\n    )\n  }\n': WorkQueryResult

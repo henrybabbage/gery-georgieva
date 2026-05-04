@@ -139,11 +139,20 @@ export const work = defineType({
     }),
   ],
   preview: {
-    select: {title: 'title', year: 'year', media: 'coverImage'},
-    prepare({title, year, media}) {
+    select: {
+      title: 'title',
+      year: 'year',
+      media: 'coverImage',
+      hidePublicPage: 'hidePublicPage',
+    },
+    prepare({title, year, media, hidePublicPage}) {
+      const isHidden = hidePublicPage !== false
+      const visibility = isHidden ? 'Hidden' : 'Live'
+      const yearStr = year != null ? String(year) : ''
+      const subtitle = yearStr ? `${yearStr} · ${visibility}` : visibility
       return {
         title,
-        subtitle: String(year ?? ''),
+        subtitle,
         media: media || Spiral,
       }
     },

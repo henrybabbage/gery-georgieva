@@ -114,8 +114,16 @@ export const exhibition = defineType({
       year: 'year',
       carouselImage: 'carouselImage',
       installationImages: 'installationImages',
+      hidePublicPage: 'hidePublicPage',
     },
-    prepare({title, venue, year, carouselImage, installationImages}): PreviewValue {
+    prepare({
+      title,
+      venue,
+      year,
+      carouselImage,
+      installationImages,
+      hidePublicPage,
+    }): PreviewValue {
       const raw =
         carouselImage && typeof carouselImage === 'object' && '_type' in carouselImage
           ? carouselImage
@@ -124,9 +132,22 @@ export const exhibition = defineType({
         raw && typeof raw === 'object' && '_type' in raw && raw._type === 'mediaImage'
           ? (raw as Image)
           : Asterisk
+      const visibility = hidePublicPage === true ? 'Hidden' : 'Live'
+      const yearStr = year != null ? String(year) : ''
+      const venueStr = venue ? String(venue) : ''
+      let subtitle: string
+      if (venueStr && yearStr) {
+        subtitle = `${venueStr} — ${yearStr} · ${visibility}`
+      } else if (yearStr) {
+        subtitle = `${yearStr} · ${visibility}`
+      } else if (venueStr) {
+        subtitle = `${venueStr} · ${visibility}`
+      } else {
+        subtitle = visibility
+      }
       return {
         title,
-        subtitle: [venue, year].filter(Boolean).join(' — '),
+        subtitle,
         media: media as PreviewValue['media'],
       }
     },
