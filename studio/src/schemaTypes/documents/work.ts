@@ -27,6 +27,15 @@ export const work = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'hidePublicPage',
+      title: 'Hide page',
+      type: 'boolean',
+      description:
+        'When on, there is no live /work/… URL, this work does not appear on the Work grid ' +
+        'or the homepage carousel, and direct URLs 404 unless preview/draft is enabled.',
+      initialValue: true,
+    }),
+    defineField({
       name: 'year',
       title: 'Year',
       type: 'number',

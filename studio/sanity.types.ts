@@ -193,6 +193,7 @@ export type Work = {
   orderRank?: string
   title: string
   slug: Slug
+  hidePublicPage?: boolean
   year: number
   coverImage?: {
     asset?: SanityImageAssetReference

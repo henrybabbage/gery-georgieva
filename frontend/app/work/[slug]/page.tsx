@@ -1,4 +1,5 @@
 import {notFound} from 'next/navigation'
+import {draftMode} from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import {WorkStaggeredGallery} from '@/app/components/work-staggered-gallery'
@@ -62,13 +63,19 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {slug} = await params
-  const {data} = await sanityFetch({query: workQuery, params: {slug}, stega: false})
+  const {isEnabled: allowHidden} = await draftMode()
+  const {data} = await sanityFetch({
+    query: workQuery,
+    params: {slug, allowHidden},
+    stega: false,
+  })
   return {title: data?.title}
 }
 
 export default async function WorkPage({params}: Props) {
   const {slug} = await params
-  const {data} = await sanityFetch({query: workQuery, params: {slug}})
+  const {isEnabled: allowHidden} = await draftMode()
+  const {data} = await sanityFetch({query: workQuery, params: {slug, allowHidden}})
   const work = data as WorkQueryResult
 
   if (!work) notFound()

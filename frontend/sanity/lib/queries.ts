@@ -63,7 +63,7 @@ const workCardFields = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export const streamQuery = defineQuery(`
-  *[_type in ["work", "ephemera"] && defined(slug.current)]
+  *[_type in ["work", "ephemera"] && defined(slug.current) && (_type != "work" || hidePublicPage != true)]
   | order(orderRank asc) {
     _id,
     _type,
@@ -94,7 +94,7 @@ export const streamQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const archiveQuery = defineQuery(`
-  *[_type == "work" && defined(slug.current) && year < 2015]
+  *[_type == "work" && defined(slug.current) && year < 2015 && hidePublicPage != true]
   | order(orderRank asc) {
     ${workCardFields}
   }
@@ -105,7 +105,7 @@ export const archiveQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const workQuery = defineQuery(`
-  *[_type == "work" && slug.current == $slug][0] {
+  *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {
     _id,
     title,
     "slug": slug.current,
@@ -163,12 +163,12 @@ export const workQuery = defineQuery(`
 `)
 
 export const workSlugQuery = defineQuery(`
-  *[_type == "work" && defined(slug.current)] { "slug": slug.current }
+  *[_type == "work" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public work grid on /work; newest year first; orderRank ties. */
+/** Public work grid on /work; omits works with Hide page on. Newest year first; orderRank ties. */
 export const workPublicGridQuery = defineQuery(`
-  *[_type == "work" && defined(slug.current)]
+  *[_type == "work" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
     ${workCardFields},
     orderRank,
@@ -242,6 +242,7 @@ export const homepageCarouselQuery = defineQuery(`
         _id,
         title,
         "slug": slug.current,
+        hidePublicPage,
         carouselImage { ${galleryUnionFields} },
         "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
         coverImage { ..., asset-> }
