@@ -8,6 +8,8 @@ export const metadata: Metadata = {title: 'CV'}
 
 /** Fallback when About → CV section order is empty; keep aligned with `cvEntry.category`. */
 const DEFAULT_CATEGORY_ORDER = [
+  'solo',
+  'group',
   'exhibition',
   'commission',
   'residency',
@@ -21,31 +23,40 @@ const DEFAULT_CATEGORY_ORDER = [
 ] as const
 
 type CvCategory = CvPageQueryResult['entries'][number]['category']
+/** Includes legacy `exhibition` until existing entries / About order are migrated. */
+type CvSectionCategory = CvCategory | 'exhibition'
 
 /** Section headings; aligned with `studio/.../cvCategoryOptions.ts`. */
 const CV_SECTION_TITLES: Record<CvCategory, string> = {
   award: 'Awards',
   commission: 'Commissions',
   education: 'Education',
-  exhibition: 'Exhibitions',
+  group: 'Group Exhibitions',
   lecture: 'Lectures',
   other: 'Other',
   performance: 'Performances',
   publication: 'Publications',
   residency: 'Residencies',
   screening: 'Screenings',
+  solo: 'Solo Exhibitions',
+}
+
+function sectionHeading(category: CvSectionCategory): string {
+  if (category === 'exhibition') return 'Exhibitions'
+  return CV_SECTION_TITLES[category]
 }
 
 function resolveSectionOrder(
   cvSectionOrder: CvPageQueryResult['cvSectionOrder'],
-  categoriesWithEntries: Set<CvCategory>,
-): CvCategory[] {
-  const defaultOrder: CvCategory[] = [...DEFAULT_CATEGORY_ORDER]
-  const allowed = new Set<CvCategory>(defaultOrder)
+  categoriesWithEntries: Set<CvSectionCategory>,
+): CvSectionCategory[] {
+  const defaultOrder = [...DEFAULT_CATEGORY_ORDER] as CvSectionCategory[]
+  const allowed = new Set<CvSectionCategory>(defaultOrder)
   const fromCms = (cvSectionOrder ?? []).filter(
-    (c): c is CvCategory => c != null && allowed.has(c),
-  )
-  const primary: CvCategory[] = fromCms.length > 0 ? fromCms : defaultOrder
+    (c) => c != null && allowed.has(c as CvSectionCategory),
+  ) as CvSectionCategory[]
+  const primary: CvSectionCategory[] =
+    fromCms.length > 0 ? fromCms : defaultOrder
   const primarySet = new Set(primary)
   const extra = [...categoriesWithEntries].filter((c) => !primarySet.has(c))
   extra.sort((a, b) => {
@@ -77,7 +88,7 @@ export default async function CVPage() {
 
   const sectionOrder = resolveSectionOrder(
     data?.cvSectionOrder,
-    new Set(Object.keys(grouped) as CvCategory[]),
+    new Set(Object.keys(grouped) as CvSectionCategory[]),
   )
 
   return (
@@ -121,7 +132,7 @@ export default async function CVPage() {
         return (
           <section key={category} className="mb-8">
           <h2 className="text-base tracking-widest mb-3">
-            {CV_SECTION_TITLES[category]}
+            {sectionHeading(category)}
           </h2>
           <ul className="space-y-2">
             {items.map((entry: Entry) => (

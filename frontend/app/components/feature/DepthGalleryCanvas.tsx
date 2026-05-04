@@ -8,94 +8,132 @@ import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/plane-config'
 import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
 import type {CSSProperties} from 'react'
 import Link from 'next/link'
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
 
 import '@/app/components/feature/depth-gallery.css'
 
+const HOME_DEPTH_GALLERY_SCROLL_KEY = 'gery:home-depth-gallery-scroll'
+
+function writeHomeDepthGalleryScroll(position: number): void {
+  if (typeof window === 'undefined') return
+  try {
+    sessionStorage.setItem(HOME_DEPTH_GALLERY_SCROLL_KEY, String(position))
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
 function gallerySlides(slides: readonly HomepageCarouselSlide[]): HomepageCarouselSlide[] {
-	return slides.filter((s) => typeof s.imageUrl === 'string' && s.imageUrl.trim().length > 0)
+  return slides.filter((s) => typeof s.imageUrl === 'string' && s.imageUrl.trim().length > 0)
 }
 
 export interface DepthGalleryCanvasProps {
-	slides: readonly HomepageCarouselSlide[]
+  slides: readonly HomepageCarouselSlide[]
 }
 
 export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
-	const rootRef = useRef<HTMLDivElement>(null)
-	const canvasHostRef = useRef<HTMLDivElement>(null)
-	const [activePlaneIndex, setActivePlaneIndex] = useState(0)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const canvasHostRef = useRef<HTMLDivElement>(null)
+  const engineRef = useRef<Engine | null>(null)
+  const [activePlaneIndex, setActivePlaneIndex] = useState(0)
 
-	const slideList = useMemo(() => gallerySlides(slides), [slides])
+  const slideList = useMemo(() => gallerySlides(slides), [slides])
 
-	const planeConfig = useMemo(() => buildDepthGalleryPlaneConfig(slideList), [slideList])
+  const planeConfig = useMemo(() => buildDepthGalleryPlaneConfig(slideList), [slideList])
 
-	useEffect(() => {
-		const host = canvasHostRef.current
-		const root = rootRef.current
-		if (!planeConfig.length || !host) return
+  useEffect(() => {
+    const host = canvasHostRef.current
+    const root = rootRef.current
+    if (!planeConfig.length || !host) return
 
-		const canvas = document.createElement('canvas')
-		canvas.className = 'depth-gallery-webgl'
-		host.innerHTML = ''
-		host.appendChild(canvas)
+    let initialScroll: number | undefined
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(HOME_DEPTH_GALLERY_SCROLL_KEY)
+        if (raw !== null) {
+          const parsed = Number(raw)
+          if (Number.isFinite(parsed)) initialScroll = parsed
+        }
+      } catch {
+        // ignore
+      }
+    }
 
-		const isDev = process.env.NODE_ENV === 'development'
-		const debug = isDev ? new Debug() : null
+    const canvas = document.createElement('canvas')
+    canvas.className = 'depth-gallery-webgl'
+    host.innerHTML = ''
+    host.appendChild(canvas)
 
-		const experience = new Experience(planeConfig, {
-			debug,
-			labelMount: root,
-		})
+    const isDev = process.env.NODE_ENV === 'development'
+    const debug = isDev ? new Debug() : null
 
-		const engine = new Engine(canvas, experience, {
-			enableDebugInfrastructure: isDev,
-			onActivePlaneIndexChange: setActivePlaneIndex,
-			scrollEventRoot: rootRef.current,
-		})
+    const experience = new Experience(planeConfig, {
+      debug,
+      labelMount: root,
+    })
 
-		void engine.init().catch((error) => {
-			console.error('DepthGallery engine init failed', error)
-		})
+    const engine = new Engine(canvas, experience, {
+      enableDebugInfrastructure: isDev,
+      onActivePlaneIndexChange: setActivePlaneIndex,
+      scrollEventRoot: rootRef.current,
+      ...(initialScroll !== undefined ? {initialScrollPosition: initialScroll} : {}),
+    })
+    engineRef.current = engine
 
-		return () => {
-			engine.dispose()
-			if (host.contains(canvas)) {
-				host.removeChild(canvas)
-			}
-		}
-	}, [planeConfig])
+    void engine.init().catch((error) => {
+      console.error('DepthGallery engine init failed', error)
+    })
 
-	const activeSlide =
-		activePlaneIndex >= 0 && activePlaneIndex < slideList.length
-			? slideList[activePlaneIndex]
-			: slideList[0]
+    return () => {
+      if (engine.isInitialized) {
+        writeHomeDepthGalleryScroll(engine.scroll.getScrollPosition())
+      }
+      engine.dispose()
+      engineRef.current = null
+      if (host.contains(canvas)) {
+        host.removeChild(canvas)
+      }
+    }
+  }, [planeConfig])
 
-	const navHref =
-		activeSlide && typeof activeSlide.href === 'string' && activeSlide.href.length > 0
-			? activeSlide.href
-			: null
+  const handleGalleryLinkClick = useCallback(() => {
+    const eng = engineRef.current
+    if (!eng?.isInitialized) return
+    writeHomeDepthGalleryScroll(eng.scroll.getScrollPosition())
+  }, [])
 
-	const rootBackdropClass = SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
-		? 'bg-paper'
-		: 'bg-white'
+  const activeSlide =
+    activePlaneIndex >= 0 && activePlaneIndex < slideList.length
+      ? slideList[activePlaneIndex]
+      : slideList[0]
 
-	return (
-		<div
-			ref={rootRef}
-			className={`depth-gallery-root ${rootBackdropClass}`}
-			style={{'--depth-gallery-padding': '1.25rem'} as CSSProperties}
-		>
-			<div ref={canvasHostRef} className="pointer-events-none absolute inset-0" />
-			{navHref !== null ? (
-				<Link
-					className="depth-gallery-hit-area"
-					href={navHref}
-					prefetch={false}
-					aria-label={`Open ${formatDepthGalleryLinkTitle(activeSlide?.title ?? '')}`}
-				/>
-			) : null}
-		</div>
-	)
+  const navHref =
+    activeSlide && typeof activeSlide.href === 'string' && activeSlide.href.length > 0
+      ? activeSlide.href
+      : null
+
+  const rootBackdropClass = SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
+    ? 'bg-paper'
+    : 'bg-white'
+
+  return (
+    <div
+      ref={rootRef}
+      className={`depth-gallery-root ${rootBackdropClass}`}
+      style={{'--depth-gallery-padding': '1.25rem'} as CSSProperties}
+    >
+      <div ref={canvasHostRef} className="pointer-events-none absolute inset-0" />
+      {navHref !== null ? (
+        <Link
+          className="depth-gallery-hit-area"
+          href={navHref}
+          prefetch={false}
+          onClick={handleGalleryLinkClick}
+          aria-label={`Open ${formatDepthGalleryLinkTitle(activeSlide?.title ?? '')}`}
+        />
+      ) : null}
+    </div>
+  )
 }

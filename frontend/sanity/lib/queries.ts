@@ -59,6 +59,28 @@ const workCardFields = /* groq */ `
 `
 
 // ---------------------------------------------------------------------------
+// Site-wide defaults (About singleton)
+// ---------------------------------------------------------------------------
+
+export const aboutSiteMetadataQuery = defineQuery(`
+  *[_type == "about" && _id == "about"][0] {
+    metaTitle,
+    metaDescription,
+    ogImage {
+      crop,
+      hotspot,
+      "asset": asset-> {
+        _id,
+        _type,
+        url,
+        metadata,
+        altText
+      }
+    }
+  }
+`)
+
+// ---------------------------------------------------------------------------
 // Home / Stream grid — work + ephemera interleaved
 // ---------------------------------------------------------------------------
 

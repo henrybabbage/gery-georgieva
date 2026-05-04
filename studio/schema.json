@@ -520,7 +520,11 @@
           "of": [
             {
               "type": "string",
-              "value": "exhibition"
+              "value": "solo"
+            },
+            {
+              "type": "string",
+              "value": "group"
             },
             {
               "type": "string",

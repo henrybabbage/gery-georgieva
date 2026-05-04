@@ -123,6 +123,12 @@ export default defineConfig({
             message: 'Homepage carousel: add works and exhibitions here, drag to reorder.',
             tone: 'positive',
           }),
+          about: defineLocations({
+            locations: [homeLocation],
+            message:
+              'Site-wide meta title, description, and default social image (homepage and fallbacks).',
+            tone: 'positive',
+          }),
           work: defineLocations({
             select: {title: 'title', slug: 'slug.current'},
             resolve: (doc) => ({

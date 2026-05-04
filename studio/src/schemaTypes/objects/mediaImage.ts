@@ -2,7 +2,13 @@ import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
 import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
-import {staggeredGalleryCaptionEmptyWarning} from '../../lib/staggeredGalleryCaptionCreditValidation'
+
+function sizeOverrideLabel(value: string): string | undefined {
+  const v = value.trim()
+  if (!v) return undefined
+  const opt = imageSizeOverrideOptions.find((o) => o.value === v)
+  return opt?.title ?? v.toUpperCase()
+}
 
 export const mediaImage = defineType({
   name: 'mediaImage',
@@ -15,9 +21,8 @@ export const mediaImage = defineType({
     prepare({media, sizeOverride}): PreviewValue {
       const raw =
         typeof sizeOverride === 'string' ? sizeOverride.trim() : ''
-      const title = raw
-        ? `Image: ${raw.toUpperCase()} size set`
-        : 'Image: Size not set'
+      const sizeLabel = raw ? sizeOverrideLabel(raw) : undefined
+      const title = sizeLabel ? `Image · ${sizeLabel}` : 'Image'
       return {title, media}
     },
   },
@@ -46,10 +51,6 @@ export const mediaImage = defineType({
       title: 'Caption',
       type: 'text',
       rows: 2,
-      validation: (Rule) =>
-        Rule.custom((caption, context) =>
-          staggeredGalleryCaptionEmptyWarning(caption, context),
-        ),
     }),
     defineField({name: 'credit', title: 'Photo Credit', type: 'string'}),
   ],
