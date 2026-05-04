@@ -81,7 +81,7 @@ export default async function CVPage() {
   )
 
   return (
-    <div className="px-5 py-8 max-w-2xl">
+    <div className="px-5 py-8">
       <ul className="flex flex-col gap-4 text-base mb-10">
         {cvFileUrl && (
           <li>
