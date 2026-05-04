@@ -134,9 +134,19 @@ export function buildDepthGalleryPlaneConfig(
 		const hint = hints[i % hints.length]
 		const title =
 			slide.title.trim().length > 0 ? slide.title.trim() : 'Untitled'
+		const mood = slide.moodColors
 
 		return {
 			...preset,
+			...(mood
+				? {
+						backgroundColor: mood.background,
+						blob1Color: mood.blob1,
+						blob2Color: mood.blob2,
+						fallbackColor: mood.accent,
+						accentColor: mood.accent,
+					}
+				: {}),
 			textureSrc: slide.imageUrl.trim(),
 			label: {
 				word: hint.wordHint,

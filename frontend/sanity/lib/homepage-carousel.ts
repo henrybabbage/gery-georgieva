@@ -1,12 +1,31 @@
 import type {SanityImageSource} from '@sanity/image-url'
 
+import {moodColorsFromSanityPalette} from '@/lib/depth-gallery/sanity-palette-mood'
 import {urlForImage} from '@/sanity/lib/utils'
+import type {SanityImagePalette} from '@/sanity.types'
+
+export interface HomepageCarouselSlideMood {
+  background: string
+  blob1: string
+  blob2: string
+  accent: string
+}
 
 export interface HomepageCarouselSlide {
   key: string
   imageUrl: string
   title: string
   href: string | null
+  /** Sanity-derived blob background colors when asset metadata.palette exists. */
+  moodColors?: HomepageCarouselSlideMood
+}
+
+function imagePaletteFromResolvedSource(
+  img: SanityImageSource | null | undefined,
+): SanityImagePalette | undefined {
+  if (!img || typeof img !== 'object') return undefined
+  const asset = (img as {asset?: {metadata?: {palette?: SanityImagePalette}}}).asset
+  return asset?.metadata?.palette
 }
 
 /** Matches `homepageCarouselQuery` shape; typegen does not infer `select` branches reliably. */
@@ -72,11 +91,14 @@ export function buildHomepageCarouselSlides(
         typeof w.title === 'string' ? w.title.trim() : '',
       )
       if (!href) continue
+      const palette = imagePaletteFromResolvedSource(img)
+      const moodColors = moodColorsFromSanityPalette(palette) ?? undefined
       out.push({
         key: `work:${row._key}`,
         imageUrl,
         title,
         href,
+        ...(moodColors ? {moodColors} : {}),
       })
       continue
     }
@@ -92,11 +114,14 @@ export function buildHomepageCarouselSlides(
         typeof ex.title === 'string' ? ex.title.trim() : '',
       )
       if (!href) continue
+      const palette = imagePaletteFromResolvedSource(img)
+      const moodColors = moodColorsFromSanityPalette(palette) ?? undefined
       out.push({
         key: `exhibition:${row._key}`,
         imageUrl,
         title,
         href,
+        ...(moodColors ? {moodColors} : {}),
       })
     }
   }

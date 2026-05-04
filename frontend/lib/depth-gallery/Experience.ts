@@ -75,6 +75,11 @@ export class Experience {
 			const planeBlendData = this.gallery.getPlaneBlendData(camera.position.z)
 			this.updateFrameTextTone(planeBlendData)
 
+			const moodBlendData = this.gallery.getMoodBlendData(camera.position.z)
+			if (moodBlendData) {
+				this.background.setMoodBlend(moodBlendData)
+			}
+
 			const depthProgress = this.gallery.getDepthProgress(camera.position.z)
 			const sc = scroll as {velocityMax?: number; velocity?: number} | null
 			const velocityMax = sc?.velocityMax || 1
