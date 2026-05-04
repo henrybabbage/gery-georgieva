@@ -1,4 +1,12 @@
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
+
 import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
+
+const HOMEPAGE_DEPTH_GALLERY_NEUTRAL_BACKDROP_MOOD = {
+	backgroundColor: '#ffffff',
+	blob1Color: '#f3f3f3',
+	blob2Color: '#e9e9e9',
+} as const
 
 export interface DepthGalleryPlaneDefinition {
 	fallbackColor?: string
@@ -14,7 +22,6 @@ export interface DepthGalleryPlaneDefinition {
 		year?: string
 		materials?: string
 		pms?: string
-		color?: string
 	}
 }
 
@@ -104,41 +111,35 @@ const DEPTH_GALLERY_PRESETS: ReadonlyArray<
 	},
 ]
 
-const LABEL_TEXT_COLORS_DARK_BG = '#f4f4f4'
-const LABEL_TEXT_COLORS_LIGHT_BG = '#2e2e2e'
-
-function presetLabelColors(): ReadonlyArray<{ wordHint: string; labelColor: string }> {
-	return [
-		{ wordHint: 'golden', labelColor: LABEL_TEXT_COLORS_LIGHT_BG },
-		{ wordHint: 'violet', labelColor: LABEL_TEXT_COLORS_LIGHT_BG },
-		{ wordHint: 'afterglow', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-		{ wordHint: 'cobalt', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-		{ wordHint: 'meadow', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-		{ wordHint: 'golden ii', labelColor: LABEL_TEXT_COLORS_LIGHT_BG },
-		{ wordHint: 'violet ii', labelColor: LABEL_TEXT_COLORS_LIGHT_BG },
-		{ wordHint: 'afterglow ii', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-		{ wordHint: 'cobalt ii', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-		{ wordHint: 'meadow ii', labelColor: LABEL_TEXT_COLORS_DARK_BG },
-	]
-}
+const LABEL_WORD_HINTS = [
+	'golden',
+	'violet',
+	'afterglow',
+	'cobalt',
+	'meadow',
+	'golden ii',
+	'violet ii',
+	'afterglow ii',
+	'cobalt ii',
+	'meadow ii',
+] as const
 
 export function buildDepthGalleryPlaneConfig(
 	slides: readonly HomepageCarouselSlide[],
 ): DepthGalleryPlaneDefinition[] {
 	const usable = slides.filter((s) => typeof s.imageUrl === 'string' && s.imageUrl.trim().length > 0)
-	const hints = presetLabelColors()
 	const n = DEPTH_GALLERY_PRESETS.length
+	const hintN = LABEL_WORD_HINTS.length
 
 	return usable.map((slide, i) => {
 		const preset = DEPTH_GALLERY_PRESETS[i % n]
-		const hint = hints[i % hints.length]
+		const wordHint = LABEL_WORD_HINTS[i % hintN]
 		const title =
 			slide.title.trim().length > 0 ? slide.title.trim() : 'Untitled'
 		const mood = slide.moodColors
 
-		return {
-			...preset,
-			...(mood
+		const moodTint =
+			SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY && mood
 				? {
 						backgroundColor: mood.background,
 						blob1Color: mood.blob1,
@@ -146,15 +147,20 @@ export function buildDepthGalleryPlaneConfig(
 						fallbackColor: mood.accent,
 						accentColor: mood.accent,
 					}
-				: {}),
+				: SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
+					? {}
+					: HOMEPAGE_DEPTH_GALLERY_NEUTRAL_BACKDROP_MOOD
+
+		return {
+			...preset,
+			...moodTint,
 			textureSrc: slide.imageUrl.trim(),
 			label: {
-				word: hint.wordHint,
+				word: wordHint,
 				title,
 				materials: '',
 				year: '',
 				pms: '',
-				color: hint.labelColor,
 			},
 		}
 	})

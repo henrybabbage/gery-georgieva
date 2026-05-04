@@ -18,26 +18,26 @@ import {
 } from '@/app/components/exhibition-vimeo-embed'
 
 /**
- * Placeholder caption/credit when Sanity fields are empty (layout QA for side labels).
+ * Placeholder caption/credit when Sanity fields are empty (layout QA).
  * - **On by default in development** (`next dev`).
  * - **Off in production** unless `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=true`.
  * - **Force off in dev:** `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=false`.
  */
-const EXHIBITION_DUMMY_SIDE_LABELS =
+const EXHIBITION_DUMMY_CAPTIONS =
   process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'false'
     ? false
     : process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'true' ||
       process.env.NODE_ENV === 'development'
 
-const DUMMY_SIDE_CAPTION = 'Installation caption'
-const DUMMY_SIDE_CREDIT = 'Photographer / credit line'
+const DUMMY_INSTALLATION_CAPTION = 'Installation caption'
+const DUMMY_INSTALLATION_CREDIT = 'Photographer / credit line'
 
-function resolveSideLabels(item: ExhibitionInstallationImage): {caption: string; credit: string} {
+function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
   const caption = item.caption?.trim() ?? ''
   const credit = item.credit?.trim() ?? ''
   if (caption !== '' || credit !== '') return {caption, credit}
-  if (EXHIBITION_DUMMY_SIDE_LABELS) {
-    return {caption: DUMMY_SIDE_CAPTION, credit: DUMMY_SIDE_CREDIT}
+  if (EXHIBITION_DUMMY_CAPTIONS) {
+    return {caption: DUMMY_INSTALLATION_CAPTION, credit: DUMMY_INSTALLATION_CREDIT}
   }
   return {caption: '', credit: ''}
 }
@@ -401,7 +401,7 @@ function VideoFallback({caption, credit}: {caption?: string | null; credit?: str
   )
 }
 
-function SideCaption({
+function InstallationCaption({
   caption,
   credit,
   align,
@@ -452,17 +452,14 @@ function StaggeredGridRow({
 }: StaggeredGridRowProps) {
   const justify = justifyForIndex(index, layoutTitle, galleryImageCount)
   const orientation = getItemOrientation(item)
-  const {caption: sideCaption, credit: sideCredit} = resolveSideLabels(item)
-  const hasSideCaption = sideCaption !== '' || sideCredit !== ''
-  /** Hug the image: caption after image → align start; caption before image → align end (toward gap). */
-  const sideCaptionAlign: 'left' | 'right' = justify === 'right' ? 'right' : 'left'
+  const {caption: capLine, credit: credLine} = resolveCaptionLines(item)
+  const hasCaption = capLine !== '' || credLine !== ''
+  const captionTextAlign: 'left' | 'right' = justify === 'right' ? 'right' : 'left'
   const sizes = orientation === 'portrait' ? GRID_SIZES_PORTRAIT : GRID_SIZES_LANDSCAPE
 
   const tier = getInstallationLayoutTier(item)
   const imgColN = leftRightImageColSpan(orientation, tier)
-  const capColN = 12 - imgColN
   const imgSpan = COL_SPAN[imgColN]
-  const capSpan = COL_SPAN[capColN]
   const rightImageStart = RIGHT_IMAGE_START[imgColN]
   const centerSpans = getCenterRowSpans(orientation, tier)
   const leadSpacerClass = COL_SPAN[centerSpans.lead]
@@ -484,46 +481,45 @@ function StaggeredGridRow({
         playbackKey={item._key}
       />
     )
-  const captionEl = hasSideCaption ? (
-    <SideCaption caption={sideCaption} credit={sideCredit} align={sideCaptionAlign} />
+  const captionEl = hasCaption ? (
+    <InstallationCaption caption={capLine} credit={credLine} align={captionTextAlign} />
   ) : null
+
+  const stackUnderMedia =
+    captionEl != null ? (
+      <>
+        {media}
+        <div className="mt-3">{captionEl}</div>
+      </>
+    ) : (
+      media
+    )
 
   let grid: ReactNode
 
-  const mediaCellClass = (extra: string) =>
-    `min-w-0 ${imgSpan} flex flex-col justify-end self-stretch ${extra}`.trim()
-  const captionCellClass = `min-w-0 ${capSpan} flex flex-col justify-end self-stretch ${
-    sideCaptionAlign === 'right' ? 'text-right' : 'text-left'
-  }`
-  const captionCellClassCenter = (span: string) =>
-    `min-w-0 ${span} flex flex-col justify-end self-stretch text-left`
+  const leftRightStackClass = (colPlacement: string) =>
+    `min-w-0 ${imgSpan} flex flex-col self-stretch ${colPlacement}`.trim()
 
   if (justify === 'left') {
     grid = (
       <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={mediaCellClass('')}>{media}</div>
-        {captionEl && <div className={captionCellClass}>{captionEl}</div>}
+        <div className={leftRightStackClass('')}>{stackUnderMedia}</div>
       </div>
     )
   } else if (justify === 'right') {
     grid = (
       <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        {captionEl && <div className={captionCellClass}>{captionEl}</div>}
-        <div className={mediaCellClass(captionEl ? '' : rightImageStart)}>{media}</div>
+        <div className={leftRightStackClass(rightImageStart)}>{stackUnderMedia}</div>
       </div>
     )
   } else {
     grid = (
       <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
         <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col justify-end self-stretch`}>
-          {media}
+        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col self-stretch`}>
+          {stackUnderMedia}
         </div>
-        {captionEl ? (
-          <div className={captionCellClassCenter(tailCaptionClass)}>{captionEl}</div>
-        ) : (
-          <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
-        )}
+        <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
       </div>
     )
   }
@@ -532,7 +528,7 @@ function StaggeredGridRow({
     justify === 'left' ? 'justify-start' : justify === 'right' ? 'justify-end' : 'justify-center'
 
   return (
-    <div className={`flex w-full items-end ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
+    <div className={`flex w-full items-start ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
       <div className="w-full min-w-0">{grid}</div>
     </div>
   )
@@ -543,7 +539,7 @@ function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; al
     <div className="flex w-full min-w-0 flex-col gap-[clamp(2.5rem,2rem+4.5vw,4rem)] md:hidden">
       {items.map((item, i) => {
         const orientation = getItemOrientation(item)
-        const {caption: mCap, credit: mCred} = resolveSideLabels(item)
+        const {caption: mCap, credit: mCred} = resolveCaptionLines(item)
         const showMobileCaption = mCap !== '' || mCred !== ''
         return (
           <div key={item._key ?? i} className="min-w-0">
@@ -556,7 +552,7 @@ function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; al
             />
             {showMobileCaption ? (
               <div className="mt-3">
-                <SideCaption caption={mCap} credit={mCred} align="left" />
+                <InstallationCaption caption={mCap} credit={mCred} align="left" />
               </div>
             ) : null}
           </div>
