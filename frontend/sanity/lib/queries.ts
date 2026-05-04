@@ -123,6 +123,7 @@ export const workQuery = defineQuery(`
       }
     },
     gallery[] { ${galleryUnionFields} },
+    showRelatedResearchSection,
     relatedEphemera[]-> {
       _id,
       title,
@@ -163,6 +164,16 @@ export const workQuery = defineQuery(`
 
 export const workSlugQuery = defineQuery(`
   *[_type == "work" && defined(slug.current)] { "slug": slug.current }
+`)
+
+/** Public work grid on /work; newest year first; orderRank ties. */
+export const workPublicGridQuery = defineQuery(`
+  *[_type == "work" && defined(slug.current)]
+  | order(coalesce(year, -1) desc, orderRank asc, title asc) {
+    ${workCardFields},
+    orderRank,
+    "firstGalleryStill": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} }
+  }
 `)
 
 // ---------------------------------------------------------------------------
@@ -206,7 +217,7 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition grid on /shows; omits exhibitions with Hide page on. Newest year first; orderRank ties. */
+/** Public exhibition grid on /work; omits exhibitions with Hide page on. Newest year first; orderRank ties. */
 export const featureExhibitionListQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
@@ -216,6 +227,7 @@ export const featureExhibitionListQuery = defineQuery(`
     year,
     venue,
     location,
+    orderRank,
     carouselImage { ${galleryUnionFields} },
     "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }
   }

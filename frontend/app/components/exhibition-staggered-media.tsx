@@ -467,44 +467,64 @@ function StaggeredGridRow({
     <InstallationCaption caption={capLine} credit={credLine} align={captionTextAlign} />
   ) : null
 
-  const stackUnderMedia =
-    captionEl != null ? (
-      <>
-        {media}
-        <div className="mt-3">{captionEl}</div>
-      </>
-    ) : (
-      media
-    )
+  const sharedGridClass = 'grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4'
+  const leftRightMediaClass = (colPlacement: string) =>
+    `min-w-0 block ${imgSpan} ${colPlacement}`.trim()
 
-  let grid: ReactNode
-
-  const leftRightStackClass = (colPlacement: string) =>
-    `min-w-0 ${imgSpan} flex flex-col self-stretch ${colPlacement}`.trim()
+  let mediaGrid: ReactNode
+  let captionGrid: ReactNode | null = null
 
   if (justify === 'left') {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={leftRightStackClass('')}>{stackUnderMedia}</div>
+    mediaGrid = (
+      <div className={sharedGridClass}>
+        <div className={leftRightMediaClass('')}>{media}</div>
       </div>
     )
-  } else if (justify === 'right') {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={leftRightStackClass(rightImageStart)}>{stackUnderMedia}</div>
-      </div>
-    )
-  } else {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col self-stretch`}>
-          {stackUnderMedia}
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={`${sharedGridClass} mt-3`}>
+          <div className={leftRightMediaClass('')}>{captionEl}</div>
         </div>
+      )
+    }
+  } else if (justify === 'right') {
+    mediaGrid = (
+      <div className={sharedGridClass}>
+        <div className={leftRightMediaClass(rightImageStart)}>{media}</div>
+      </div>
+    )
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={`${sharedGridClass} mt-3`}>
+          <div className={leftRightMediaClass(rightImageStart)}>{captionEl}</div>
+        </div>
+      )
+    }
+  } else {
+    mediaGrid = (
+      <div className={sharedGridClass}>
+        <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
+        <div className={`min-w-0 block ${centerImgSpanClass}`}>{media}</div>
         <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
       </div>
     )
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={`${sharedGridClass} mt-3`}>
+          <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
+          <div className={`min-w-0 block ${centerImgSpanClass}`}>{captionEl}</div>
+          <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
+        </div>
+      )
+    }
   }
+
+  const grid = (
+    <div className="flex w-full flex-col">
+      {mediaGrid}
+      {captionGrid}
+    </div>
+  )
 
   const outerJustify =
     justify === 'left' ? 'justify-start' : justify === 'right' ? 'justify-end' : 'justify-center'

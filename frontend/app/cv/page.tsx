@@ -85,7 +85,7 @@ export default async function CVPage() {
                 <span>
                   {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
                     <Link
-                      href={`/shows/${entry.internalRef.slug}`}
+                      href={`/exhibition/${entry.internalRef.slug}`}
                       className="cursor-pointer no-underline"
                     >
                       {entry.title}

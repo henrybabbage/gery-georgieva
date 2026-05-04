@@ -259,6 +259,7 @@ export type Work = {
       _key: string
     } & EphemeraReference
   >
+  showRelatedResearchSection?: boolean
   tags?: Array<string>
   collaborators?: Array<string>
   commissionedBy?: string

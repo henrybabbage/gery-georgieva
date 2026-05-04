@@ -101,6 +101,15 @@ export const work = defineType({
       options: {layout: 'grid'},
     }),
     defineField({
+      name: 'showRelatedResearchSection',
+      title: 'Show related research on work page',
+      type: 'boolean',
+      description:
+        'Off: the Related research list stays hidden at the bottom of the public work page. ' +
+        'On: show linked ephemera when any exist.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',

@@ -52,7 +52,7 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
   return {title: data?.title}
 }
 
-export default async function ShowPage({params}: Props) {
+export default async function ExhibitionPage({params}: Props) {
   const {slug} = await params
   const {isEnabled: allowHidden} = await draftMode()
   const {data} = await sanityFetch({

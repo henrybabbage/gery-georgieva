@@ -31,7 +31,7 @@ export const exhibition = defineType({
       title: 'Hide page',
       type: 'boolean',
       description:
-        'When on, there is no live /shows/… URL and the site will not link here from CV, work ' +
+        'When on, there is no live /exhibition/… URL and the site will not link here from CV, work ' +
         'pages (Exhibited in), ephemera, or when this exhibition is a home carousel exhibition ' +
         'slide. Work carousel slides link to the work page, not here. The exhibition can still ' +
         'appear on the CV when linked via Internal Link.',
