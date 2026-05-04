@@ -24,6 +24,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "lib/depth-gallery/**/*.js",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
