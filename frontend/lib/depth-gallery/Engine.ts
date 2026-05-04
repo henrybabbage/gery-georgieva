@@ -170,7 +170,9 @@ export class Engine {
 		const blendData = this.experience.gallery.getPlaneBlendData(this.camera.position.z)
 		let nextIndex = -1
 		if (blendData) {
-			nextIndex = blendData.blend >= 0.5 ? blendData.nextPlaneIndex : blendData.currentPlaneIndex
+			const bufferIndex =
+				blendData.blend >= 0.5 ? blendData.nextPlaneIndex : blendData.currentPlaneIndex
+			nextIndex = this.experience.gallery.getPlaneLogicalIndex(bufferIndex)
 		}
 		if (nextIndex !== this.lastActivePlaneIndex) {
 			this.lastActivePlaneIndex = nextIndex

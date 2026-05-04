@@ -36,6 +36,7 @@ export class Scroll {
 	velocityStopThreshold = 0.0001
 
 	useScrollBounds = true
+	loop = true
 	firstPlaneViewOffset = 5
 	lastPlaneViewOffset = 5
 	minCameraZ = -Infinity
@@ -154,7 +155,6 @@ export class Scroll {
 		if (this.isInitialized) return
 
 		this.updateCameraBounds()
-		this.cameraStartZ = this.maxCameraZ
 		this.camera.position.z = this.cameraStartZ
 		this.scrollTarget = 0
 		this.scrollCurrent = 0
@@ -190,6 +190,57 @@ export class Scroll {
 	}
 
 	updateCameraBounds(): void {
+		const anchors = this.gallery.getLoopScrollAnchorZs(
+			this.firstPlaneViewOffset,
+			this.lastPlaneViewOffset,
+		)
+
+		const zBase = (
+			p: {userData?: {baseZ?: number}; position?: {z?: number}},
+		) => {
+			const bz = p.userData?.baseZ
+			return Number.isFinite(bz)
+				? (bz as number)
+				: (p.position?.z ?? 0)
+		}
+
+		if (
+			this.gallery.hasLoopPlanePadding &&
+			anchors !== null &&
+			this.loop
+		) {
+			this.maxCameraZ = anchors.backwardStopCameraZ
+			this.minCameraZ = anchors.forwardStopCameraZ
+			this.cameraStartZ = anchors.entryCameraZ
+			return
+		}
+
+		if (
+			this.gallery.hasLoopPlanePadding &&
+			!this.loop &&
+			this.gallery.planes.length > 0
+		) {
+			const fi = Math.max(
+				0,
+				Math.min(this.gallery.loopFirstRealIndex, this.gallery.planes.length - 1),
+			)
+			const li = Math.max(
+				0,
+				Math.min(this.gallery.loopLastRealIndex, this.gallery.planes.length - 1),
+			)
+			const firstRealPlane = this.gallery.planes[fi]
+			const lastRealPlane = this.gallery.planes[li]
+			if (firstRealPlane && lastRealPlane) {
+				this.maxCameraZ = zBase(firstRealPlane) + this.firstPlaneViewOffset
+				this.minCameraZ = zBase(lastRealPlane) + this.lastPlaneViewOffset
+				this.cameraStartZ = this.maxCameraZ
+				if (this.minCameraZ > this.maxCameraZ) {
+					this.minCameraZ = this.maxCameraZ
+				}
+				return
+			}
+		}
+
 		const depthRange = this.gallery.getDepthRange()
 		this.maxCameraZ = depthRange.nearestZ + this.firstPlaneViewOffset
 		this.minCameraZ = depthRange.deepestZ + this.lastPlaneViewOffset
@@ -197,6 +248,7 @@ export class Scroll {
 		if (this.minCameraZ > this.maxCameraZ) {
 			this.minCameraZ = this.maxCameraZ
 		}
+		this.cameraStartZ = this.maxCameraZ
 	}
 
 	cameraZFromScroll(scrollAmount: number): number {
@@ -313,9 +365,91 @@ export class Scroll {
 		if (this.useScrollBounds) {
 			const minimumScroll = this.scrollFromCameraZ(this.maxCameraZ)
 			const maximumScroll = this.scrollFromCameraZ(this.minCameraZ)
+			const scrollSpan = maximumScroll - minimumScroll
 
-			this.scrollTarget = THREE.MathUtils.clamp(this.scrollTarget, minimumScroll, maximumScroll)
-			this.scrollCurrent = THREE.MathUtils.clamp(this.scrollCurrent, minimumScroll, maximumScroll)
+			const anchors = this.gallery.getLoopScrollAnchorZs(
+				this.firstPlaneViewOffset,
+				this.lastPlaneViewOffset,
+			)
+
+			const canSoftLoop =
+				Boolean(this.loop) &&
+				this.gallery.hasLoopPlanePadding &&
+				anchors !== null &&
+				this.scrollToWorldFactor !== 0
+
+			if (
+				canSoftLoop &&
+				Math.abs(scrollSpan) > 1e-6 &&
+				Math.abs(maximumScroll) > 1e-6
+			) {
+				const forwardWrapStep = maximumScroll
+				const scrollLastReal = this.scrollFromCameraZ(anchors.lastRealCameraZ)
+				const backwardWrapStep = scrollLastReal - minimumScroll
+
+				if (!Number.isFinite(backwardWrapStep)) {
+					this.scrollTarget = THREE.MathUtils.clamp(
+						this.scrollTarget,
+						minimumScroll,
+						maximumScroll,
+					)
+					this.scrollCurrent = THREE.MathUtils.clamp(
+						this.scrollCurrent,
+						minimumScroll,
+						maximumScroll,
+					)
+				} else {
+					const eps = 1e-7
+					let guard = 0
+					while (this.scrollCurrent >= maximumScroll - eps && guard < 1024) {
+						this.gallery.syncLoopPlaneStateAfterForwardWrap()
+						this.scrollCurrent -= forwardWrapStep
+						this.scrollTarget -= forwardWrapStep
+						this.previousScrollCurrent -= forwardWrapStep
+						guard += 1
+					}
+					guard = 0
+					while (this.scrollCurrent <= minimumScroll + eps && guard < 1024) {
+						this.gallery.syncLoopPlaneStateAfterBackwardWrap()
+						this.scrollCurrent += backwardWrapStep
+						this.scrollTarget += backwardWrapStep
+						this.previousScrollCurrent += backwardWrapStep
+						guard += 1
+					}
+
+					this.scrollTarget = THREE.MathUtils.clamp(
+						this.scrollTarget,
+						minimumScroll,
+						maximumScroll,
+					)
+					this.scrollCurrent = THREE.MathUtils.clamp(
+						this.scrollCurrent,
+						minimumScroll,
+						maximumScroll,
+					)
+				}
+			} else if (this.loop && Math.abs(scrollSpan) > 0.001) {
+				const loopLength = scrollSpan
+				this.scrollTarget = Math.max(this.scrollTarget, minimumScroll)
+				let guard = 0
+				while (this.scrollCurrent >= maximumScroll && guard < 1024) {
+					this.scrollCurrent -= loopLength
+					this.scrollTarget -= loopLength
+					this.previousScrollCurrent -= loopLength
+					guard += 1
+				}
+			} else {
+				this.scrollTarget = THREE.MathUtils.clamp(
+					this.scrollTarget,
+					minimumScroll,
+					maximumScroll,
+				)
+				this.scrollCurrent = THREE.MathUtils.clamp(
+					this.scrollCurrent,
+					minimumScroll,
+					maximumScroll,
+				)
+			}
 		}
 
 		this.updateVelocity()
@@ -338,6 +472,13 @@ export class Scroll {
 			targetObject: this,
 			property: 'useScrollBounds',
 			label: 'Use Bounds',
+		})
+
+		this.debug.addBinding({
+			folderTitle: 'Scroll',
+			targetObject: this,
+			property: 'loop',
+			label: 'Loop',
 		})
 
 		this.debug.addBinding({

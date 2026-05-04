@@ -29,6 +29,28 @@ export class Gallery {
       /** @type {readonly import('@/lib/depth-gallery/plane-config').DepthGalleryPlaneDefinition[]} */ (
         planeConfig
       )
+    /** @type {boolean} */
+    this.hasLoopPlanePadding =
+      this.planeConfig.length >= 4 &&
+      this.planeConfig[0]?.loopClone === 'prepend' &&
+      this.planeConfig[this.planeConfig.length - 1]?.loopClone === 'append'
+
+    /** @type {number} */
+    this.loopFirstRealIndex = this.hasLoopPlanePadding
+      ? this.planeConfig.findIndex((d) => !d.loopClone)
+      : 0
+    /** @type {number} */
+    this.loopLastRealIndex = (() => {
+      if (!this.hasLoopPlanePadding) {
+        return Math.max(0, this.planeConfig.length - 1)
+      }
+      let last = 0
+      this.planeConfig.forEach((d, i) => {
+        if (!d.loopClone) last = i
+      })
+      return last
+    })()
+
     this.moodSampleOffset = 1
     this.planeFadeSampleOffset = 1
     this.planeFadeSmoothing = 0.14
@@ -124,6 +146,9 @@ export class Gallery {
       const blob1Color = planeDef.blob1Color || fallbackColor
       const blob2Color = planeDef.blob2Color || fallbackColor
       const labelData = this.getPlaneLabelData(planeDef, this.planes.length)
+      const entryOpaqueIndex = this.hasLoopPlanePadding
+        ? this.loopFirstRealIndex
+        : 0
       const planeMaterial = new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
@@ -144,15 +169,19 @@ export class Gallery {
           uPassageEnterPhase: { value: 0 },
           uPassageChromaMultiply: { value: this.passageChromaMultiply },
           uPassageEdgeDispersal: { value: 0 },
-          opacity: { value: index === 0 ? 1 : 0 },
+          opacity: { value: index === entryOpaqueIndex ? 1 : 0 },
         },
         side: THREE.DoubleSide,
         transparent: true,
         depthWrite: false,
       })
-      planeMaterial.opacity = index === 0 ? 1 : 0
+      planeMaterial.opacity = index === entryOpaqueIndex ? 1 : 0
       const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
       planeMesh.userData.basePosition = planeDef.position
+      planeMesh.userData.logicalSlideIndex =
+        typeof planeDef.logicalSlideIndex === 'number'
+          ? planeDef.logicalSlideIndex
+          : index
       planeMesh.userData.baseColor = fallbackColor
       planeMesh.userData.accentColor = accentColor
       planeMesh.userData.backgroundColor = backgroundColor
@@ -205,11 +234,14 @@ export class Gallery {
 
   layoutPlanes() {
     const xSpreadFactor = this.getXSpreadFactor()
+    const gap = Math.max(this.planeGap, 0.0001)
 
     this.planes.forEach((plane, index) => {
       const basePosition = plane.userData.basePosition || { x: 0, y: 0 }
       const xPosition = basePosition.x * xSpreadFactor
-      plane.position.set(xPosition, basePosition.y, -index * this.planeGap)
+      const baseZ = gap * (1 - index)
+      plane.userData.baseZ = baseZ
+      plane.position.set(xPosition, basePosition.y, baseZ)
     })
   }
 
@@ -223,10 +255,106 @@ export class Gallery {
       return { nearestZ: 0, deepestZ: 0 }
     }
 
-    const zPositions = this.planes.map((plane) => plane.position.z)
+    const zPositions = this.planes.map((plane) => {
+      const bz = plane.userData.baseZ
+      return Number.isFinite(bz) ? bz : plane.position.z
+    })
     return {
       nearestZ: Math.max(...zPositions),
       deepestZ: Math.min(...zPositions),
+    }
+  }
+
+  /**
+   * @param {number} firstPlaneViewOffset
+   * @param {number} lastPlaneViewOffset
+   * @returns {{
+   *   entryCameraZ: number
+   *   forwardStopCameraZ: number
+   *   backwardStopCameraZ: number
+   *   lastRealCameraZ: number
+   * } | null}
+   */
+  getLoopScrollAnchorZs(firstPlaneViewOffset, lastPlaneViewOffset) {
+    if (!this.hasLoopPlanePadding || this.planes.length < 2) return null
+
+    const zAt = (plane) => {
+      const bz = plane.userData.baseZ
+      return Number.isFinite(bz) ? bz : plane.position.z
+    }
+
+    const head = this.planes[0]
+    const tail = this.planes[this.planes.length - 1]
+    const firstReal = this.planes[this.loopFirstRealIndex]
+    const lastReal = this.planes[this.loopLastRealIndex]
+    if (!head || !tail || !firstReal || !lastReal) return null
+
+    return {
+      entryCameraZ: zAt(firstReal) + firstPlaneViewOffset,
+      forwardStopCameraZ: zAt(tail) + firstPlaneViewOffset,
+      backwardStopCameraZ: zAt(head) + lastPlaneViewOffset,
+      lastRealCameraZ: zAt(lastReal) + lastPlaneViewOffset,
+    }
+  }
+
+  /**
+   * @param {number} bufferIndex
+   */
+  getPlaneLogicalIndex(bufferIndex) {
+    const plane = this.planes[bufferIndex]
+    if (!plane) return bufferIndex
+    const li = plane.userData.logicalSlideIndex
+    return typeof li === 'number' ? li : bufferIndex
+  }
+
+  /**
+   * Copies smoothed material state so teleporting scroll between duplicate slides
+   * does not flash (opacity lerps otherwise stay stale on untouched meshes).
+   * @param {import('three').Mesh} source
+   * @param {import('three').Mesh} target
+   */
+  copyPlaneVisualStateForLoop(source, target) {
+    if (!source?.material?.uniforms || !target?.material?.uniforms) return
+
+    const s = source.material
+    const t = target.material
+    const opacity = Number.isFinite(s.opacity) ? s.opacity : s.uniforms.opacity.value
+    t.opacity = opacity
+    t.uniforms.opacity.value = opacity
+    t.uniforms.uPassageStrength.value = s.uniforms.uPassageStrength.value
+    t.uniforms.uPassageEnterPhase.value = s.uniforms.uPassageEnterPhase.value
+    t.uniforms.uPassageEdgeDispersal.value = s.uniforms.uPassageEdgeDispersal.value
+  }
+
+  syncLoopPlaneStateAfterForwardWrap() {
+    if (!this.hasLoopPlanePadding || this.planes.length < 3) return
+
+    const head = this.planes[0]
+    const tail = this.planes[this.planes.length - 1]
+    const firstReal = this.planes[this.loopFirstRealIndex]
+    const lastReal = this.planes[this.loopLastRealIndex]
+
+    if (head && lastReal) {
+      this.copyPlaneVisualStateForLoop(lastReal, head)
+    }
+    if (firstReal && tail) {
+      this.copyPlaneVisualStateForLoop(tail, firstReal)
+    }
+  }
+
+  syncLoopPlaneStateAfterBackwardWrap() {
+    if (!this.hasLoopPlanePadding || this.planes.length < 3) return
+
+    const head = this.planes[0]
+    const tail = this.planes[this.planes.length - 1]
+    const firstReal = this.planes[this.loopFirstRealIndex]
+    const lastReal = this.planes[this.loopLastRealIndex]
+
+    if (head && lastReal) {
+      this.copyPlaneVisualStateForLoop(head, lastReal)
+    }
+    if (firstReal && tail) {
+      this.copyPlaneVisualStateForLoop(firstReal, tail)
     }
   }
 
@@ -243,6 +371,14 @@ export class Gallery {
    * Uses Scroll bounds when available so the range matches the real journey.
    */
   getScrollTravelProgress(cameraZ, scroll) {
+    if (
+      scroll &&
+      scroll.loop &&
+      this.hasLoopPlanePadding
+    ) {
+      return 0.5
+    }
+
     if (
       scroll &&
       Number.isFinite(scroll.minCameraZ) &&
@@ -824,7 +960,10 @@ export class Gallery {
       const basePosition = plane.userData.basePosition || { x: 0, y: 0 }
       const xPosition = basePosition.x * xSpreadFactor
       const yPosition = basePosition.y
-      const zPosition = -index * this.planeGap
+      const gap = Math.max(this.planeGap, 0.0001)
+      const baseZ = Number.isFinite(plane.userData.baseZ)
+        ? plane.userData.baseZ
+        : gap * (1 - index)
       const opacity = Number.isFinite(plane.material.opacity) ? plane.material.opacity : 0
       const depthInfluence = 1 + index * 0.05
       const parallaxInfluence = this.parallaxEnabled ? opacity * depthInfluence : 0
@@ -835,7 +974,7 @@ export class Gallery {
 
       plane.position.x = xPosition + parallaxOffsetX
       plane.position.y = yPosition + parallaxOffsetY + gestureOffsetY
-      plane.position.z = zPosition
+      plane.position.z = baseZ
 
       const breathInfluence = this.breathEnabled ? this.breathIntensity * opacity : 0
       const tiltX = -this.pointerCurrent.y * this.breathTiltAmount * breathInfluence

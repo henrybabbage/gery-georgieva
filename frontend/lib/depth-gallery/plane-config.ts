@@ -8,6 +8,9 @@ const HOMEPAGE_DEPTH_GALLERY_NEUTRAL_BACKDROP_MOOD = {
 	blob2Color: '#e9e9e9',
 } as const
 
+/** Duplicated slide used only for seamless loop wrapping (see `withDepthGalleryLoopClones`). */
+export type DepthGalleryLoopCloneRole = 'prepend' | 'append'
+
 export interface DepthGalleryPlaneDefinition {
 	fallbackColor?: string
 	accentColor?: string
@@ -16,6 +19,9 @@ export interface DepthGalleryPlaneDefinition {
 	backgroundColor?: string
 	blob1Color?: string
 	blob2Color?: string
+	/** Sanity slide index 0..N-1 used for linking and hit targets. */
+	logicalSlideIndex?: number
+	loopClone?: DepthGalleryLoopCloneRole
 	label?: {
 		word?: string
 		title?: string
@@ -124,6 +130,39 @@ const LABEL_WORD_HINTS = [
 	'meadow ii',
 ] as const
 
+function clonePlaneDef(def: DepthGalleryPlaneDefinition): DepthGalleryPlaneDefinition {
+	return {...def}
+}
+
+/**
+ * Prepends a clone of the last slide and appends a clone of the first so scroll
+ * can wrap without a one-frame jump between different artworks.
+ */
+export function withDepthGalleryLoopClones(
+	defs: readonly DepthGalleryPlaneDefinition[],
+): DepthGalleryPlaneDefinition[] {
+	if (defs.length < 2) {
+		return defs.map((d, logicalSlideIndex) => ({...d, logicalSlideIndex}))
+	}
+
+	const last = defs[defs.length - 1]
+	const first = defs[0]
+	const prepend = clonePlaneDef(last)
+	prepend.loopClone = 'prepend'
+	prepend.logicalSlideIndex = defs.length - 1
+
+	const body = defs.map((d, logicalSlideIndex) => ({
+		...d,
+		logicalSlideIndex,
+	}))
+
+	const append = clonePlaneDef(first)
+	append.loopClone = 'append'
+	append.logicalSlideIndex = 0
+
+	return [prepend, ...body, append]
+}
+
 export function buildDepthGalleryPlaneConfig(
 	slides: readonly HomepageCarouselSlide[],
 ): DepthGalleryPlaneDefinition[] {
@@ -131,7 +170,7 @@ export function buildDepthGalleryPlaneConfig(
 	const n = DEPTH_GALLERY_PRESETS.length
 	const hintN = LABEL_WORD_HINTS.length
 
-	return usable.map((slide, i) => {
+	const core = usable.map((slide, i) => {
 		const preset = DEPTH_GALLERY_PRESETS[i % n]
 		const wordHint = LABEL_WORD_HINTS[i % hintN]
 		const title =
@@ -164,4 +203,6 @@ export function buildDepthGalleryPlaneConfig(
 			},
 		}
 	})
+
+	return withDepthGalleryLoopClones(core)
 }
