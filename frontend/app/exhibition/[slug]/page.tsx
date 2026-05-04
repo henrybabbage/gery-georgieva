@@ -17,7 +17,7 @@ const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
 const INSTALLATION_GALLERY_LEAD_COUNT = 5
 
 const installationGalleryShellClass =
-  'mb-12 w-full max-w-[1260px] lg:mb-[100px]'
+  'mb-12 w-full max-w-[1260px] mx-auto lg:mb-[100px]'
 
 const EPHEMERA_CATEGORY_LABEL: Record<string, string> = {
   research: 'Research',
@@ -87,7 +87,7 @@ export default async function ExhibitionPage({params}: Props) {
     exhibition.showEphemeraSection === true &&
     (exhibition.relatedEphemera?.length ?? 0) > 0
 
-  const textColumnShellClass = 'w-full max-w-[1260px]'
+  const textColumnShellClass = 'w-full max-w-[1260px] mx-auto'
   const textMeasureClass = 'max-w-[72ch]'
 
   return (

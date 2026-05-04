@@ -16,6 +16,7 @@ import {
   ExhibitionVimeoEmbed,
   ExhibitionVimeoPlaybackProvider,
 } from '@/app/components/exhibition-vimeo-embed'
+import {GalleryRowDebugLog} from '@/app/components/gallery-row-debug-log'
 
 function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
   return {
@@ -466,6 +467,7 @@ function StaggeredGridRow({
   const captionEl = hasCaption ? (
     <InstallationCaption caption={capLine} credit={credLine} align={captionTextAlign} />
   ) : null
+  const debugId = `staggered-${index}-${item._key ?? 'no-key'}`
 
   const sharedGridClass = 'grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4'
   const leftRightMediaClass = (colPlacement: string) =>
@@ -476,63 +478,94 @@ function StaggeredGridRow({
 
   if (justify === 'left') {
     mediaGrid = (
-      <div className={sharedGridClass}>
-        <div className={leftRightMediaClass('')}>{media}</div>
+      <div className={sharedGridClass} data-media-grid="true">
+        <div className={leftRightMediaClass('')} data-media-cell="true">
+          {media}
+        </div>
       </div>
     )
     if (captionEl != null) {
       captionGrid = (
-        <div className={`${sharedGridClass} mt-3`}>
-          <div className={leftRightMediaClass('')}>{captionEl}</div>
+        <div className={sharedGridClass} data-caption-grid="true">
+          <div className={leftRightMediaClass('')} data-caption-cell="true">
+            {captionEl}
+          </div>
         </div>
       )
     }
   } else if (justify === 'right') {
     mediaGrid = (
-      <div className={sharedGridClass}>
-        <div className={leftRightMediaClass(rightImageStart)}>{media}</div>
+      <div className={sharedGridClass} data-media-grid="true">
+        <div className={leftRightMediaClass(rightImageStart)} data-media-cell="true">
+          {media}
+        </div>
       </div>
     )
     if (captionEl != null) {
       captionGrid = (
-        <div className={`${sharedGridClass} mt-3`}>
-          <div className={leftRightMediaClass(rightImageStart)}>{captionEl}</div>
+        <div className={sharedGridClass} data-caption-grid="true">
+          <div className={leftRightMediaClass(rightImageStart)} data-caption-cell="true">
+            {captionEl}
+          </div>
         </div>
       )
     }
   } else {
     mediaGrid = (
-      <div className={sharedGridClass}>
+      <div className={sharedGridClass} data-media-grid="true">
         <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-        <div className={`min-w-0 block ${centerImgSpanClass}`}>{media}</div>
+        <div className={`min-w-0 block ${centerImgSpanClass}`} data-media-cell="true">
+          {media}
+        </div>
         <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
       </div>
     )
     if (captionEl != null) {
       captionGrid = (
-        <div className={`${sharedGridClass} mt-3`}>
+        <div className={sharedGridClass} data-caption-grid="true">
           <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-          <div className={`min-w-0 block ${centerImgSpanClass}`}>{captionEl}</div>
+          <div className={`min-w-0 block ${centerImgSpanClass}`} data-caption-cell="true">
+            {captionEl}
+          </div>
           <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
         </div>
       )
     }
   }
 
-  const grid = (
-    <div className="flex w-full flex-col">
-      {mediaGrid}
-      {captionGrid}
-    </div>
-  )
-
   const outerJustify =
     justify === 'left' ? 'justify-start' : justify === 'right' ? 'justify-end' : 'justify-center'
+  const mediaRowMargin = captionGrid != null ? 'mb-3' : ROW_MARGIN_BOTTOM
+  const mediaRowLastMargin = captionGrid != null ? '' : 'last:mb-0'
+  const captionRowMargin = captionGrid != null ? ROW_MARGIN_BOTTOM : ''
 
   return (
-    <div className={`flex w-full items-start ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
-      <div className="w-full min-w-0">{grid}</div>
-    </div>
+    <>
+      <div
+        className={`flex w-full items-start ${outerJustify} ${mediaRowMargin} ${mediaRowLastMargin}`.trim()}
+        data-staggered-row="true"
+      >
+        <div className="w-full min-w-0" data-row-content="true">
+          {mediaGrid}
+          <GalleryRowDebugLog
+            debugId={debugId}
+            hasCaption={hasCaption}
+            index={index}
+            justify={justify}
+            orientation={orientation}
+          />
+        </div>
+      </div>
+      {captionGrid != null ? (
+        <div
+          className={`${captionRowMargin} last:mb-0`}
+          data-caption-row="true"
+          data-caption-for={debugId}
+        >
+          {captionGrid}
+        </div>
+      ) : null}
+    </>
   )
 }
 

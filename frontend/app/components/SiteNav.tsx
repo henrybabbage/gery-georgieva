@@ -20,7 +20,8 @@ export default function SiteNav() {
       <div className="flex gap-6">
         {navLinks.map(({href, label, matchPrefixes}) => {
           const isActive = matchPrefixes.some(
-            (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+            (prefix) =>
+              pathname === prefix || pathname.startsWith(`${prefix}/`),
           )
           return (
             <Link

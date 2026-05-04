@@ -12,9 +12,9 @@ type Props = {params: Promise<{slug: string}>}
 
 /** Match `frontend/app/exhibition/[slug]/page.tsx` so installation-style media uses the same width. */
 const installationGalleryShellClass =
-  'mb-12 w-full max-w-[1260px] lg:mb-[100px]'
+  'mb-12 w-full max-w-[1260px] mx-auto lg:mb-[100px]'
 
-const textColumnShellClass = 'w-full max-w-[1260px]'
+const textColumnShellClass = 'w-full max-w-[1260px] mx-auto'
 const textMeasureClass = 'max-w-[72ch]'
 
 /**
