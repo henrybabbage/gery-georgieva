@@ -3,7 +3,6 @@ import 'lenis/dist/lenis.css'
 import './globals.css'
 
 import {SpeedInsights} from '@vercel/speed-insights/next'
-import {DialRoot} from 'dialkit'
 import type {Metadata} from 'next'
 import {VisualEditing} from 'next-sanity/visual-editing'
 import {Inter} from 'next/font/google'
@@ -11,6 +10,7 @@ import {draftMode, headers} from 'next/headers'
 import {Toaster} from 'sonner'
 
 import {handleError} from '@/app/client-utils'
+import AppDialRoot from '@/app/components/AppDialRoot'
 import DraftModeToast from '@/app/components/DraftModeToast'
 import LenisRoot from '@/app/components/LenisRoot'
 import SiteNav from '@/app/components/SiteNav'
@@ -43,7 +43,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         </head>
         <body className="isolate min-h-screen text-base font-sans antialiased">
           {children}
-          <DialRoot productionEnabled />
+          <AppDialRoot />
         </body>
       </html>
     )
@@ -67,7 +67,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           <SiteNav />
           <main className="pt-12">
             {children}
-            <DialRoot productionEnabled />
+            <AppDialRoot />
           </main>
           <SpeedInsights />
         </LenisRoot>

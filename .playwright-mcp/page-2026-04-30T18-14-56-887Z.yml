@@ -1,28 +1,28 @@
 - generic [active] [ref=e1]:
-  - region "Notifications alt+T"
-  - navigation [ref=e2]:
-    - link "Gery Georgieva" [ref=e3] [cursor=pointer]:
-      - /url: /
-    - generic [ref=e4]:
-      - link "Exhibitions" [ref=e5] [cursor=pointer]:
-        - /url: /exhibitions
-      - link "Contact" [ref=e6] [cursor=pointer]:
-        - /url: /contact
-      - link "CV" [ref=e7] [cursor=pointer]:
-        - /url: /cv
-  - main [ref=e8]:
-    - generic [ref=e9]:
-      - generic [ref=e10]:
-        - paragraph [ref=e11]:
-          - link "← Work" [ref=e12] [cursor=pointer]:
+    - region "Notifications alt+T"
+    - navigation [ref=e2]:
+        - link "Gery Georgieva" [ref=e3] [cursor=pointer]:
             - /url: /
-        - heading "UWU Channel Radiance" [level=1] [ref=e13]
-        - paragraph [ref=e14]: "2020"
-      - generic [ref=e17]:
-        - generic [ref=e18]:
-          - img "UWU Channel Radiance" [ref=e21]
-          - img "UWU Channel Radiance" [ref=e24]
-          - img "UWU Channel Radiance" [ref=e27]
-        - img "UWU Channel Radiance" [ref=e31]
-  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
-    - img [ref=e38]
+        - generic [ref=e4]:
+            - link "Exhibitions" [ref=e5] [cursor=pointer]:
+                - /url: /exhibitions
+            - link "Contact" [ref=e6] [cursor=pointer]:
+                - /url: /contact
+            - link "CV" [ref=e7] [cursor=pointer]:
+                - /url: /cv
+    - main [ref=e8]:
+        - generic [ref=e9]:
+            - generic [ref=e10]:
+                - paragraph [ref=e11]:
+                    - link "← Work" [ref=e12] [cursor=pointer]:
+                        - /url: /
+                - heading "UWU Channel Radiance" [level=1] [ref=e13]
+                - paragraph [ref=e14]: "2020"
+            - generic [ref=e17]:
+                - generic [ref=e18]:
+                    - img "UWU Channel Radiance" [ref=e21]
+                    - img "UWU Channel Radiance" [ref=e24]
+                    - img "UWU Channel Radiance" [ref=e27]
+                - img "UWU Channel Radiance" [ref=e31]
+    - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
+        - img [ref=e38]

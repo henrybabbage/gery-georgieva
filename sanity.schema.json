@@ -1752,6 +1752,13 @@
           },
           "optional": true
         },
+        "isAudiencePhoto": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        },
         "sizeOverride": {
           "type": "objectAttribute",
           "value": {
@@ -1774,13 +1781,6 @@
                 "value": "xl"
               }
             ]
-          },
-          "optional": true
-        },
-        "isAudiencePhoto": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
           },
           "optional": true
         },
