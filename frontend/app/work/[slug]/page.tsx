@@ -28,7 +28,7 @@ export default async function WorkPage({params}: Props) {
   return (
     <div className="px-5 py-8 max-w-3xl">
       <p className="text-base mb-6">
-        <Link href="/">← Work</Link>
+        <Link href="/shows">← Work</Link>
       </p>
 
       <h1 className="text-base font-normal mb-1">{work.title}</h1>
@@ -55,7 +55,7 @@ export default async function WorkPage({params}: Props) {
                 {ex.hidePublicPage === true ? (
                   <span>{ex.title}</span>
                 ) : (
-                  <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
+                  <Link href={`/shows/${ex.slug}`} className="underline underline-offset-2">
                     {ex.title}
                   </Link>
                 )}

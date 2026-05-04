@@ -77,7 +77,7 @@ export default async function EphemeraPage({params}: Props) {
                 {ex.hidePublicPage === true ? (
                   <span>{ex.title}</span>
                 ) : (
-                  <Link href={`/exhibition/${ex.slug}`} className="underline underline-offset-2">
+                  <Link href={`/shows/${ex.slug}`} className="underline underline-offset-2">
                     {ex.title}
                   </Link>
                 )}
