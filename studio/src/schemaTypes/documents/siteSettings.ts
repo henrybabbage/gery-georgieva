@@ -1,4 +1,4 @@
-import {GearSix} from '@phosphor-icons/react'
+import {House} from '@phosphor-icons/react'
 import type {ReferenceOptions} from '@sanity/types'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
@@ -26,9 +26,9 @@ function homepageCarouselUniqueRefs(items: HomepageCarouselItem[] | undefined): 
 
 export const siteSettings = defineType({
   name: 'siteSettings',
-  title: 'Site Settings',
+  title: 'Home',
   type: 'document',
-  icon: GearSix,
+  icon: House,
   fields: [
     defineField({
       name: 'homepageCarousel',
@@ -62,7 +62,7 @@ export const siteSettings = defineType({
   ],
   preview: {
     prepare() {
-      return {title: 'Site Settings'}
+      return {title: 'Home'}
     },
   },
 })

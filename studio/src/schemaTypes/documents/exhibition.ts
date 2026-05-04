@@ -31,15 +31,23 @@ export const exhibition = defineType({
       title: 'Hide public page',
       type: 'boolean',
       description:
-        'When on, there is no live /exhibition/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
+        'When on, there is no live /shows/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
       initialValue: false,
+    }),
+    defineField({
+      name: 'showOnShowsIndex',
+      title: 'Show on /shows index',
+      type: 'boolean',
+      description:
+        'When off, this exhibition is omitted from the /shows grid only. It stays published for references (CV, etc.). Use Hide public page to remove the detail URL.',
+      initialValue: true,
     }),
     defineField({
       name: 'carouselImage',
       title: 'Homepage carousel image',
       type: 'mediaImage',
       description:
-        'Image when this exhibition is added to the homepage carousel in Site Settings. ' +
+        'Image when this exhibition is added to the homepage carousel in Home. ' +
         'If unset, the first still image in Installation Images is used. Open the field for Size override below the image.',
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
@@ -74,6 +82,22 @@ export const exhibition = defineType({
       title: 'Description',
       type: 'array',
       of: [{type: 'block'}],
+    }),
+    defineField({
+      name: 'showWorksSection',
+      title: 'Show related works on exhibition page',
+      type: 'boolean',
+      description:
+        'Off: the Works grid stays hidden at the bottom of the public exhibition page. On: show it when Related Works has items.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'showEphemeraSection',
+      title: 'Show research & ephemera on exhibition page',
+      type: 'boolean',
+      description:
+        'Off: the Research & Ephemera grid stays hidden at the bottom of the public exhibition page. On: show linked ephemera when any exist.',
+      initialValue: false,
     }),
     defineField({
       name: 'relatedWorks',

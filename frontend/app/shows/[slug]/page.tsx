@@ -52,7 +52,7 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
   return {title: data?.title}
 }
 
-export default async function ExhibitionPage({params}: Props) {
+export default async function ShowPage({params}: Props) {
   const {slug} = await params
   const {isEnabled: allowHidden} = await draftMode()
   const {data} = await sanityFetch({
@@ -80,7 +80,12 @@ export default async function ExhibitionPage({params}: Props) {
 
   const layoutTitle = exhibition.title ?? ''
   const altBase = exhibition.title ?? 'Installation'
-  const hasRelatedWorks = (exhibition.relatedWorks?.length ?? 0) > 0
+  const isWorksSectionVisible =
+    exhibition.showWorksSection === true &&
+    (exhibition.relatedWorks?.length ?? 0) > 0
+  const isEphemeraSectionVisible =
+    exhibition.showEphemeraSection === true &&
+    (exhibition.relatedEphemera?.length ?? 0) > 0
 
   const textColumnShellClass = 'w-full max-w-[1260px]'
   const textMeasureClass = 'max-w-[72ch]'
@@ -137,11 +142,11 @@ export default async function ExhibitionPage({params}: Props) {
       )}
 
       <div className={`${textColumnShellClass} text-left`}>
-        {exhibition.relatedWorks && exhibition.relatedWorks.length > 0 && (
+        {isWorksSectionVisible && (
           <section>
             <h2 className={`${textMeasureClass} text-base mb-2 text-left`}>Works</h2>
             <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
-              {exhibition.relatedWorks.map((work) => (
+              {(exhibition.relatedWorks ?? []).map((work) => (
                 <ExhibitionRelatedPreviewLink
                   key={work._id}
                   href={`/work/${work.slug}`}
@@ -160,13 +165,13 @@ export default async function ExhibitionPage({params}: Props) {
           </section>
         )}
 
-        {exhibition.relatedEphemera && exhibition.relatedEphemera.length > 0 && (
-          <section className={hasRelatedWorks ? 'mt-10 lg:mt-12' : 'mt-6'}>
+        {isEphemeraSectionVisible && (
+          <section className={isWorksSectionVisible ? 'mt-10 lg:mt-12' : 'mt-6'}>
             <h2 className={`${textMeasureClass} text-base mb-2 text-left`}>
               Research & Ephemera
             </h2>
             <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-x-4 md:gap-y-7">
-              {exhibition.relatedEphemera.map((ep) => (
+              {(exhibition.relatedEphemera ?? []).map((ep) => (
                 <ExhibitionRelatedPreviewLink
                   key={ep._id}
                   href={`/ephemera/${ep.slug}`}

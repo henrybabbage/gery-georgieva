@@ -3,7 +3,12 @@ import type {NextConfig} from 'next'
 const nextConfig: NextConfig = {
   transpilePackages: ['vimeo-video-element', 'media-chrome', 'ce-la-react'],
   async redirects() {
-    return [{source: '/features', destination: '/', permanent: true}]
+    return [
+      {source: '/features', destination: '/', permanent: true},
+      {source: '/work', destination: '/shows', permanent: true},
+      {source: '/exhibitions', destination: '/shows', permanent: true},
+      {source: '/exhibition/:slug', destination: '/shows/:slug', permanent: true},
+    ]
   },
   env: {
     // Matches the behavior of `sanity dev` which sets styled-components to use the fastest way of inserting CSS rules in both dev and production. It's default behavior is to disable it in dev mode.

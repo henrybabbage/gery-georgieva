@@ -286,6 +286,7 @@ export type Exhibition = {
   title: string
   slug: Slug
   hidePublicPage?: boolean
+  showOnShowsIndex?: boolean
   carouselImage?: MediaImage
   year?: number
   installationImages?: Array<
@@ -322,6 +323,8 @@ export type Exhibition = {
     _type: 'block'
     _key: string
   }>
+  showWorksSection?: boolean
+  showEphemeraSection?: boolean
   relatedWorks?: Array<
     {
       _key: string

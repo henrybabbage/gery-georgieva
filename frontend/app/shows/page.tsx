@@ -43,7 +43,7 @@ function ExhibitionGridTileImage({image, title}: {image: MediaImageLead; title: 
   )
 }
 
-export default async function WorkIndexPage() {
+export default async function ShowsIndexPage() {
   const {data} = await sanityFetch({
     query: featureExhibitionListQuery,
     perspective: 'published',
@@ -66,7 +66,7 @@ export default async function WorkIndexPage() {
               return (
                 <Link
                   key={ex._id}
-                  href={`/exhibition/${ex.slug}`}
+                  href={`/shows/${ex.slug}`}
                   className="group block text-left no-underline"
                 >
                   {lead ? (

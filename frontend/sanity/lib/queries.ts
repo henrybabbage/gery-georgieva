@@ -181,6 +181,8 @@ export const exhibitionQuery = defineQuery(`
     endDate,
     exhibitionType,
     description,
+    showWorksSection,
+    showEphemeraSection,
     externalDocumentationLink,
     carouselImage { ${galleryUnionFields} },
     relatedWorks[]-> {
@@ -204,9 +206,9 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition lists (/exhibitions, /work); omits draft-only pages. Newest year first; same-year ties use orderRank. */
+/** Public exhibition grid on /shows; omits hidePublicPage and showOnShowsIndex false. Newest year first; orderRank ties. */
 export const featureExhibitionListQuery = defineQuery(`
-  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
+  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true && coalesce(showOnShowsIndex, true) == true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
     _id,
     title,
@@ -230,12 +232,21 @@ export const homepageCarouselQuery = defineQuery(`
         carouselImage { ${galleryUnionFields} },
         "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
         coverImage { ..., asset-> },
-        "exhibition": exhibition-> {
-          _id,
-          title,
-          "slug": slug.current,
-          hidePublicPage
-        }
+        "exhibition": coalesce(
+          exhibition-> {
+            _id,
+            title,
+            "slug": slug.current,
+            hidePublicPage
+          },
+          *[_type == "exhibition" && references(^._id) && defined(slug.current)]
+            | order(coalesce(year, -1) desc, orderRank asc, title asc)[0] {
+            _id,
+            title,
+            "slug": slug.current,
+            hidePublicPage
+          }
+        )
       }),
       "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {
         _id,

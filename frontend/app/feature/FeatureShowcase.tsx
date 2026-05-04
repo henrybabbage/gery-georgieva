@@ -1,6 +1,7 @@
 'use client'
 
 import {DepthGalleryCanvas} from '@/app/components/feature/DepthGalleryCanvas'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
 import {useLenis} from 'lenis/react'
 import {useEffect, useMemo} from 'react'
 
@@ -40,8 +41,14 @@ export default function FeatureShowcase({slides}: FeatureShowcaseProps) {
 		}
 	}, [lenis])
 
+	const shellBackdropClass = SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
+		? 'bg-paper'
+		: 'bg-white'
+
 	return (
-		<div className="fixed inset-0 z-0 overflow-hidden bg-paper text-[var(--color-ink)]">
+		<div
+			className={`fixed inset-0 z-0 overflow-hidden ${shellBackdropClass} text-[var(--color-ink)]`}
+		>
 			<div className="relative h-full min-h-0">
 				<div className="absolute inset-0">
 					{hasGalleryImages ? (

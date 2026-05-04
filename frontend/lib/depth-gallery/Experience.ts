@@ -8,20 +8,16 @@ import * as THREE from 'three'
 export interface ExperienceInitOptions {
 	debug: Debug | null
 	labelMount?: HTMLElement | null
-	frameTextRoot?: HTMLElement | null
 }
 
 export class Experience {
 	isInitialized = false
 	isDisposed = false
-	frameDarkPlaneCount = 2
-	isFrameTextDark: boolean | null = null
 	debug: Debug | null
 	gallery: Gallery
 	label: Label
 	background: Background
 	labelMount?: HTMLElement | null
-	frameTextRoot?: HTMLElement | null
 
 	constructor(
 		planeConfig: readonly DepthGalleryPlaneDefinition[],
@@ -29,7 +25,6 @@ export class Experience {
 	) {
 		this.debug = options.debug
 		this.labelMount = options.labelMount ?? undefined
-		this.frameTextRoot = options.frameTextRoot ?? undefined
 		this.gallery = new Gallery(this.debug as never, planeConfig as never)
 		this.label = new Label(this.gallery)
 		this.background = new Background(this.debug)
@@ -42,29 +37,7 @@ export class Experience {
 		this.label.init(this.labelMount)
 		this.background.init()
 
-		const initialPlaneBlendData = this.gallery.getPlaneBlendData(camera.position.z)
-		this.updateFrameTextTone(initialPlaneBlendData)
-
 		this.isInitialized = true
-	}
-
-	updateFrameTextTone(
-		planeBlendData:
-			| {blend: number; currentPlaneIndex: number; nextPlaneIndex: number}
-			| null
-			| undefined,
-	): void {
-		const root = this.frameTextRoot
-		if (!root || !planeBlendData) return
-
-		const nearestPlaneIndex =
-			planeBlendData.blend >= 0.5 ? planeBlendData.nextPlaneIndex : planeBlendData.currentPlaneIndex
-		const shouldUseDarkText = nearestPlaneIndex < this.frameDarkPlaneCount
-
-		if (this.isFrameTextDark === shouldUseDarkText) return
-
-		this.isFrameTextDark = shouldUseDarkText
-		root.classList.toggle('depth-gallery-frame-text-dark', shouldUseDarkText)
 	}
 
 	update(time: number, camera: THREE.PerspectiveCamera | null = null, scroll: unknown | null = null): void {
@@ -73,7 +46,11 @@ export class Experience {
 
 		if (camera) {
 			const planeBlendData = this.gallery.getPlaneBlendData(camera.position.z)
-			this.updateFrameTextTone(planeBlendData)
+
+			const moodBlendData = this.gallery.getMoodBlendData(camera.position.z)
+			if (moodBlendData) {
+				this.background.setMoodBlend(moodBlendData)
+			}
 
 			const depthProgress = this.gallery.getDepthProgress(camera.position.z)
 			const sc = scroll as {velocityMax?: number; velocity?: number} | null
@@ -100,7 +77,6 @@ export class Experience {
 	dispose(): void {
 		if (this.isDisposed) return
 
-		this.frameTextRoot?.classList.remove('depth-gallery-frame-text-dark')
 		this.gallery.dispose()
 		this.label.dispose()
 		this.background.dispose()

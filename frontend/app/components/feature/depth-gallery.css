@@ -21,10 +21,6 @@
 	cursor: pointer;
 }
 
-.depth-gallery-frame-text-dark {
-	color: rgba(244, 244, 244, 0.92);
-}
-
 .depth-gallery-plane-label.plane-label-overlay {
 	position: absolute;
 	inset: 0;
@@ -124,6 +120,7 @@
 
 .plane-label-overlay__artwork-title {
 	margin: 0;
+	color: #000;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;

@@ -5,6 +5,7 @@ import {Engine} from '@/lib/depth-gallery/Engine'
 import {Experience} from '@/lib/depth-gallery/Experience'
 import {formatDepthGalleryLinkTitle} from '@/lib/depth-gallery/Label'
 import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/plane-config'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
 import type {CSSProperties} from 'react'
 import Link from 'next/link'
 import {useEffect, useMemo, useRef, useState} from 'react'
@@ -46,7 +47,6 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
 		const experience = new Experience(planeConfig, {
 			debug,
 			labelMount: root,
-			frameTextRoot: root ?? undefined,
 		})
 
 		const engine = new Engine(canvas, experience, {
@@ -76,10 +76,14 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
 			? activeSlide.href
 			: null
 
+	const rootBackdropClass = SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
+		? 'bg-paper'
+		: 'bg-white'
+
 	return (
 		<div
 			ref={rootRef}
-			className="depth-gallery-root bg-paper"
+			className={`depth-gallery-root ${rootBackdropClass}`}
 			style={{'--depth-gallery-padding': '1.25rem'} as CSSProperties}
 		>
 			<div ref={canvasHostRef} className="pointer-events-none absolute inset-0" />

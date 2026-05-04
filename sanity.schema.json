@@ -1865,6 +1865,13 @@
         },
         "optional": true
       },
+      "showOnShowsIndex": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "carouselImage": {
         "type": "objectAttribute",
         "value": {
@@ -2166,6 +2173,20 @@
               }
             }
           }
+        },
+        "optional": true
+      },
+      "showWorksSection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "showEphemeraSection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
         },
         "optional": true
       },

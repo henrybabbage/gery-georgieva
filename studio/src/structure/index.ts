@@ -1,7 +1,7 @@
 import {
   Asterisk,
   FlowerTulip,
-  GearSix,
+  House,
   ListDashes,
   Newspaper,
   Spiral,
@@ -16,7 +16,7 @@ export const structure: StructureResolver = (S, context) =>
     .items([
       S.listItem()
         .title('Home')
-        .icon(GearSix)
+        .icon(House)
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
       S.listItem()
         .title('About')

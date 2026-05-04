@@ -70,16 +70,12 @@ export class Label {
 
 		const labelData = (plane.userData.label || {}) as {
 			title?: string
-			color?: string
 		}
 
 		if (this.artworkTitleElement) {
 			const raw = labelData.title || 'Artwork title'
 			const head = raw.endsWith(',') ? raw.slice(0, -1).trim() : raw
 			this.artworkTitleElement.textContent = toLabelTitleCase(head)
-		}
-		if (this.overlayElement) {
-			this.overlayElement.style.color = labelData.color || ''
 		}
 
 		this.activePlaneIndex = planeIndex

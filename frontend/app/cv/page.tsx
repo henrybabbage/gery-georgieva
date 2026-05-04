@@ -44,7 +44,7 @@ export default async function CVPage() {
               href={cvFileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline-offset-4 hover:underline"
+              className="cursor-pointer no-underline"
             >
               CV
             </a>
@@ -55,13 +55,16 @@ export default async function CVPage() {
             href="https://www.instagram.com/_gery_georgieva/"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline-offset-4 hover:underline"
+            className="cursor-pointer no-underline"
           >
             Instagram
           </a>
         </li>
         <li>
-          <a href="mailto:emailgery@gmail.com" className="underline-offset-4 hover:underline">
+          <a
+            href="mailto:emailgery@gmail.com"
+            className="cursor-pointer no-underline"
+          >
             Email
           </a>
         </li>
@@ -74,13 +77,16 @@ export default async function CVPage() {
           </h2>
           <ul className="space-y-2">
             {items.map((entry: Entry) => (
-              <li key={entry._id} className="grid grid-cols-[3rem_1fr] gap-3 text-base">
+              <li
+                key={entry._id}
+                className="grid grid-cols-[3rem_1fr] gap-3 text-base cursor-default"
+              >
                 <span className="tabular-nums">{entry.year}</span>
                 <span>
                   {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
                     <Link
-                      href={`/exhibition/${entry.internalRef.slug}`}
-                      className="underline underline-offset-2"
+                      href={`/shows/${entry.internalRef.slug}`}
+                      className="cursor-pointer no-underline"
                     >
                       {entry.title}
                     </Link>
