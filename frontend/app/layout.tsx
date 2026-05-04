@@ -43,7 +43,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         </head>
         <body className="isolate min-h-screen text-base font-sans antialiased">
           {children}
-          <DialRoot productionEnabled />
+          <DialRoot productionEnabled defaultOpen={false} />
         </body>
       </html>
     )
@@ -67,7 +67,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           <SiteNav />
           <main className="pt-12">
             {children}
-            <DialRoot productionEnabled />
+            <DialRoot productionEnabled defaultOpen={false} />
           </main>
           <SpeedInsights />
         </LenisRoot>

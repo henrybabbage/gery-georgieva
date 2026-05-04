@@ -270,8 +270,8 @@ export type MediaImage = {
   media?: unknown
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
-  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   isAudiencePhoto?: boolean
+  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   caption?: string
   credit?: string
 }
@@ -790,8 +790,8 @@ export type StreamQueryResult = Array<
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
-        sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
         isAudiencePhoto?: boolean
+        sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
         caption?: string
         credit?: string
       } | null
@@ -1142,8 +1142,8 @@ export type WorkQueryResult = {
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
-      sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
       isAudiencePhoto?: boolean
+      sizeOverride: 'lg' | 'md' | 'sm' | 'xl' | null
       caption?: string
       credit?: string
     } | null

@@ -270,8 +270,8 @@ export type MediaImage = {
   media?: unknown
   hotspot?: SanityImageHotspot
   crop?: SanityImageCrop
-  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   isAudiencePhoto?: boolean
+  sizeOverride?: 'sm' | 'md' | 'lg' | 'xl'
   caption?: string
   credit?: string
 }
@@ -382,6 +382,19 @@ export type MediaVideoFile = {
   media?: unknown
   caption?: string
   credit?: string
+}
+
+export type About = {
+  _id: string
+  _type: 'about'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  cvFile?: {
+    asset?: SanityFileAssetReference
+    media?: unknown
+    _type: 'file'
+  }
 }
 
 export type SiteSettings = {
@@ -711,6 +724,7 @@ export type AllSanitySchemaTypes =
   | VimeoVideoReference
   | Vimeo
   | MediaVideoFile
+  | About
   | SiteSettings
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus

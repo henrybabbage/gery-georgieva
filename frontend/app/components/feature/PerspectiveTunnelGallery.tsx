@@ -101,15 +101,15 @@ export default function PerspectiveTunnelGallery({
 }: PerspectiveTunnelGalleryProps) {
   const tunnelDialKit = useDialKit(TUNNEL_DIALKIT_NAME, {
     layout: {
-      imageWidthFrac: [0.22, 0.08, 0.45],
-      imageHeightFrac: [0.27, 0.1, 0.55],
-      orbitRadiusXFrac: [0.42, 0.15, 0.85],
-      orbitRadiusYFrac: [0.29, 0.1, 0.62],
-      perspectiveFrac: [1.4, 0.75, 2.75],
-      perspectiveMaxPx: [1400, 800, 2200],
+      imageWidthFrac: [0.3, 0.08, 0.45],
+      imageHeightFrac: [0.54, 0.1, 0.62],
+      orbitRadiusXFrac: [0.4, 0.15, 0.85],
+      orbitRadiusYFrac: [0.15, 0.1, 0.62],
+      perspectiveFrac: [1.15, 0.75, 2.75],
+      perspectiveMaxPx: [1640, 800, 2200],
     },
     spacing: {
-      zGapPx: [2500, 600, 8000],
+      zGapPx: [3560, 600, 8000],
       exitDistancePx: [1500, 200, 5000],
       visibleRepeatsDepth: [3, 1, 10],
     },
@@ -405,7 +405,7 @@ export default function PerspectiveTunnelGallery({
           const slideKey = stableKeys[plane.slideIndex] ?? String(plane.slideIndex)
           const fallbackAspect = geom.itemW / geom.itemH
           const aspect = slideAspectRatiosByKey[slideKey] ?? fallbackAspect
-          const maxPlaneWidth = geom.vmin * 0.85
+          const maxPlaneWidth = geom.vmin * 0.95
           const planeW = Math.min(geom.itemH * aspect, maxPlaneWidth)
           const cx = Math.cos(plane.angle) * geom.rx - planeW / 2
           const cy = Math.sin(plane.angle) * geom.ry - geom.itemH / 2

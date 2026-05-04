@@ -10,16 +10,6 @@ export const mediaImage = defineType({
   options: {hotspot: true},
   fields: [
     defineField({
-      name: 'sizeOverride',
-      title: 'Size override',
-      type: 'string',
-      options: {
-        list: imageSizeOverrideOptions,
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-    }),
-    defineField({
       name: 'isAudiencePhoto',
       title: 'Audience Photo',
       type: 'boolean',
