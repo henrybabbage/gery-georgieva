@@ -1865,13 +1865,6 @@
         },
         "optional": true
       },
-      "showOnShowsIndex": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
-        },
-        "optional": true
-      },
       "carouselImage": {
         "type": "objectAttribute",
         "value": {

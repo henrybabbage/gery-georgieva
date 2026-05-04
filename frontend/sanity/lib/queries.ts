@@ -206,9 +206,9 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition grid on /shows; omits hidePublicPage and showOnShowsIndex false. Newest year first; orderRank ties. */
+/** Public exhibition grid on /shows; omits exhibitions with Hide page on. Newest year first; orderRank ties. */
 export const featureExhibitionListQuery = defineQuery(`
-  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true && coalesce(showOnShowsIndex, true) == true]
+  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
     _id,
     title,

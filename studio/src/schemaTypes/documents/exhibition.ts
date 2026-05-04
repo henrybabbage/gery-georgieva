@@ -28,19 +28,11 @@ export const exhibition = defineType({
     }),
     defineField({
       name: 'hidePublicPage',
-      title: 'Hide public page',
+      title: 'Hide page',
       type: 'boolean',
       description:
         'When on, there is no live /shows/… URL and the site will not link here from CV, works, ephemera, or the home carousel. The exhibition can still appear on the CV when linked via Internal Link.',
       initialValue: false,
-    }),
-    defineField({
-      name: 'showOnShowsIndex',
-      title: 'Show on /shows index',
-      type: 'boolean',
-      description:
-        'When off, this exhibition is omitted from the /shows grid only. It stays published for references (CV, etc.). Use Hide public page to remove the detail URL.',
-      initialValue: true,
     }),
     defineField({
       name: 'carouselImage',
