@@ -18,6 +18,11 @@ export class Gallery {
     this.planeGap = 5
     this.desktopPlaneScale = 0.75
     this.mobilePlaneScale = 0.5
+    /**
+     * Narrow viewports only: extra shrink so the first plane does not span
+     * edge-to-edge (letterboxing in world space before CSS padding).
+     */
+    this.mobileScreenMarginScale = 0.88
     this.mobileXSpreadFactor = 0.25
     this.mobileBreakpoint = 768
     this.planeConfig =
@@ -182,9 +187,15 @@ export class Gallery {
     }
   }
 
-  updatePlaneScale() {
+  getBasePlaneScale() {
     const isMobileViewport = window.innerWidth <= this.mobileBreakpoint
-    const scale = isMobileViewport ? this.mobilePlaneScale : this.desktopPlaneScale
+    const base = isMobileViewport ? this.mobilePlaneScale : this.desktopPlaneScale
+    const marginScale = isMobileViewport ? this.mobileScreenMarginScale : 1
+    return base * marginScale
+  }
+
+  updatePlaneScale() {
+    const scale = this.getBasePlaneScale()
 
     this.planes.forEach((plane) => {
       const aspectRatio = plane.userData.aspectRatio || 1
@@ -834,8 +845,7 @@ export class Gallery {
       plane.rotation.z = 0
 
       const aspectRatio = plane.userData.aspectRatio || 1
-      const baseScale =
-        window.innerWidth <= this.mobileBreakpoint ? this.mobilePlaneScale : this.desktopPlaneScale
+      const baseScale = this.getBasePlaneScale()
       const scalePulse = 1 + this.breathScaleAmount * breathInfluence
       plane.scale.x = baseScale * aspectRatio * scalePulse
       plane.scale.y = baseScale * scalePulse
