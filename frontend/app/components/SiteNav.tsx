@@ -4,9 +4,9 @@ import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 
 const navLinks = [
-  {href: '/shows', label: 'Work'},
-  {href: '/press', label: 'Press'},
-  {href: '/cv', label: 'CV'},
+  {href: '/work', label: 'Work', matchPrefixes: ['/work', '/exhibition'] as const},
+  {href: '/press', label: 'Press', matchPrefixes: ['/press'] as const},
+  {href: '/cv', label: 'CV', matchPrefixes: ['/cv'] as const},
 ] as const
 
 export default function SiteNav() {
@@ -14,12 +14,15 @@ export default function SiteNav() {
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 flex justify-between bg-transparent px-5 py-4 text-base">
-      <Link href="/" className="shrink-0 whitespace-nowrap">
+      <Link href="/" className="shrink-0 whitespace-nowrap font-black">
         Gery Georgieva
       </Link>
       <div className="flex gap-6">
-        {navLinks.map(({href, label}) => {
-          const isActive = pathname === href || pathname.startsWith(`${href}/`)
+        {navLinks.map(({href, label, matchPrefixes}) => {
+          const isActive = matchPrefixes.some(
+            (prefix) =>
+              pathname === prefix || pathname.startsWith(`${prefix}/`),
+          )
           return (
             <Link
               key={href}

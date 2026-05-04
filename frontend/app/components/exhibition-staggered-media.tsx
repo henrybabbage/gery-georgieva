@@ -16,6 +16,7 @@ import {
   ExhibitionVimeoEmbed,
   ExhibitionVimeoPlaybackProvider,
 } from '@/app/components/exhibition-vimeo-embed'
+import {GalleryRowDebugLog} from '@/app/components/gallery-row-debug-log'
 
 function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
   return {
@@ -466,53 +467,105 @@ function StaggeredGridRow({
   const captionEl = hasCaption ? (
     <InstallationCaption caption={capLine} credit={credLine} align={captionTextAlign} />
   ) : null
+  const debugId = `staggered-${index}-${item._key ?? 'no-key'}`
 
-  const stackUnderMedia =
-    captionEl != null ? (
-      <>
-        {media}
-        <div className="mt-3">{captionEl}</div>
-      </>
-    ) : (
-      media
-    )
+  const sharedGridClass = 'grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4'
+  const leftRightMediaClass = (colPlacement: string) =>
+    `min-w-0 block ${imgSpan} ${colPlacement}`.trim()
 
-  let grid: ReactNode
-
-  const leftRightStackClass = (colPlacement: string) =>
-    `min-w-0 ${imgSpan} flex flex-col self-stretch ${colPlacement}`.trim()
+  let mediaGrid: ReactNode
+  let captionGrid: ReactNode | null = null
 
   if (justify === 'left') {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={leftRightStackClass('')}>{stackUnderMedia}</div>
+    mediaGrid = (
+      <div className={sharedGridClass} data-media-grid="true">
+        <div className={leftRightMediaClass('')} data-media-cell="true">
+          {media}
+        </div>
       </div>
     )
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={sharedGridClass} data-caption-grid="true">
+          <div className={leftRightMediaClass('')} data-caption-cell="true">
+            {captionEl}
+          </div>
+        </div>
+      )
+    }
   } else if (justify === 'right') {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
-        <div className={leftRightStackClass(rightImageStart)}>{stackUnderMedia}</div>
+    mediaGrid = (
+      <div className={sharedGridClass} data-media-grid="true">
+        <div className={leftRightMediaClass(rightImageStart)} data-media-cell="true">
+          {media}
+        </div>
       </div>
     )
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={sharedGridClass} data-caption-grid="true">
+          <div className={leftRightMediaClass(rightImageStart)} data-caption-cell="true">
+            {captionEl}
+          </div>
+        </div>
+      )
+    }
   } else {
-    grid = (
-      <div className="grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4">
+    mediaGrid = (
+      <div className={sharedGridClass} data-media-grid="true">
         <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
-        <div className={`min-w-0 ${centerImgSpanClass} flex flex-col self-stretch`}>
-          {stackUnderMedia}
+        <div className={`min-w-0 block ${centerImgSpanClass}`} data-media-cell="true">
+          {media}
         </div>
         <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
       </div>
     )
+    if (captionEl != null) {
+      captionGrid = (
+        <div className={sharedGridClass} data-caption-grid="true">
+          <div className={`${leadSpacerClass} min-w-0`} aria-hidden />
+          <div className={`min-w-0 block ${centerImgSpanClass}`} data-caption-cell="true">
+            {captionEl}
+          </div>
+          <div className={`min-w-0 ${tailCaptionClass}`} aria-hidden />
+        </div>
+      )
+    }
   }
 
   const outerJustify =
     justify === 'left' ? 'justify-start' : justify === 'right' ? 'justify-end' : 'justify-center'
+  const mediaRowMargin = captionGrid != null ? 'mb-3' : ROW_MARGIN_BOTTOM
+  const mediaRowLastMargin = captionGrid != null ? '' : 'last:mb-0'
+  const captionRowMargin = captionGrid != null ? ROW_MARGIN_BOTTOM : ''
 
   return (
-    <div className={`flex w-full items-start ${outerJustify} ${ROW_MARGIN_BOTTOM} last:mb-0`}>
-      <div className="w-full min-w-0">{grid}</div>
-    </div>
+    <>
+      <div
+        className={`flex w-full items-start ${outerJustify} ${mediaRowMargin} ${mediaRowLastMargin}`.trim()}
+        data-staggered-row="true"
+      >
+        <div className="w-full min-w-0" data-row-content="true">
+          {mediaGrid}
+          <GalleryRowDebugLog
+            debugId={debugId}
+            hasCaption={hasCaption}
+            index={index}
+            justify={justify}
+            orientation={orientation}
+          />
+        </div>
+      </div>
+      {captionGrid != null ? (
+        <div
+          className={`${captionRowMargin} last:mb-0`}
+          data-caption-row="true"
+          data-caption-for={debugId}
+        >
+          {captionGrid}
+        </div>
+      ) : null}
+    </>
   )
 }
 

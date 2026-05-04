@@ -8,7 +8,7 @@ import {
 } from '@/sanity/lib/resolve-gallery-lead-preview'
 
 /**
- * Tile matching /shows index: 4:3 media, title + subtitle beneath in small type.
+ * Tile matching /work index: 4:3 media, title + subtitle beneath in small type.
  */
 export function ExhibitionRelatedPreviewLink({
   href,

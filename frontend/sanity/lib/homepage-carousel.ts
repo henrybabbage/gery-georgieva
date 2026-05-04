@@ -37,6 +37,7 @@ export interface HomepageCarouselQueryData {
       _id: string
       title?: string | null
       slug?: string | null
+      hidePublicPage?: boolean | null
       carouselImage?: SanityImageSource | null
       firstGalleryImage?: SanityImageSource | null
       coverImage?: SanityImageSource | null
@@ -107,20 +108,28 @@ function exhibitionHrefAndTitle(
 ): {href: string | null; title: string} {
   const hidden = ex?.hidePublicPage === true
   const slug = ex?.slug
-  const href = !hidden && typeof slug === 'string' && slug.length > 0 ? `/shows/${slug}` : null
+  const href = !hidden && typeof slug === 'string' && slug.length > 0 ? `/exhibition/${slug}` : null
   const title = (typeof ex?.title === 'string' ? ex.title.trim() : '') || fallbackTitle
   return {href, title}
 }
 
+interface CarouselWorkProjection {
+  title?: string | null
+  slug?: string | null
+  hidePublicPage?: boolean | null
+}
+
 function workHrefAndTitle(
-  slug: string | null | undefined,
-  title: string | null | undefined,
+  w: CarouselWorkProjection | null | undefined,
+  fallbackTitle: string,
 ): {href: string | null; title: string} {
+  const hidden = w?.hidePublicPage === true
+  const slug = w?.slug
   const href =
-    typeof slug === 'string' && slug.length > 0 ? `/work/${slug}` : null
-  const displayTitle =
-    (typeof title === 'string' ? title.trim() : '') || 'Work'
-  return {href, title: displayTitle}
+    !hidden && typeof slug === 'string' && slug.length > 0 ? `/work/${slug}` : null
+  const title =
+    (typeof w?.title === 'string' ? w.title.trim() : '') || fallbackTitle || 'Work'
+  return {href, title}
 }
 
 export function buildHomepageCarouselSlides(
@@ -137,7 +146,10 @@ export function buildHomepageCarouselSlides(
       )
       const url = homepageCarouselImageUrl(img)
       const imageUrl = url ?? ''
-      const {href, title} = workHrefAndTitle(w.slug, w.title)
+      const {href, title} = workHrefAndTitle(
+        w,
+        typeof w.title === 'string' ? w.title.trim() : '',
+      )
       if (!href) continue
       const palette = imagePaletteFromResolvedSource(img)
       const moodColors =

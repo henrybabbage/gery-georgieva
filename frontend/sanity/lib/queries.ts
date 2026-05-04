@@ -63,7 +63,7 @@ const workCardFields = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export const streamQuery = defineQuery(`
-  *[_type in ["work", "ephemera"] && defined(slug.current)]
+  *[_type in ["work", "ephemera"] && defined(slug.current) && (_type != "work" || hidePublicPage != true)]
   | order(orderRank asc) {
     _id,
     _type,
@@ -94,7 +94,7 @@ export const streamQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const archiveQuery = defineQuery(`
-  *[_type == "work" && defined(slug.current) && year < 2015]
+  *[_type == "work" && defined(slug.current) && year < 2015 && hidePublicPage != true]
   | order(orderRank asc) {
     ${workCardFields}
   }
@@ -105,7 +105,7 @@ export const archiveQuery = defineQuery(`
 // ---------------------------------------------------------------------------
 
 export const workQuery = defineQuery(`
-  *[_type == "work" && slug.current == $slug][0] {
+  *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {
     _id,
     title,
     "slug": slug.current,
@@ -123,6 +123,7 @@ export const workQuery = defineQuery(`
       }
     },
     gallery[] { ${galleryUnionFields} },
+    showRelatedResearchSection,
     relatedEphemera[]-> {
       _id,
       title,
@@ -162,7 +163,17 @@ export const workQuery = defineQuery(`
 `)
 
 export const workSlugQuery = defineQuery(`
-  *[_type == "work" && defined(slug.current)] { "slug": slug.current }
+  *[_type == "work" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
+`)
+
+/** Public work grid on /work; omits works with Hide page on. Newest year first; orderRank ties. */
+export const workPublicGridQuery = defineQuery(`
+  *[_type == "work" && defined(slug.current) && hidePublicPage != true]
+  | order(coalesce(year, -1) desc, orderRank asc, title asc) {
+    ${workCardFields},
+    orderRank,
+    "firstGalleryStill": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} }
+  }
 `)
 
 // ---------------------------------------------------------------------------
@@ -206,7 +217,7 @@ export const exhibitionSlugQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
-/** Public exhibition grid on /shows; omits exhibitions with Hide page on. Newest year first; orderRank ties. */
+/** Public exhibition grid on /work; omits exhibitions with Hide page on. Newest year first; orderRank ties. */
 export const featureExhibitionListQuery = defineQuery(`
   *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
@@ -216,6 +227,7 @@ export const featureExhibitionListQuery = defineQuery(`
     year,
     venue,
     location,
+    orderRank,
     carouselImage { ${galleryUnionFields} },
     "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }
   }
@@ -230,6 +242,7 @@ export const homepageCarouselQuery = defineQuery(`
         _id,
         title,
         "slug": slug.current,
+        hidePublicPage,
         carouselImage { ${galleryUnionFields} },
         "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
         coverImage { ..., asset-> }
@@ -307,7 +320,8 @@ export const cvPageQuery = defineQuery(`{
   "entries": *[_type == "cvEntry"] | order(year desc, title asc) {
     ${cvEntryFields}
   },
-  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url
+  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url,
+  "cvSectionOrder": *[_type == "about" && _id == "about"][0].cvSectionOrder
 }`)
 
 // ---------------------------------------------------------------------------

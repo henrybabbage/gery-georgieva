@@ -95,8 +95,18 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)'],
-        mono: ['var(--font-ibm-plex-mono)'],
+        sans: [
+          'var(--font-rillus)',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
+        mono: [
+          'var(--font-rillus)',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
       },
     },
   },
