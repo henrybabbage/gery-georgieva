@@ -35,8 +35,8 @@ export const siteSettings = defineType({
       title: 'Homepage carousel',
       description:
         'Add works and exhibitions, then drag to order. This list is the full carousel on the ' +
-        'homepage. Works need a primary exhibition and image (carousel, first gallery still, ' +
-        'and/or cover). Exhibitions need a carousel image and/or at least one installation image.',
+        'homepage. Work slides link to the work page and need an image (carousel, first gallery ' +
+        'still, and/or cover). Exhibitions need a carousel image and/or at least one installation image.',
       type: 'array',
       validation: (Rule) =>
         Rule.custom((items: HomepageCarouselItem[] | undefined) =>

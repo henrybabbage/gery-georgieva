@@ -33,7 +33,6 @@ export default function CustomPortableText({
               width={672}
               crop={value.crop}
               mode="cover"
-              className="rounded-sm"
             />
           </figure>
         )

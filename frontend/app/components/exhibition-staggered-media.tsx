@@ -17,29 +17,11 @@ import {
   ExhibitionVimeoPlaybackProvider,
 } from '@/app/components/exhibition-vimeo-embed'
 
-/**
- * Placeholder caption/credit when Sanity fields are empty (layout QA).
- * - **On by default in development** (`next dev`).
- * - **Off in production** unless `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=true`.
- * - **Force off in dev:** `NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS=false`.
- */
-const EXHIBITION_DUMMY_CAPTIONS =
-  process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'false'
-    ? false
-    : process.env.NEXT_PUBLIC_EXHIBITION_DUMMY_CAPTIONS === 'true' ||
-      process.env.NODE_ENV === 'development'
-
-const DUMMY_INSTALLATION_CAPTION = 'Installation caption'
-const DUMMY_INSTALLATION_CREDIT = 'Photographer / credit line'
-
 function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
-  const caption = item.caption?.trim() ?? ''
-  const credit = item.credit?.trim() ?? ''
-  if (caption !== '' || credit !== '') return {caption, credit}
-  if (EXHIBITION_DUMMY_CAPTIONS) {
-    return {caption: DUMMY_INSTALLATION_CAPTION, credit: DUMMY_INSTALLATION_CREDIT}
+  return {
+    caption: item.caption?.trim() ?? '',
+    credit: item.credit?.trim() ?? '',
   }
-  return {caption: '', credit: ''}
 }
 
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */

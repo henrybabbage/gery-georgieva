@@ -67,8 +67,8 @@ export const work = defineType({
       type: 'reference',
       to: [{type: 'exhibition'}],
       description:
-        'Used when this work is added to the homepage carousel in Home: the slide ' +
-        'links here. Also used for “Exhibited in” on the work page when set.',
+        'Used for “Exhibited in” on the work page when set. Homepage carousel slides for ' +
+        'this work link to the work page.',
     }),
     defineField({
       name: 'carouselImage',

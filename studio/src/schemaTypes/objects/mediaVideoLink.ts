@@ -2,6 +2,8 @@ import {PlayIcon} from '@sanity/icons'
 import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
+import {staggeredGalleryCaptionEmptyWarning} from '../../lib/staggeredGalleryCaptionCreditValidation'
+
 type MediaVideoLinkParent = {
   provider?: string
   vimeo?: {_type?: string; asset?: {_ref?: string}}
@@ -59,7 +61,16 @@ export const mediaVideoLink = defineType({
       type: 'youtubeVideo',
       hidden: ({parent}: {parent: MediaVideoLinkParent}) => parent?.provider !== 'youtube',
     }),
-    defineField({name: 'caption', title: 'Caption', type: 'text', rows: 2}),
+    defineField({
+      name: 'caption',
+      title: 'Caption',
+      type: 'text',
+      rows: 2,
+      validation: (Rule) =>
+        Rule.custom((caption, context) =>
+          staggeredGalleryCaptionEmptyWarning(caption, context),
+        ),
+    }),
     defineField({name: 'credit', title: 'Credit', type: 'string'}),
   ],
   preview: {
