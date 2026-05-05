@@ -334,7 +334,8 @@ const cvEntryFields = /* groq */ `
     _id,
     title,
     "slug": slug.current,
-    hidePublicPage
+    hidePublicPage,
+    exhibitionType
   }
 `
 

@@ -10,7 +10,6 @@ export const metadata: Metadata = {title: 'CV'}
 const DEFAULT_CATEGORY_ORDER = [
   'solo',
   'group',
-  'exhibition',
   'commission',
   'residency',
   'award',
@@ -23,8 +22,7 @@ const DEFAULT_CATEGORY_ORDER = [
 ] as const
 
 type CvCategory = CvPageQueryResult['entries'][number]['category']
-/** Includes legacy `exhibition` until existing entries / About order are migrated. */
-type CvSectionCategory = CvCategory | 'exhibition'
+type Entry = CvPageQueryResult['entries'][number]
 
 /** Section headings; aligned with `studio/.../cvCategoryOptions.ts`. */
 const CV_SECTION_TITLES: Record<CvCategory, string> = {
@@ -41,22 +39,27 @@ const CV_SECTION_TITLES: Record<CvCategory, string> = {
   solo: 'Solo Exhibitions',
 }
 
-function sectionHeading(category: CvSectionCategory): string {
-  if (category === 'exhibition') return 'Exhibitions'
-  return CV_SECTION_TITLES[category]
+function normalizeCvCategory(entry: Entry): CvCategory {
+  const raw = entry.category as CvCategory | 'exhibition'
+  if (raw !== 'exhibition') return raw
+  const exhibitionType = entry.internalRef?.exhibitionType
+  if (exhibitionType === 'solo' || exhibitionType === 'duo') return 'solo'
+  if (exhibitionType === 'group' || exhibitionType === 'institutional') {
+    return 'group'
+  }
+  return 'group'
 }
 
 function resolveSectionOrder(
   cvSectionOrder: CvPageQueryResult['cvSectionOrder'],
-  categoriesWithEntries: Set<CvSectionCategory>,
-): CvSectionCategory[] {
-  const defaultOrder = [...DEFAULT_CATEGORY_ORDER] as CvSectionCategory[]
-  const allowed = new Set<CvSectionCategory>(defaultOrder)
+  categoriesWithEntries: Set<CvCategory>,
+): CvCategory[] {
+  const defaultOrder = [...DEFAULT_CATEGORY_ORDER] as CvCategory[]
+  const allowed = new Set<CvCategory>(defaultOrder)
   const fromCms = (cvSectionOrder ?? []).filter(
-    (c) => c != null && allowed.has(c as CvSectionCategory),
-  ) as CvSectionCategory[]
-  const primary: CvSectionCategory[] =
-    fromCms.length > 0 ? fromCms : defaultOrder
+    (c) => c != null && allowed.has(c as CvCategory),
+  ) as CvCategory[]
+  const primary: CvCategory[] = fromCms.length > 0 ? fromCms : defaultOrder
   const primarySet = new Set(primary)
   const extra = [...categoriesWithEntries].filter((c) => !primarySet.has(c))
   extra.sort((a, b) => {
@@ -78,17 +81,16 @@ export default async function CVPage() {
 
   if (!entries) return null
 
-  type Entry = (typeof entries)[number]
-  const grouped = entries.reduce<Record<string, Entry[]>>((acc, entry) => {
-    const cat = entry.category
+  const grouped = entries.reduce<Partial<Record<CvCategory, Entry[]>>>((acc, entry) => {
+    const cat = normalizeCvCategory(entry)
     if (!acc[cat]) acc[cat] = []
-    acc[cat].push(entry)
+    acc[cat]!.push(entry)
     return acc
   }, {})
 
   const sectionOrder = resolveSectionOrder(
     data?.cvSectionOrder,
-    new Set(Object.keys(grouped) as CvSectionCategory[]),
+    new Set(Object.keys(grouped) as CvCategory[]),
   )
 
   return (
@@ -117,10 +119,7 @@ export default async function CVPage() {
           </a>
         </li>
         <li>
-          <a
-            href="mailto:emailgery@gmail.com"
-            className="cursor-pointer no-underline"
-          >
+          <a href="mailto:emailgery@gmail.com" className="cursor-pointer no-underline">
             Email
           </a>
         </li>
@@ -131,35 +130,33 @@ export default async function CVPage() {
         if (!items?.length) return null
         return (
           <section key={category} className="mb-8">
-          <h2 className="text-base tracking-widest mb-3">
-            {sectionHeading(category)}
-          </h2>
-          <ul className="space-y-2">
-            {items.map((entry: Entry) => (
-              <li
-                key={entry._id}
-                className="grid grid-cols-[3rem_1fr] gap-3 text-base cursor-default"
-              >
-                <span className="tabular-nums">{entry.year}</span>
-                <span>
-                  {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
-                    <Link
-                      href={`/exhibition/${entry.internalRef.slug}`}
-                      className="cursor-pointer no-underline"
-                    >
-                      {entry.title}
-                    </Link>
-                  ) : (
-                    entry.title
-                  )}
-                  {entry.institution && <span>, {entry.institution}</span>}
-                  {entry.location && <span>, {entry.location}</span>}
-                  {entry.role && <span className="ml-2">({entry.role})</span>}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+            <h2 className="text-base tracking-widest mb-3">{CV_SECTION_TITLES[category]}</h2>
+            <ul className="space-y-2">
+              {items.map((entry) => (
+                <li
+                  key={entry._id}
+                  className="grid grid-cols-[3rem_1fr] gap-3 text-base cursor-default"
+                >
+                  <span className="tabular-nums">{entry.year}</span>
+                  <span>
+                    {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
+                      <Link
+                        href={`/exhibition/${entry.internalRef.slug}`}
+                        className="cursor-pointer no-underline"
+                      >
+                        {entry.title}
+                      </Link>
+                    ) : (
+                      entry.title
+                    )}
+                    {entry.institution && <span>, {entry.institution}</span>}
+                    {entry.location && <span>, {entry.location}</span>}
+                    {entry.role && <span className="ml-2">({entry.role})</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         )
       })}
     </div>
