@@ -1,11 +1,11 @@
 'use client'
 
-import {DepthGalleryCanvas} from '@/app/components/feature/DepthGalleryCanvas'
-import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
+import {DepthGalleryCanvas} from '@/app/DepthGalleryCanvas'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/HomepageBackgroundMood'
 import {useLenis} from 'lenis/react'
 import {useEffect, useMemo} from 'react'
 
-import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
+import type {HomepageCarouselSlide} from '@/sanity/lib/HomepageCarousel'
 
 export interface FeatureShowcaseProps {
 	slides: readonly HomepageCarouselSlide[]

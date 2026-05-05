@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import type {ReactNode} from 'react'
-import {PressHoverArrowIcon} from '@/app/press/press-hover-arrow-icon'
+import {PressHoverArrowIcon} from '@/app/press/PressHoverArrowIcon'
 
 const linkClass =
 	'group inline-flex max-w-full !cursor-pointer items-start gap-1.5'

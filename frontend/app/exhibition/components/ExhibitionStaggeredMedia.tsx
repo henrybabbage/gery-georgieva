@@ -5,7 +5,7 @@ import type {ExhibitionQueryResult} from '@/sanity.types'
 import {
   ExhibitionExpandableGalleryImage,
   type ExhibitionExpandableGalleryImageProps,
-} from '@/app/components/exhibition-expandable-gallery-image'
+} from '@/app/exhibition/components/ExhibitionExpandableGalleryImage'
 import {
   getEffectiveImageSizeOverride,
   getImageSizePreset,
@@ -15,8 +15,7 @@ import {urlForImage} from '@/sanity/lib/utils'
 import {
   ExhibitionVimeoEmbed,
   ExhibitionVimeoPlaybackProvider,
-} from '@/app/components/exhibition-vimeo-embed'
-import {GalleryRowDebugLog} from '@/app/components/gallery-row-debug-log'
+} from '@/app/exhibition/components/ExhibitionVimeoEmbed'
 
 function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
   return {
@@ -467,7 +466,7 @@ function StaggeredGridRow({
   const captionEl = hasCaption ? (
     <InstallationCaption caption={capLine} credit={credLine} align={captionTextAlign} />
   ) : null
-  const debugId = `staggered-${index}-${item._key ?? 'no-key'}`
+  const rowId = `staggered-${index}-${item._key ?? 'no-key'}`
 
   const sharedGridClass = 'grid w-full grid-cols-12 items-stretch gap-x-5 gap-y-4'
   const leftRightMediaClass = (colPlacement: string) =>
@@ -547,20 +546,13 @@ function StaggeredGridRow({
       >
         <div className="w-full min-w-0" data-row-content="true">
           {mediaGrid}
-          <GalleryRowDebugLog
-            debugId={debugId}
-            hasCaption={hasCaption}
-            index={index}
-            justify={justify}
-            orientation={orientation}
-          />
         </div>
       </div>
       {captionGrid != null ? (
         <div
           className={`${captionRowMargin} last:mb-0`}
           data-caption-row="true"
-          data-caption-for={debugId}
+          data-caption-for={rowId}
         >
           {captionGrid}
         </div>

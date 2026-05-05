@@ -4,15 +4,13 @@ import {Debug} from '@/lib/depth-gallery/Debug'
 import {Engine} from '@/lib/depth-gallery/Engine'
 import {Experience} from '@/lib/depth-gallery/Experience'
 import {formatDepthGalleryLinkTitle} from '@/lib/depth-gallery/Label'
-import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/plane-config'
-import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
+import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/PlaneConfig'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/HomepageBackgroundMood'
 import type {CSSProperties} from 'react'
 import Link from 'next/link'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
-import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
-
-import '@/app/components/feature/depth-gallery.css'
+import type {HomepageCarouselSlide} from '@/sanity/lib/HomepageCarousel'
 
 const HOME_DEPTH_GALLERY_SCROLL_KEY = 'gery:home-depth-gallery-scroll'
 
