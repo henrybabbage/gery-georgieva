@@ -1,5 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import type {Metadata} from 'next'
+import SiteCopyright from '@/app/components/SiteCopyright'
 import {sanityFetch} from '@/sanity/lib/live'
 import {
   featureExhibitionListQuery,
@@ -7,7 +9,6 @@ import {
 } from '@/sanity/lib/queries'
 import {getEffectiveImageSizeOverride, getImageSizePreset} from '@/sanity/lib/imageSize'
 import {urlForImage} from '@/sanity/lib/utils'
-import type {Metadata} from 'next'
 import type {
   FeatureExhibitionListQueryResult,
   WorkPublicGridQueryResult,
@@ -124,7 +125,7 @@ export default async function WorkIndexPage() {
   const rows = buildGridRows(exhibitions, works)
 
   return (
-    <div className="px-5 py-6">
+    <div className="px-5 py-6 pb-10">
       <div className={`${shellClass} text-left`}>
         {rows.length === 0 ? (
           <p className="text-base">No work or exhibitions yet.</p>
@@ -152,6 +153,7 @@ export default async function WorkIndexPage() {
           </div>
         )}
       </div>
+      <SiteCopyright />
     </div>
   )
 }

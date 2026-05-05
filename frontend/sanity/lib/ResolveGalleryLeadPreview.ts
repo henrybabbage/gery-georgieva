@@ -1,5 +1,5 @@
 import type {SanityImageSource} from '@sanity/image-url'
-import type {MediaImageItem, MediaVideoLinkItem} from '@/sanity/lib/types'
+import type {MediaImageItem, MediaVideoFileItem, MediaVideoLinkItem} from '@/sanity/lib/types'
 import {urlForImage} from '@/sanity/lib/utils'
 
 const PREVIEW_W = 520
@@ -53,7 +53,9 @@ export function resolveGalleryLeadPreview(item: unknown): GalleryLeadPreview | n
   }
 
   if (item._type === 'mediaVideoFile') {
-    return {kind: 'video', posterUrl: null}
+    const file = item as unknown as MediaVideoFileItem
+    const posterUrl = imageUrlFromSanity(file.poster)
+    return {kind: 'video', posterUrl}
   }
 
   return null

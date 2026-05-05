@@ -385,6 +385,13 @@ export type MediaVideoFile = {
   _type: 'mediaVideoFile'
   asset?: SanityFileAssetReference
   media?: unknown
+  poster?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
   caption?: string
   credit?: string
 }
@@ -927,7 +934,7 @@ export type ArchiveQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: workQuery
-// Query: *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    coverImage {      ...,      sizeOverride,      "asset": asset-> {        ...,        sizeOverride      }    },    gallery[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    showRelatedResearchSection,    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[_type == "mediaImage"][0] {        ...,        sizeOverride,        "asset": asset-> {          ...,          sizeOverride        }      }    },    tags,    "exhibitions": select(      defined(exhibition) => [exhibition-> {        _id,        title,        "slug": slug.current,        year,        venue,        location,        hidePublicPage      }],      *[_type == "exhibition" && references(^._id)] {        _id,        title,        "slug": slug.current,        year,        venue,        location,        hidePublicPage      }    )  }
+// Query: *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {    _id,    title,    "slug": slug.current,    year,    medium,    dimensions,    description,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    coverImage {      ...,      sizeOverride,      "asset": asset-> {        ...,        sizeOverride      }    },    gallery[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    showRelatedResearchSection,    relatedEphemera[]-> {      _id,      title,      "slug": slug.current,      category,      "firstImage": images[_type == "mediaImage"][0] {        ...,        sizeOverride,        "asset": asset-> {          ...,          sizeOverride        }      }    },    tags,    "exhibitions": select(      defined(exhibition) => [exhibition-> {        _id,        title,        "slug": slug.current,        year,        venue,        location,        hidePublicPage      }],      *[_type == "exhibition" && references(^._id)] {        _id,        title,        "slug": slug.current,        year,        venue,        location,        hidePublicPage      }    )  }
 export type WorkQueryResult = {
   _id: string
   title: string
@@ -988,6 +995,7 @@ export type WorkQueryResult = {
     provider: null
     vimeo: null
     youtube: null
+    poster: null
   } | null
   coverImage: {
     asset: {
@@ -1055,6 +1063,7 @@ export type WorkQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: null
       }
     | {
         _key: string
@@ -1090,6 +1099,32 @@ export type WorkQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: {
+          crop: SanityImageCrop | null
+          hotspot: SanityImageHotspot | null
+          asset: {
+            _id: string
+            _type: 'sanity.imageAsset'
+            _createdAt: string
+            _updatedAt: string
+            _rev: string
+            originalFilename?: string
+            label?: string
+            title?: string
+            description?: string
+            altText?: string
+            sha1hash: string
+            extension: string
+            mimeType: string
+            size: number
+            assetId: string
+            uploadId?: string
+            path: string
+            url: string
+            metadata: SanityImageMetadata | null
+            source?: SanityAssetSourceData
+          } | null
+        } | null
       }
     | {
         _key: string
@@ -1145,6 +1180,7 @@ export type WorkQueryResult = {
           publishedAt: string | null
           thumbnails: Array<string> | null
         } | null
+        poster: null
       }
   > | null
   showRelatedResearchSection: boolean | null
@@ -1226,7 +1262,7 @@ export type WorkSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: workPublicGridQuery
-// Query: *[_type == "work" && defined(slug.current) && hidePublicPage != true]  | order(coalesce(year, -1) desc, orderRank asc, title asc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  "descriptionPlain": pt::text(description),  coverImage {    ...,    sizeOverride,    "asset": asset-> {      ...,      sizeOverride    }  },    orderRank,    "firstGalleryStill": gallery[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } }  }
+// Query: *[_type == "work" && defined(slug.current) && hidePublicPage != true]  | order(coalesce(year, -1) desc, orderRank asc, title asc) {      _id,  _type,  title,  "slug": slug.current,  year,  medium,  "descriptionPlain": pt::text(description),  coverImage {    ...,    sizeOverride,    "asset": asset-> {      ...,      sizeOverride    }  },    orderRank,    "firstGalleryStill": gallery[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } }  }
 export type WorkPublicGridQueryResult = Array<{
   _id: string
   _type: 'work'
@@ -1301,12 +1337,13 @@ export type WorkPublicGridQueryResult = Array<{
     provider: null
     vimeo: null
     youtube: null
+    poster: null
   } | null
 }>
 
 // Source: sanity/lib/queries.ts
 // Variable: exhibitionQuery
-// Query: *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    showWorksSection,    showEphemeraSection,    externalDocumentationLink,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  "descriptionPlain": pt::text(description),  coverImage {    ...,    sizeOverride,    "asset": asset-> {      ...,      sizeOverride    }  },      "galleryLead": gallery[0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } }    },    installationImages[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year,      "descriptionPlain": pt::text(description),      "imagesLead": images[0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } }    }  }
+// Query: *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {    _id,    title,    "slug": slug.current,    year,    venue,    location,    startDate,    endDate,    exhibitionType,    description,    showWorksSection,    showEphemeraSection,    externalDocumentationLink,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    relatedWorks[]-> {        _id,  _type,  title,  "slug": slug.current,  year,  medium,  "descriptionPlain": pt::text(description),  coverImage {    ...,    sizeOverride,    "asset": asset-> {      ...,      sizeOverride    }  },      "galleryLead": gallery[0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } }    },    installationImages[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {      _id,      title,      "slug": slug.current,      category,      year,      "descriptionPlain": pt::text(description),      "imagesLead": images[0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } }    }  }
 export type ExhibitionQueryResult = {
   _id: string
   title: string
@@ -1373,6 +1410,7 @@ export type ExhibitionQueryResult = {
     provider: null
     vimeo: null
     youtube: null
+    poster: null
   } | null
   relatedWorks: Array<{
     _id: string
@@ -1448,6 +1486,7 @@ export type ExhibitionQueryResult = {
           provider: null
           vimeo: null
           youtube: null
+          poster: null
         }
       | {
           _key: string
@@ -1483,6 +1522,32 @@ export type ExhibitionQueryResult = {
           provider: null
           vimeo: null
           youtube: null
+          poster: {
+            crop: SanityImageCrop | null
+            hotspot: SanityImageHotspot | null
+            asset: {
+              _id: string
+              _type: 'sanity.imageAsset'
+              _createdAt: string
+              _updatedAt: string
+              _rev: string
+              originalFilename?: string
+              label?: string
+              title?: string
+              description?: string
+              altText?: string
+              sha1hash: string
+              extension: string
+              mimeType: string
+              size: number
+              assetId: string
+              uploadId?: string
+              path: string
+              url: string
+              metadata: SanityImageMetadata | null
+              source?: SanityAssetSourceData
+            } | null
+          } | null
         }
       | {
           _key: string
@@ -1538,6 +1603,7 @@ export type ExhibitionQueryResult = {
             publishedAt: string | null
             thumbnails: Array<string> | null
           } | null
+          poster: null
         }
       | null
   }> | null
@@ -1577,6 +1643,7 @@ export type ExhibitionQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: null
       }
     | {
         _key: string
@@ -1612,6 +1679,32 @@ export type ExhibitionQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: {
+          crop: SanityImageCrop | null
+          hotspot: SanityImageHotspot | null
+          asset: {
+            _id: string
+            _type: 'sanity.imageAsset'
+            _createdAt: string
+            _updatedAt: string
+            _rev: string
+            originalFilename?: string
+            label?: string
+            title?: string
+            description?: string
+            altText?: string
+            sha1hash: string
+            extension: string
+            mimeType: string
+            size: number
+            assetId: string
+            uploadId?: string
+            path: string
+            url: string
+            metadata: SanityImageMetadata | null
+            source?: SanityAssetSourceData
+          } | null
+        } | null
       }
     | {
         _key: string
@@ -1667,6 +1760,7 @@ export type ExhibitionQueryResult = {
           publishedAt: string | null
           thumbnails: Array<string> | null
         } | null
+        poster: null
       }
   > | null
   relatedEphemera: Array<{
@@ -1719,6 +1813,7 @@ export type ExhibitionQueryResult = {
           provider: null
           vimeo: null
           youtube: null
+          poster: null
         }
       | {
           _key: string
@@ -1754,6 +1849,32 @@ export type ExhibitionQueryResult = {
           provider: null
           vimeo: null
           youtube: null
+          poster: {
+            crop: SanityImageCrop | null
+            hotspot: SanityImageHotspot | null
+            asset: {
+              _id: string
+              _type: 'sanity.imageAsset'
+              _createdAt: string
+              _updatedAt: string
+              _rev: string
+              originalFilename?: string
+              label?: string
+              title?: string
+              description?: string
+              altText?: string
+              sha1hash: string
+              extension: string
+              mimeType: string
+              size: number
+              assetId: string
+              uploadId?: string
+              path: string
+              url: string
+              metadata: SanityImageMetadata | null
+              source?: SanityAssetSourceData
+            } | null
+          } | null
         }
       | {
           _key: string
@@ -1809,6 +1930,7 @@ export type ExhibitionQueryResult = {
             publishedAt: string | null
             thumbnails: Array<string> | null
           } | null
+          poster: null
         }
       | null
   }>
@@ -1823,7 +1945,7 @@ export type ExhibitionSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: featureExhibitionListQuery
-// Query: *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]  | order(coalesce(year, -1) desc, orderRank asc, title asc) {    _id,    title,    "slug": slug.current,    year,    venue,    location,    orderRank,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    "firstInstallImage": installationImages[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } }  }
+// Query: *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]  | order(coalesce(year, -1) desc, orderRank asc, title asc) {    _id,    title,    "slug": slug.current,    year,    venue,    location,    orderRank,    carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    "firstInstallImage": installationImages[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } }  }
 export type FeatureExhibitionListQueryResult = Array<{
   _id: string
   title: string
@@ -1867,6 +1989,7 @@ export type FeatureExhibitionListQueryResult = Array<{
     provider: null
     vimeo: null
     youtube: null
+    poster: null
   } | null
   firstInstallImage: {
     _key: string
@@ -1903,12 +2026,13 @@ export type FeatureExhibitionListQueryResult = Array<{
     provider: null
     vimeo: null
     youtube: null
+    poster: null
   } | null
 }>
 
 // Source: sanity/lib/queries.ts
 // Variable: homepageCarouselQuery
-// Query: *[_type == "siteSettings" && _id == "siteSettings"][0] {    homepageCarousel[] {      _key,      _type,      "workSlide": select(_type == "homepageCarouselWork" => @-> {        _id,        title,        "slug": slug.current,        hidePublicPage,        carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },        "firstGalleryImage": gallery[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },        coverImage { ..., asset-> }      }),      "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {        _id,        title,        "slug": slug.current,        hidePublicPage,        carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },        "firstInstallImage": installationImages[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } }      })    }  }
+// Query: *[_type == "siteSettings" && _id == "siteSettings"][0] {    homepageCarousel[] {      _key,      _type,      "workSlide": select(_type == "homepageCarouselWork" => @-> {        _id,        title,        "slug": slug.current,        hidePublicPage,        carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },        "firstGalleryImage": gallery[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },        coverImage { ..., asset-> }      }),      "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {        _id,        title,        "slug": slug.current,        hidePublicPage,        carouselImage {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },        "firstInstallImage": installationImages[_type == "mediaImage"][0] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } }      })    }  }
 export type HomepageCarouselQueryResult = {
   homepageCarousel: Array<{
     _key: string
@@ -1920,7 +2044,7 @@ export type HomepageCarouselQueryResult = {
 
 // Source: sanity/lib/queries.ts
 // Variable: ephemeraQuery
-// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location,      hidePublicPage    }  }
+// Query: *[_type == "ephemera" && slug.current == $slug][0] {    _id,    title,    "slug": slug.current,    year,    category,    description,    images[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    relatedWork[]-> {      _id,      title,      "slug": slug.current,      year,      medium    },    relatedExhibitions[]-> {      _id,      title,      "slug": slug.current,      year,      venue,      location,      hidePublicPage    }  }
 export type EphemeraQueryResult = {
   _id: string
   title: string
@@ -1988,6 +2112,7 @@ export type EphemeraQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: null
       }
     | {
         _key: string
@@ -2023,6 +2148,32 @@ export type EphemeraQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: {
+          crop: SanityImageCrop | null
+          hotspot: SanityImageHotspot | null
+          asset: {
+            _id: string
+            _type: 'sanity.imageAsset'
+            _createdAt: string
+            _updatedAt: string
+            _rev: string
+            originalFilename?: string
+            label?: string
+            title?: string
+            description?: string
+            altText?: string
+            sha1hash: string
+            extension: string
+            mimeType: string
+            size: number
+            assetId: string
+            uploadId?: string
+            path: string
+            url: string
+            metadata: SanityImageMetadata | null
+            source?: SanityAssetSourceData
+          } | null
+        } | null
       }
     | {
         _key: string
@@ -2078,6 +2229,7 @@ export type EphemeraQueryResult = {
           publishedAt: string | null
           thumbnails: Array<string> | null
         } | null
+        poster: null
       }
   > | null
   relatedWork: Array<{
@@ -2195,7 +2347,7 @@ export type PressArticleSlugQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: pressArticleBySlugQuery
-// Query: *[_type == "press" && slug.current == $slug][0] {    _id,    kind,    linkText,    "slug": slug.current,    url,    "pdfUrl": pdf.asset->url,    publishedAt,    publication,    author,    articleImages[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  } },    body  }
+// Query: *[_type == "press" && slug.current == $slug][0] {    _id,    kind,    linkText,    "slug": slug.current,    url,    "pdfUrl": pdf.asset->url,    publishedAt,    publication,    author,    articleImages[] {   _key,  _type,  crop,  hotspot,  sizeOverride,  "asset": asset-> {    ...,    sizeOverride  },  isAudiencePhoto,  caption,  credit,  provider,  vimeo {    asset-> {      vimeoId,      name,      duration,      width,      height,      privacy,      "thumbnail": pictures.sizes[0].link,      files,      play    }  },  youtube {    id,    title,    description,    publishedAt,    thumbnails  },  poster {    crop,    hotspot,    "asset": asset-> {      ...,      metadata    }  } },    body  }
 export type PressArticleBySlugQueryResult = {
   _id: string
   kind: 'pdf' | 'text' | 'url' | null
@@ -2242,6 +2394,7 @@ export type PressArticleBySlugQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: null
       }
     | {
         _key: string
@@ -2277,6 +2430,32 @@ export type PressArticleBySlugQueryResult = {
         provider: null
         vimeo: null
         youtube: null
+        poster: {
+          crop: SanityImageCrop | null
+          hotspot: SanityImageHotspot | null
+          asset: {
+            _id: string
+            _type: 'sanity.imageAsset'
+            _createdAt: string
+            _updatedAt: string
+            _rev: string
+            originalFilename?: string
+            label?: string
+            title?: string
+            description?: string
+            altText?: string
+            sha1hash: string
+            extension: string
+            mimeType: string
+            size: number
+            assetId: string
+            uploadId?: string
+            path: string
+            url: string
+            metadata: SanityImageMetadata | null
+            source?: SanityAssetSourceData
+          } | null
+        } | null
       }
     | {
         _key: string
@@ -2332,6 +2511,7 @@ export type PressArticleBySlugQueryResult = {
           publishedAt: string | null
           thumbnails: Array<string> | null
         } | null
+        poster: null
       }
   > | null
   body: Array<{
@@ -2361,18 +2541,18 @@ declare module '@sanity/client' {
     '\n  *[_type == "about" && _id == "about"][0] {\n    metaTitle,\n    metaDescription,\n    ogImage {\n      crop,\n      hotspot,\n      "asset": asset-> {\n        _id,\n        _type,\n        url,\n        metadata,\n        altText\n      }\n    }\n  }\n': AboutSiteMetadataQueryResult
     '\n  *[_type in ["work", "ephemera"] && defined(slug.current) && (_type != "work" || hidePublicPage != true)]\n  | order(orderRank asc) {\n    _id,\n    _type,\n    title,\n    "slug": slug.current,\n    year,\n    coverImage {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    },\n    "firstImage": images[_type == "mediaImage"][0] {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    }\n  }\n': StreamQueryResult
     '\n  *[_type == "work" && defined(slug.current) && year < 2015 && hidePublicPage != true]\n  | order(orderRank asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n\n  }\n': ArchiveQueryResult
-    '\n  *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    coverImage {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    showRelatedResearchSection,\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] {\n        ...,\n        sizeOverride,\n        "asset": asset-> {\n          ...,\n          sizeOverride\n        }\n      }\n    },\n    tags,\n    "exhibitions": select(\n      defined(exhibition) => [exhibition-> {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }],\n      *[_type == "exhibition" && references(^._id)] {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }\n    )\n  }\n': WorkQueryResult
+    '\n  *[_type == "work" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    medium,\n    dimensions,\n    description,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    coverImage {\n      ...,\n      sizeOverride,\n      "asset": asset-> {\n        ...,\n        sizeOverride\n      }\n    },\n    gallery[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    showRelatedResearchSection,\n    relatedEphemera[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      "firstImage": images[_type == "mediaImage"][0] {\n        ...,\n        sizeOverride,\n        "asset": asset-> {\n          ...,\n          sizeOverride\n        }\n      }\n    },\n    tags,\n    "exhibitions": select(\n      defined(exhibition) => [exhibition-> {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }],\n      *[_type == "exhibition" && references(^._id)] {\n        _id,\n        title,\n        "slug": slug.current,\n        year,\n        venue,\n        location,\n        hidePublicPage\n      }\n    )\n  }\n': WorkQueryResult
     '\n  *[_type == "work" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }\n': WorkSlugQueryResult
-    '\n  *[_type == "work" && defined(slug.current) && hidePublicPage != true]\n  | order(coalesce(year, -1) desc, orderRank asc, title asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n,\n    orderRank,\n    "firstGalleryStill": gallery[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n }\n  }\n': WorkPublicGridQueryResult
-    '\n  *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    showWorksSection,\n    showEphemeraSection,\n    externalDocumentationLink,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n,\n      "galleryLead": gallery[0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n }\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year,\n      "descriptionPlain": pt::text(description),\n      "imagesLead": images[0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n }\n    }\n  }\n': ExhibitionQueryResult
+    '\n  *[_type == "work" && defined(slug.current) && hidePublicPage != true]\n  | order(coalesce(year, -1) desc, orderRank asc, title asc) {\n    \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n,\n    orderRank,\n    "firstGalleryStill": gallery[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n }\n  }\n': WorkPublicGridQueryResult
+    '\n  *[_type == "exhibition" && slug.current == $slug && (!(hidePublicPage == true) || $allowHidden == true)][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    startDate,\n    endDate,\n    exhibitionType,\n    description,\n    showWorksSection,\n    showEphemeraSection,\n    externalDocumentationLink,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    relatedWorks[]-> {\n      \n  _id,\n  _type,\n  title,\n  "slug": slug.current,\n  year,\n  medium,\n  "descriptionPlain": pt::text(description),\n  coverImage {\n    ...,\n    sizeOverride,\n    "asset": asset-> {\n      ...,\n      sizeOverride\n    }\n  }\n,\n      "galleryLead": gallery[0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n }\n    },\n    installationImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    "relatedEphemera": *[_type == "ephemera" && references(^._id)] {\n      _id,\n      title,\n      "slug": slug.current,\n      category,\n      year,\n      "descriptionPlain": pt::text(description),\n      "imagesLead": images[0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n }\n    }\n  }\n': ExhibitionQueryResult
     '\n  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }\n': ExhibitionSlugQueryResult
-    '\n  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]\n  | order(coalesce(year, -1) desc, orderRank asc, title asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    orderRank,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    "firstInstallImage": installationImages[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n }\n  }\n': FeatureExhibitionListQueryResult
-    '\n  *[_type == "siteSettings" && _id == "siteSettings"][0] {\n    homepageCarousel[] {\n      _key,\n      _type,\n      "workSlide": select(_type == "homepageCarouselWork" => @-> {\n        _id,\n        title,\n        "slug": slug.current,\n        hidePublicPage,\n        carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n        "firstGalleryImage": gallery[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n        coverImage { ..., asset-> }\n      }),\n      "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {\n        _id,\n        title,\n        "slug": slug.current,\n        hidePublicPage,\n        carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n        "firstInstallImage": installationImages[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n }\n      })\n    }\n  }\n': HomepageCarouselQueryResult
-    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': EphemeraQueryResult
+    '\n  *[_type == "exhibition" && defined(slug.current) && hidePublicPage != true]\n  | order(coalesce(year, -1) desc, orderRank asc, title asc) {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    venue,\n    location,\n    orderRank,\n    carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    "firstInstallImage": installationImages[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n }\n  }\n': FeatureExhibitionListQueryResult
+    '\n  *[_type == "siteSettings" && _id == "siteSettings"][0] {\n    homepageCarousel[] {\n      _key,\n      _type,\n      "workSlide": select(_type == "homepageCarouselWork" => @-> {\n        _id,\n        title,\n        "slug": slug.current,\n        hidePublicPage,\n        carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n        "firstGalleryImage": gallery[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n        coverImage { ..., asset-> }\n      }),\n      "exhibitionSlide": select(_type == "homepageCarouselExhibition" => @-> {\n        _id,\n        title,\n        "slug": slug.current,\n        hidePublicPage,\n        carouselImage { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n        "firstInstallImage": installationImages[_type == "mediaImage"][0] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n }\n      })\n    }\n  }\n': HomepageCarouselQueryResult
+    '\n  *[_type == "ephemera" && slug.current == $slug][0] {\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    category,\n    description,\n    images[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    relatedWork[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      medium\n    },\n    relatedExhibitions[]-> {\n      _id,\n      title,\n      "slug": slug.current,\n      year,\n      venue,\n      location,\n      hidePublicPage\n    }\n  }\n': EphemeraQueryResult
     '\n  *[_type == "ephemera" && defined(slug.current)] { "slug": slug.current }\n': EphemeraSlugQueryResult
     '{\n  "entries": *[_type == "cvEntry"] | order(year desc, title asc) {\n    \n  _id,\n  title,\n  year,\n  category,\n  role,\n  institution,\n  location,\n  description,\n  internalRef-> {\n    _id,\n    title,\n    "slug": slug.current,\n    hidePublicPage,\n    exhibitionType\n  }\n\n  },\n  "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url,\n  "cvSectionOrder": *[_type == "about" && _id == "about"][0].cvSectionOrder\n}': CvPageQueryResult
     '\n  *[_type == "press"] | order(coalesce(orderRank, _createdAt) asc) {\n    _id,\n    kind,\n    linkText,\n    "slug": slug.current,\n    url,\n    "pdfUrl": pdf.asset->url,\n    publishedAt,\n    publication,\n    author,\n    body\n  }\n': PressQueryResult
     '\n  *[_type == "press" && defined(slug.current) && (\n    kind == "text"\n    || (!defined(kind) && !defined(url) && !defined(pdf.asset))\n  )] {\n    "slug": slug.current\n  }\n': PressArticleSlugQueryResult
-    '\n  *[_type == "press" && slug.current == $slug][0] {\n    _id,\n    kind,\n    linkText,\n    "slug": slug.current,\n    url,\n    "pdfUrl": pdf.asset->url,\n    publishedAt,\n    publication,\n    author,\n    articleImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  }\n },\n    body\n  }\n': PressArticleBySlugQueryResult
+    '\n  *[_type == "press" && slug.current == $slug][0] {\n    _id,\n    kind,\n    linkText,\n    "slug": slug.current,\n    url,\n    "pdfUrl": pdf.asset->url,\n    publishedAt,\n    publication,\n    author,\n    articleImages[] { \n  _key,\n  _type,\n  crop,\n  hotspot,\n  sizeOverride,\n  "asset": asset-> {\n    ...,\n    sizeOverride\n  },\n  isAudiencePhoto,\n  caption,\n  credit,\n  provider,\n  vimeo {\n    asset-> {\n      vimeoId,\n      name,\n      duration,\n      width,\n      height,\n      privacy,\n      "thumbnail": pictures.sizes[0].link,\n      files,\n      play\n    }\n  },\n  youtube {\n    id,\n    title,\n    description,\n    publishedAt,\n    thumbnails\n  },\n  poster {\n    crop,\n    hotspot,\n    "asset": asset-> {\n      ...,\n      metadata\n    }\n  }\n },\n    body\n  }\n': PressArticleBySlugQueryResult
   }
 }

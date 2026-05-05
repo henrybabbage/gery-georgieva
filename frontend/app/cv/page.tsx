@@ -1,8 +1,10 @@
 import Link from 'next/link'
+import type {Metadata} from 'next'
+
+import SiteCopyright from '@/app/components/SiteCopyright'
 import {sanityFetch} from '@/sanity/lib/live'
 import {cvPageQuery} from '@/sanity/lib/queries'
 import type {CvPageQueryResult} from '@/sanity.types'
-import type {Metadata} from 'next'
 
 export const metadata: Metadata = {title: 'CV'}
 
@@ -94,7 +96,7 @@ export default async function CVPage() {
   )
 
   return (
-    <div className="px-5 py-8">
+    <div className="px-5 py-8 pb-10">
       <ul className="flex flex-col gap-4 text-base mb-10">
         {cvFileUrl && (
           <li>
@@ -159,6 +161,7 @@ export default async function CVPage() {
           </section>
         )
       })}
+      <SiteCopyright />
     </div>
   )
 }

@@ -37,6 +37,14 @@ const galleryUnionFields = /* groq */ `
     description,
     publishedAt,
     thumbnails
+  },
+  poster {
+    crop,
+    hotspot,
+    "asset": asset-> {
+      ...,
+      metadata
+    }
   }
 `
 
