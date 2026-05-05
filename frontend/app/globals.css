@@ -212,6 +212,10 @@
   line-height: 1.2;
 }
 
+.depth-gallery-nav-controls {
+  display: none;
+}
+
 @media (min-width: 53em) {
   .plane-label-overlay__left {
     left: auto;
@@ -219,6 +223,51 @@
     right: max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-right));
     bottom: max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-bottom));
   }
+
+  .depth-gallery-nav-controls {
+    position: absolute;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.375rem;
+    right: max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-right));
+    bottom: calc(
+      max(
+          var(--depth-gallery-padding, 1.25rem),
+          env(safe-area-inset-bottom)
+        ) +
+        1.35em + 0.375rem
+    );
+    pointer-events: auto;
+  }
+}
+
+.depth-gallery-nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.depth-gallery-nav-button:hover:not(:disabled) {
+  opacity: 0.7;
+}
+
+.depth-gallery-nav-button:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.depth-gallery-nav-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 .plane-label-overlay__artwork-title {
