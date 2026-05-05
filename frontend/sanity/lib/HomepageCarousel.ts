@@ -1,7 +1,7 @@
 import type {SanityImageSource} from '@sanity/image-url'
 
-import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
-import {moodColorsFromSanityPalette} from '@/lib/depth-gallery/sanity-palette-mood'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/HomepageBackgroundMood'
+import {moodColorsFromSanityPalette} from '@/lib/depth-gallery/SanityPaletteMood'
 import {urlForImage} from '@/sanity/lib/utils'
 import type {SanityImagePalette} from '@/sanity.types'
 

@@ -1,6 +1,6 @@
-import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/HomepageBackgroundMood'
 
-import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
+import type {HomepageCarouselSlide} from '@/sanity/lib/HomepageCarousel'
 
 const HOMEPAGE_DEPTH_GALLERY_NEUTRAL_BACKDROP_MOOD = {
 	backgroundColor: '#ffffff',

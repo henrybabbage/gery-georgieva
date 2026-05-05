@@ -13,7 +13,7 @@ import {
   MediaTimeRange,
 } from 'media-chrome/react'
 import {createContext, useCallback, useContext, useMemo, useRef, type ReactNode} from 'react'
-import {buildVimeoPlayerSrc} from '@/lib/vimeo-player-src'
+import {buildVimeoPlayerSrc} from '@/lib/VimeoPlayerSrc'
 
 type VimeoPlayPayload = Parameters<typeof buildVimeoPlayerSrc>[1]
 

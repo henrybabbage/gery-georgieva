@@ -2,7 +2,7 @@ import type {Metadata} from 'next'
 import {sanityFetch} from '@/sanity/lib/live'
 import {pressQuery} from '@/sanity/lib/queries'
 import type {PressQueryResult} from '@/sanity.types'
-import {PressRowLink} from '@/app/press/press-row-link'
+import {PressRowLink} from '@/app/press/PressRowLink'
 
 export const metadata: Metadata = {title: 'Press'}
 
