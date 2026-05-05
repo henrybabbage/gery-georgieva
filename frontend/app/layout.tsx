@@ -10,7 +10,7 @@ import localFont from 'next/font/local'
 import {draftMode} from 'next/headers'
 import {Toaster} from 'sonner'
 
-import {handleError} from '@/app/client-utils'
+import {handleError} from '@/app/ClientUtils'
 import DraftModeToast from '@/app/components/DraftModeToast'
 import LenisRoot from '@/app/components/LenisRoot'
 import SiteNav from '@/app/components/SiteNav'

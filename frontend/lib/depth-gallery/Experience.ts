@@ -1,7 +1,7 @@
 import {Background} from '@/lib/depth-gallery/Background'
 import type {Debug} from '@/lib/depth-gallery/Debug'
 import {Gallery} from '@/lib/depth-gallery/Gallery'
-import type {DepthGalleryPlaneDefinition} from '@/lib/depth-gallery/plane-config'
+import type {DepthGalleryPlaneDefinition} from '@/lib/depth-gallery/PlaneConfig'
 import {Label} from '@/lib/depth-gallery/Label'
 import * as THREE from 'three'
 

@@ -87,6 +87,8 @@ export class Engine {
       this.resize()
     }
     this.onKeyDown = (event: KeyboardEvent) => {
+      if (this.tryHandleDepthGalleryArrowKeys(event)) return
+
       if (!IS_DEV || !this.enableDebugInfrastructure) return
       if (event.repeat) return
       if (event.key.toLowerCase() !== 'd') return
@@ -94,6 +96,33 @@ export class Engine {
     }
 
     this.animate = this.update.bind(this)
+  }
+
+  private isKeyboardEventFromEditableField(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false
+    if (target.isContentEditable) return true
+    const tag = target.tagName
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+  }
+
+  private tryHandleDepthGalleryArrowKeys(event: KeyboardEvent): boolean {
+    if (!this.scroll.isInitialized) return false
+    if (event.metaKey || event.ctrlKey || event.altKey) return false
+    if (this.isKeyboardEventFromEditableField(event.target)) return false
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      this.scroll.stepToAdjacentPlane(1)
+      return true
+    }
+
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+      event.preventDefault()
+      this.scroll.stepToAdjacentPlane(-1)
+      return true
+    }
+
+    return false
   }
 
   async init(): Promise<void> {
@@ -106,11 +135,11 @@ export class Engine {
       await this.experience.init(this.scene, this.camera)
       this.scroll.init()
       this.scroll.setEventRoot(this.scrollEventRoot)
+      window.addEventListener('keydown', this.onKeyDown)
       if (IS_DEV && this.enableDebugInfrastructure) {
         this.initStats()
         this.bindDebug()
         this.setDebugUiVisible(false)
-        window.addEventListener('keydown', this.onKeyDown)
       }
 
       this.resize()

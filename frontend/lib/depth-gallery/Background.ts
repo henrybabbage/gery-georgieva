@@ -1,6 +1,6 @@
 import type {Debug} from '@/lib/depth-gallery/Debug'
-import fragmentShader from '@/lib/depth-gallery/shaders/background.frag-source'
-import vertexShader from '@/lib/depth-gallery/shaders/background.vert-source'
+import fragmentShader from '@/lib/depth-gallery/shaders/BackgroundFragSource'
+import vertexShader from '@/lib/depth-gallery/shaders/BackgroundVertSource'
 import * as THREE from 'three'
 
 export interface BackgroundMoodColors {

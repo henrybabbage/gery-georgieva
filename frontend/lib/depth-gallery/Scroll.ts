@@ -1,5 +1,5 @@
 import type {Debug} from '@/lib/depth-gallery/Debug'
-import type {Gallery} from '@/lib/depth-gallery/Gallery'
+import {Gallery} from '@/lib/depth-gallery/Gallery'
 import * as THREE from 'three'
 
 const POINTER_EVENTS_SUPPORTED =
@@ -248,6 +248,61 @@ export class Scroll {
   addScrollInput(deltaY: number): void {
     const scrollDirection = this.invertScroll ? -1 : 1
     this.scrollTarget += deltaY * scrollDirection
+  }
+
+  getFocusedPlaneIndex(): number {
+    const blendData = this.gallery.getPlaneBlendData(this.camera.position.z)
+    if (!blendData) return 0
+    return blendData.blend >= 0.5 ? blendData.nextPlaneIndex : blendData.currentPlaneIndex
+  }
+
+  getBasePlaneWorldZ(planeIndex: number): number {
+    const gap = Math.max(this.gallery.planeGap, 0.0001)
+    return -planeIndex * gap
+  }
+
+  getTargetCameraZForPlaneIndex(planeIndex: number): number {
+    const count = this.gallery.planes.length
+    if (count <= 0) return this.camera.position.z
+
+    const last = count - 1
+    const baseZ = this.getBasePlaneWorldZ(planeIndex)
+    const offset =
+      planeIndex >= last ? this.lastPlaneViewOffset : this.firstPlaneViewOffset
+    return baseZ + offset
+  }
+
+  stepToAdjacentPlane(delta: number): void {
+    if (!this.isInitialized || delta === 0) return
+
+    this.updateCameraBounds()
+
+    const count = this.gallery.planes.length
+    if (count <= 1) return
+
+    const current = this.getFocusedPlaneIndex()
+    const next = THREE.MathUtils.clamp(current + delta, 0, count - 1)
+    if (next === current) return
+
+    let targetZ = this.getTargetCameraZForPlaneIndex(next)
+    if (this.useScrollBounds) {
+      targetZ = THREE.MathUtils.clamp(targetZ, this.minCameraZ, this.maxCameraZ)
+    }
+
+    let targetScroll = this.scrollFromCameraZ(targetZ)
+    if (this.useScrollBounds) {
+      const minimumScroll = this.scrollFromCameraZ(this.maxCameraZ)
+      const maximumScroll = this.scrollFromCameraZ(this.minCameraZ)
+      targetScroll = THREE.MathUtils.clamp(
+        targetScroll,
+        minimumScroll,
+        maximumScroll,
+      )
+    }
+
+    this.scrollTarget = targetScroll
+    this.rawVelocity = 0
+    this.velocity = 0
   }
 
   updateVelocity(): void {

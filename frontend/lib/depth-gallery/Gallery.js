@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import fragmentShader from '@/lib/depth-gallery/shaders/edgeDistortion.frag-source'
-import vertexShader from '@/lib/depth-gallery/shaders/edgeDistortion.vert-source'
+import fragmentShader from '@/lib/depth-gallery/shaders/EdgeDistortionFragSource'
+import vertexShader from '@/lib/depth-gallery/shaders/EdgeDistortionVertSource'
 
 export class Gallery {
   constructor(debug = null, planeConfig = []) {
@@ -26,7 +26,7 @@ export class Gallery {
     this.mobileXSpreadFactor = 0.25
     this.mobileBreakpoint = 768
     this.planeConfig =
-      /** @type {readonly import('@/lib/depth-gallery/plane-config').DepthGalleryPlaneDefinition[]} */ (
+      /** @type {readonly import('@/lib/depth-gallery/PlaneConfig').DepthGalleryPlaneDefinition[]} */ (
         planeConfig
       )
     this.moodSampleOffset = 1

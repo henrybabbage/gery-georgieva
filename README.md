@@ -37,7 +37,13 @@ See the documentation if you are [having issues with the CLI](https://www.sanity
 
 #### 2. Run Studio and Next.js app locally
 
-Navigate to the template directory using `cd <your app name>`, and start the development servers by running the following command
+Navigate to the project directory and install dependencies from the repository root.
+
+```shell
+npm install
+```
+
+Start the development servers:
 
 ```shell
 npm run dev

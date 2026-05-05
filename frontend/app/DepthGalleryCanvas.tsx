@@ -1,20 +1,22 @@
 'use client'
 
+import {DepthGalleryNavDownIcon} from '@/app/components/icons/DepthGalleryNavDownIcon'
+import {DepthGalleryNavUpIcon} from '@/app/components/icons/DepthGalleryNavUpIcon'
 import {Debug} from '@/lib/depth-gallery/Debug'
 import {Engine} from '@/lib/depth-gallery/Engine'
 import {Experience} from '@/lib/depth-gallery/Experience'
 import {formatDepthGalleryLinkTitle} from '@/lib/depth-gallery/Label'
-import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/plane-config'
-import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/homepage-background-mood'
-import type {CSSProperties} from 'react'
+import {buildDepthGalleryPlaneConfig} from '@/lib/depth-gallery/PlaneConfig'
+import {SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY} from '@/lib/depth-gallery/HomepageBackgroundMood'
+import type {CSSProperties, ReactNode} from 'react'
 import Link from 'next/link'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
-import type {HomepageCarouselSlide} from '@/sanity/lib/homepage-carousel'
-
-import '@/app/components/feature/depth-gallery.css'
+import type {HomepageCarouselSlide} from '@/sanity/lib/HomepageCarousel'
 
 const HOME_DEPTH_GALLERY_SCROLL_KEY = 'gery:home-depth-gallery-scroll'
+
+const DEPTH_GALLERY_SHOW_ARROW_CONTROLS = false
 
 function writeHomeDepthGalleryScroll(position: number): void {
   if (typeof window === 'undefined') return
@@ -104,6 +106,18 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
     writeHomeDepthGalleryScroll(eng.scroll.getScrollPosition())
   }, [])
 
+  const handleGalleryStepNext = useCallback(() => {
+    const eng = engineRef.current
+    if (!eng?.isInitialized || !eng.scroll.isInitialized) return
+    eng.scroll.stepToAdjacentPlane(1)
+  }, [])
+
+  const handleGalleryStepPrevious = useCallback(() => {
+    const eng = engineRef.current
+    if (!eng?.isInitialized || !eng.scroll.isInitialized) return
+    eng.scroll.stepToAdjacentPlane(-1)
+  }, [])
+
   const activeSlide =
     activePlaneIndex >= 0 && activePlaneIndex < slideList.length
       ? slideList[activePlaneIndex]
@@ -113,6 +127,48 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
     activeSlide && typeof activeSlide.href === 'string' && activeSlide.href.length > 0
       ? activeSlide.href
       : null
+
+  function renderDepthGalleryArrowToolbar(): ReactNode {
+    if (!DEPTH_GALLERY_SHOW_ARROW_CONTROLS) return null
+    const canNavigatePlanes = slideList.length > 1
+    if (!canNavigatePlanes) return null
+
+    const focusedPlaneIndex =
+      activePlaneIndex >= 0 && activePlaneIndex < slideList.length ? activePlaneIndex : 0
+    const canGoNext = focusedPlaneIndex < slideList.length - 1
+    const canGoPrev = focusedPlaneIndex > 0
+
+    return (
+      <div className="depth-gallery-nav-controls" role="toolbar" aria-label="Gallery navigation">
+        <button
+          type="button"
+          className="depth-gallery-nav-button"
+          disabled={!canGoNext}
+          aria-label="Next artwork"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            handleGalleryStepNext()
+          }}
+        >
+          <DepthGalleryNavUpIcon aria-hidden />
+        </button>
+        <button
+          type="button"
+          className="depth-gallery-nav-button"
+          disabled={!canGoPrev}
+          aria-label="Previous artwork"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            handleGalleryStepPrevious()
+          }}
+        >
+          <DepthGalleryNavDownIcon aria-hidden />
+        </button>
+      </div>
+    )
+  }
 
   const rootBackdropClass = SANITY_IMAGE_PALETTE_MOOD_FOR_HOMEPAGE_DEPTH_GALLERY
     ? 'bg-paper'
@@ -125,6 +181,7 @@ export function DepthGalleryCanvas({slides}: DepthGalleryCanvasProps) {
       style={{'--depth-gallery-padding': '1.25rem'} as CSSProperties}
     >
       <div ref={canvasHostRef} className="pointer-events-none absolute inset-0" />
+      {renderDepthGalleryArrowToolbar()}
       {navHref !== null ? (
         <Link
           className="depth-gallery-hit-area"

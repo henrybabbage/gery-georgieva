@@ -5,7 +5,7 @@ import {
   type GalleryLeadPreview,
   resolveEphemeraDestinationPreview,
   resolveWorkDestinationPreview,
-} from '@/sanity/lib/resolve-gallery-lead-preview'
+} from '@/sanity/lib/ResolveGalleryLeadPreview'
 
 /**
  * Tile matching /work index: 4:3 media, title + subtitle beneath in small type.

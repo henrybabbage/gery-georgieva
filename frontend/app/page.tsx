@@ -1,5 +1,5 @@
-import FeatureShowcase from '@/app/feature/FeatureShowcase'
-import {buildHomepageCarouselSlides} from '@/sanity/lib/homepage-carousel'
+import FeatureShowcase from '@/app/FeatureShowcase'
+import {buildHomepageCarouselSlides} from '@/sanity/lib/HomepageCarousel'
 import {sanityFetch} from '@/sanity/lib/live'
 import {homepageCarouselQuery} from '@/sanity/lib/queries'
 

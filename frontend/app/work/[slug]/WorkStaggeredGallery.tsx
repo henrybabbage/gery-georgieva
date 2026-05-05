@@ -1,7 +1,7 @@
 import {
   ExhibitionStaggeredMedia,
   type ExhibitionInstallationImage,
-} from '@/app/components/exhibition-staggered-media'
+} from '@/app/exhibition/components/ExhibitionStaggeredMedia'
 import type {WorkQueryResult} from '@/sanity.types'
 
 type WorkGalleryItems = NonNullable<NonNullable<WorkQueryResult>['gallery']>

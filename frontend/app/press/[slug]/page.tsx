@@ -5,9 +5,9 @@ import type {Metadata} from 'next'
 import {
   ExhibitionStaggeredMedia,
   type ExhibitionInstallationImage,
-} from '@/app/components/exhibition-staggered-media'
+} from '@/app/exhibition/components/ExhibitionStaggeredMedia'
 import CustomPortableText from '@/app/components/PortableText'
-import {formatPressPublicationDate} from '@/lib/format-press-meta'
+import {formatPressPublicationDate} from '@/lib/FormatPressMeta'
 import {sanityFetch} from '@/sanity/lib/live'
 import {pressArticleBySlugQuery, pressArticleSlugQuery} from '@/sanity/lib/queries'
 import type {PressArticleBySlugQueryResult} from '@/sanity.types'
