@@ -30,6 +30,7 @@ export type MediaVideoFileItem = {
     mimeType?: string
     size?: number
   }
+  poster?: SanityImageSource & {asset?: SanityImageSource & SanityImageAssetMetadata}
   caption?: string
   credit?: string
 }

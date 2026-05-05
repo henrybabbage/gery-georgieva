@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import SiteCopyright from '@/app/components/SiteCopyright'
 import {sanityFetch} from '@/sanity/lib/live'
 import {pressQuery} from '@/sanity/lib/queries'
 import type {PressQueryResult} from '@/sanity.types'
@@ -32,7 +33,7 @@ export default async function PressPage() {
   const {data: items} = await sanityFetch({query: pressQuery})
 
   return (
-    <div className="px-5 py-8 pb-20">
+    <div className="px-5 py-8 pb-24">
       {!items?.length ? (
         <div className={listShellClass}>
           <p className={listMeasureClass}>No press links yet.</p>
@@ -99,6 +100,7 @@ export default async function PressPage() {
           </ul>
         </div>
       )}
+      <SiteCopyright />
       <a
         href="https://www.contiguous.studio/"
         target="_blank"

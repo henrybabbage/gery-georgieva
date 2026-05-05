@@ -172,6 +172,10 @@ function getItemOrientation(item: ExhibitionInstallationImage): Orientation {
     return 'landscape'
   }
   if (item._type === 'mediaVideoFile') {
+    const d = item.poster?.asset?.metadata?.dimensions
+    if (d?.width && d?.height && d.width > 0 && d.height > 0) {
+      return d.height > d.width ? 'portrait' : 'landscape'
+    }
     return 'landscape'
   }
   if (item._type === 'mediaVideoLink') {
@@ -313,6 +317,10 @@ function GalleryMediaTile({
 
   if (item._type === 'mediaVideoFile') {
     const src = item.asset?.url
+    const posterCandidate =
+      item.poster?.asset &&
+      urlForImage(item.poster)?.width(1920).auto('format').url()
+    const posterSrc = posterCandidate ?? undefined
     if (!src) {
       return <div className="aspect-video w-full bg-placeholder" />
     }
@@ -322,6 +330,7 @@ function GalleryMediaTile({
         controls
         playsInline
         preload="metadata"
+        {...(posterSrc != null ? {poster: posterSrc} : {})}
       >
         <source src={src} type={item.asset?.mimeType ?? undefined} />
       </video>
