@@ -100,19 +100,21 @@ export default async function PressPage() {
           </ul>
         </div>
       )}
-      <SiteCopyright />
-      <a
-        href="https://www.contiguous.studio/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={
-          'fixed bottom-3 right-5 z-10 text-sm text-[var(--color-ink)] ' +
-          'transition-opacity hover:opacity-80 ' +
-          'focus-visible:outline-2 focus-visible:outline-offset-2'
-        }
-      >
-        Contiguous Studio
-      </a>
+      <div className="flex w-full items-baseline justify-between">
+        <SiteCopyright />
+        <a
+          href="https://www.contiguous.studio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={
+            'text-base text-[var(--color-ink)] whitespace-nowrap ' +
+            'transition-opacity hover:opacity-80 ' +
+            'focus-visible:outline-2 focus-visible:outline-offset-2'
+          }
+        >
+          Site by Contiguous Studio
+        </a>
+      </div>
     </div>
   )
 }
