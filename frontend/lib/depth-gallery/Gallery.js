@@ -49,6 +49,7 @@ export class Gallery {
     this.baseLightStrength = 0.18
     this.baseDistortionDepthRampStart = 0.74
     this.baseDistortionDepthRampEnd = 1
+    this.baseDistortionFocusExponent = 3
 
     // Parallax
     this.parallaxEnabled = true
@@ -366,7 +367,8 @@ export class Gallery {
     if (planeIndex === nextPlaneIndex && this.passageEnterMax > 0) {
       const span = Math.max(this.passageEnterFadeSpan, 1e-6)
       const b = THREE.MathUtils.clamp(blend, 0, 1)
-      const incoming = THREE.MathUtils.clamp((span - b) / span, 0, 1)
+      const enterStart = 1 - span
+      const incoming = THREE.MathUtils.clamp((b - enterStart) / span, 0, 1)
       enterRaw = Math.pow(incoming, this.passageEnterCurvePower) * this.passageEnterMax
     }
 
@@ -392,13 +394,13 @@ export class Gallery {
     return { strength, enterPhase, edgeDispersal }
   }
 
-  getPlaneBlendData(cameraZ) {
+  getPlaneBlendData(cameraZ, sampleOffset = this.planeFadeSampleOffset) {
     if (!this.planes.length) return null
 
     const planeGap = Math.max(this.planeGap, 0.0001)
     const firstPlaneZ = this.planes[0].position.z
     const lastPlaneIndex = this.planes.length - 1
-    const sampledCameraZ = cameraZ - planeGap * this.planeFadeSampleOffset
+    const sampledCameraZ = cameraZ - planeGap * sampleOffset
     const normalizedDepth = THREE.MathUtils.clamp(
       (firstPlaneZ - sampledCameraZ) / planeGap,
       0,
@@ -856,26 +858,53 @@ export class Gallery {
   update(camera = null, scroll = null, time = 0) {
     if (!camera) return
     const cameraZ = camera.position.z
+
     this.updatePlaneVisibility(cameraZ)
     this.updatePlaneMotion(scroll)
 
-    const blendData = this.getPlaneBlendData(cameraZ)
+    const passageBlendData = this.getPlaneBlendData(cameraZ, 0)
     const baseByDepth = this.getBaseDistortionDepthFactor(cameraZ, scroll)
     const tSec = Number.isFinite(time) ? time * 0.001 : 0
+
     this.planes.forEach((plane, index) => {
       const planeMaterial = plane.material
       planeMaterial.uniforms.uTime.value = tSec
       planeMaterial.uniforms.uPlaneAspect.value = plane.scale.x / plane.scale.y
       planeMaterial.uniforms.opacity.value = planeMaterial.opacity
-      const passage = this.getPassageDataForPlane(index, blendData)
+      const passage = this.getPassageDataForPlane(index, passageBlendData)
       planeMaterial.uniforms.uPassageStrength.value = passage.strength
       planeMaterial.uniforms.uPassageEnterPhase.value = passage.enterPhase
       planeMaterial.uniforms.uPassageChromaMultiply.value = this.passageChromaMultiply
       planeMaterial.uniforms.uPassageEdgeDispersal.value = passage.edgeDispersal
+      const opacity = Number.isFinite(planeMaterial.opacity)
+        ? planeMaterial.opacity
+        : 0
+      const focusGate = Math.pow(
+        THREE.MathUtils.clamp(opacity, 0, 1),
+        Math.max(this.baseDistortionFocusExponent, 1e-6),
+      )
+      let transitionGate = 0
+      if (passageBlendData) {
+        const transitionBlend = THREE.MathUtils.clamp(passageBlendData.blend, 0, 1)
+        if (index === passageBlendData.currentPlaneIndex) {
+          transitionGate = THREE.MathUtils.smoothstep(
+            this.passageExitBlendStart,
+            1,
+            transitionBlend
+          )
+        } else if (index === passageBlendData.nextPlaneIndex) {
+          const enterStart = 1 - Math.max(this.passageEnterFadeSpan, 1e-6)
+          transitionGate = THREE.MathUtils.smoothstep(
+            enterStart,
+            1,
+            transitionBlend
+          )
+        }
+      }
       planeMaterial.uniforms.uBaseDistortionStrength.value =
-        this.baseDistortionStrength * baseByDepth
+        this.baseDistortionStrength * baseByDepth * focusGate * transitionGate
       planeMaterial.uniforms.uBaseLightStrength.value =
-        this.baseLightStrength * baseByDepth
+        this.baseLightStrength * baseByDepth * focusGate * transitionGate
     })
   }
 
