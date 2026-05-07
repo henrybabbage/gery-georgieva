@@ -32,3 +32,6 @@ next-env.d.ts
 
 # IntelliJ IDEA
 .idea
+
+# Cursor debug logs (local-only)
+.cursor/debug-*.log
