@@ -33,7 +33,7 @@ export default async function PressPage() {
   const {data: items} = await sanityFetch({query: pressQuery})
 
   return (
-    <div className="px-5 py-8 pb-24">
+    <div className="px-5 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))]">
       {!items?.length ? (
         <div className={listShellClass}>
           <p className={listMeasureClass}>No press links yet.</p>
