@@ -264,7 +264,7 @@ export function ExhibitionExpandableGalleryImage({
               }`}
               priority={false}
               fetchPriority={open ? 'high' : 'low'}
-              onLoadingComplete={() => setPopupImageReady(true)}
+              onLoad={() => setPopupImageReady(true)}
             />
           </div>
         </Cambio.Popup>
