@@ -210,6 +210,12 @@
   letter-spacing: 0.06em;
   font-size: 1rem;
   line-height: 1.2;
+  max-width: calc(
+    100vw -
+      clamp(2.5rem, 8vw, 12rem) -
+      max(var(--depth-gallery-padding, 1rem), env(safe-area-inset-right))
+  );
+  box-sizing: border-box;
 }
 
 .depth-gallery-nav-controls {
@@ -222,6 +228,13 @@
     top: auto;
     right: max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-right));
     bottom: max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-bottom));
+    text-align: right;
+    max-width: calc(
+      100vw -
+        max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-left)) -
+        max(var(--depth-gallery-padding, 1.25rem), env(safe-area-inset-right))
+    );
+    box-sizing: border-box;
   }
 
   .depth-gallery-nav-controls {
@@ -273,10 +286,9 @@
 .plane-label-overlay__artwork-title {
   margin: 0;
   color: #000;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: min(92vw, 28rem);
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
   opacity: 1;
 }
 
@@ -288,10 +300,16 @@
 
   .plane-label-overlay__left {
     top: auto;
-    left: auto;
-    right: max(var(--depth-gallery-padding, 1rem), env(safe-area-inset-right));
+    left: max(var(--depth-gallery-padding, 1rem), env(safe-area-inset-left));
+    right: auto;
     bottom: max(1rem, env(safe-area-inset-bottom));
     transform: none;
-    text-align: right;
+    text-align: left;
+    max-width: calc(
+      100vw -
+        max(var(--depth-gallery-padding, 1rem), env(safe-area-inset-left)) -
+        max(var(--depth-gallery-padding, 1rem), env(safe-area-inset-right))
+    );
+    box-sizing: border-box;
   }
 }
