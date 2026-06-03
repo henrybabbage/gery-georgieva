@@ -2,6 +2,7 @@ import 'dialkit/styles.css'
 import 'lenis/dist/lenis.css'
 import './globals.css'
 
+import {Analytics} from '@vercel/analytics/next'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import {DialRoot} from 'dialkit'
 import type {Metadata} from 'next'
@@ -133,6 +134,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             {children}
             <DialRoot productionEnabled defaultOpen={false} />
           </main>
+          <Analytics />
           <SpeedInsights />
         </LenisRoot>
       </body>
