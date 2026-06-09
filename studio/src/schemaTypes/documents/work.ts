@@ -87,6 +87,14 @@ export const work = defineType({
         'Image for this work on the homepage carousel. If unset, the first still image in ' +
         'Gallery is used, then Cover Image. Open the field to set Size override below the image.',
     }),
+    defineField({
+      name: 'showHomepageYear',
+      title: 'Show year on homepage carousel',
+      type: 'boolean',
+      description:
+        'When on, homepage carousel labels show this work year beneath the title. Other work titles stay unchanged.',
+      initialValue: false,
+    }),
     defineField({name: 'medium', title: 'Medium', type: 'string'}),
     defineField({name: 'dimensions', title: 'Dimensions', type: 'string'}),
     defineField({name: 'duration', title: 'Duration', type: 'string'}),

@@ -206,7 +206,7 @@
   top: 50%;
   transform: none;
   display: grid;
-  gap: 0;
+  gap: 0.2rem;
   letter-spacing: 0.06em;
   font-size: 1rem;
   line-height: 1.2;
@@ -283,13 +283,23 @@
   outline-offset: 3px;
 }
 
-.plane-label-overlay__artwork-title {
+.plane-label-overlay__artwork-title,
+.plane-label-overlay__artwork-year {
   margin: 0;
   color: #000;
   white-space: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
   max-width: 100%;
   opacity: 1;
+}
+
+.plane-label-overlay__artwork-year {
+  font-size: 0.9em;
+  letter-spacing: 0.08em;
+}
+
+.plane-label-overlay__artwork-year[hidden] {
+  display: none;
 }
 
 @media (max-width: 53em) {

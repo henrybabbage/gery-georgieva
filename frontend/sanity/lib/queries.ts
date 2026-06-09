@@ -272,6 +272,8 @@ export const homepageCarouselQuery = defineQuery(`
         _id,
         title,
         "slug": slug.current,
+        year,
+        showHomepageYear,
         hidePublicPage,
         carouselImage { ${galleryUnionFields} },
         "firstGalleryImage": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} },
@@ -281,6 +283,8 @@ export const homepageCarouselQuery = defineQuery(`
         _id,
         title,
         "slug": slug.current,
+        year,
+        showHomepageYear,
         hidePublicPage,
         carouselImage { ${galleryUnionFields} },
         "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }

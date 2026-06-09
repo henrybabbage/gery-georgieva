@@ -47,6 +47,14 @@ export const exhibition = defineType({
     }),
     defineField({name: 'year', title: 'Year', type: 'number'}),
     defineField({
+      name: 'showHomepageYear',
+      title: 'Show year on homepage carousel',
+      type: 'boolean',
+      description:
+        'When on, homepage carousel labels show this exhibition year beneath the title. Other exhibition titles stay unchanged.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'installationImages',
       title: 'Installation Images',
       description:

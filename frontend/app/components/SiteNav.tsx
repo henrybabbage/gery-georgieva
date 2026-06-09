@@ -11,10 +11,18 @@ const navLinks = [
 
 export default function SiteNav() {
   const pathname = usePathname() ?? ''
+  const isHome = pathname === '/'
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 flex justify-between bg-transparent px-5 py-4 text-base">
-      <Link href="/" className="shrink-0 whitespace-nowrap font-black">
+      <Link
+        href="/"
+        className={
+          isHome
+            ? 'shrink-0 whitespace-nowrap text-2xl leading-none font-semibold tracking-tight sm:text-3xl'
+            : 'shrink-0 whitespace-nowrap font-black'
+        }
+      >
         Gery Georgieva
       </Link>
       <div className="flex gap-6">
