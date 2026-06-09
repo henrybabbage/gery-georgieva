@@ -1,13 +1,12 @@
 import {notFound} from 'next/navigation'
 import {draftMode} from 'next/headers'
 import {ExhibitionStaggeredMedia} from '@/app/exhibition/components/ExhibitionStaggeredMedia'
-import CustomPortableText from '@/app/components/PortableText'
+import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
 import {ExhibitionRelatedPreviewLink} from '@/app/exhibition/ExhibitionRelatedPreviewLink'
 import {formatExhibitionRun, formatExhibitionVenueLine} from '@/lib/FormatExhibitionMeta'
 import {detailPagePinReferenceRootClass} from '@/lib/DetailPagePinReferenceClasses'
 import {sanityFetch} from '@/sanity/lib/live'
 import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
-import type {PortableTextBlock} from 'next-sanity'
 import type {Metadata} from 'next'
 import type {ExhibitionQueryResult} from '@/sanity.types'
 
@@ -67,9 +66,15 @@ export default async function ExhibitionPage({params}: Props) {
   const venueLine = formatExhibitionVenueLine(exhibition.venue, exhibition.location)
   const hasDescription = (exhibition.description?.length ?? 0) > 0
   const hasAboutMeta = Boolean(runLabel || venueLine)
-  const showAboutSection = hasDescription || hasAboutMeta
 
   const installationImages = exhibition.installationImages ?? []
+  const hasSupportText = (exhibition.supportText?.length ?? 0) > 0
+  const hasSupportLogos =
+    exhibition.supportLogos?.some((logo) => Boolean(logo.asset?.url?.trim())) ?? false
+  const hasMediaText = installationImages.some(
+    (item) => Boolean(item.caption?.trim()) || Boolean(item.credit?.trim()),
+  )
+  const showAboutSection = hasDescription || hasAboutMeta || hasSupportText || hasSupportLogos || hasMediaText
   const splitInstallationGallery = installationImages.length > INSTALLATION_GALLERY_SPLIT_THRESHOLD
   const leadInstallationImages = splitInstallationGallery
     ? installationImages.slice(0, INSTALLATION_GALLERY_LEAD_COUNT)
@@ -113,6 +118,7 @@ export default async function ExhibitionPage({params}: Props) {
             altBase={altBase}
             layoutTitle={layoutTitle}
             galleryImageCount={installationImages.length}
+            showInlineCredits={false}
           />
         </div>
       )}
@@ -130,12 +136,14 @@ export default async function ExhibitionPage({params}: Props) {
               {venueLine && <p>{venueLine}</p>}
             </div>
           )}
-          {hasDescription && (
-            <CustomPortableText
-              className={`${textMeasureClass} text-base`}
-              value={exhibition.description as PortableTextBlock[]}
-            />
-          )}
+          <DetailMediaText
+            description={exhibition.description}
+            supportText={exhibition.supportText}
+            supportLogos={exhibition.supportLogos}
+            mediaItems={installationImages}
+            showMediaIndexList={exhibition.showMediaIndexList}
+            textMeasureClass={textMeasureClass}
+          />
         </section>
       )}
 
@@ -147,6 +155,7 @@ export default async function ExhibitionPage({params}: Props) {
             layoutTitle={layoutTitle}
             layoutIndexOffset={INSTALLATION_GALLERY_LEAD_COUNT}
             galleryImageCount={installationImages.length}
+            showInlineCredits={false}
           />
         </div>
       )}

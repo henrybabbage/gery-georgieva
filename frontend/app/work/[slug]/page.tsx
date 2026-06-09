@@ -3,6 +3,7 @@ import {draftMode} from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import {WorkStaggeredGallery} from '@/app/work/[slug]/WorkStaggeredGallery'
+import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
 import {detailPagePinReferenceRootClass} from '@/lib/DetailPagePinReferenceClasses'
 import {sanityFetch} from '@/sanity/lib/live'
 import {workQuery, workSlugQuery} from '@/sanity/lib/queries'
@@ -87,15 +88,22 @@ export default async function WorkPage({params}: Props) {
     isRelatedResearchVisible || (work.exhibitions && work.exhibitions.length > 0)
 
   const hasExhibitions = Boolean(work.exhibitions && work.exhibitions.length > 0)
+  const workGalleryItems = work.gallery ?? []
+  const hasWorkTextSection =
+    (work.description?.length ?? 0) > 0 ||
+    (work.supportText?.length ?? 0) > 0 ||
+    (work.supportLogos?.some((logo) => Boolean(logo.asset?.url?.trim())) ?? false) ||
+    workGalleryItems.some((item) => Boolean(item.caption?.trim()) || Boolean(item.credit?.trim()))
 
   const galleryBlock =
-    work.gallery && work.gallery.length > 0 ? (
+    workGalleryItems.length > 0 ? (
       <div className={installationGalleryShellClass}>
         <WorkStaggeredGallery
-          items={work.gallery}
+          items={workGalleryItems}
           altBase={work.title}
           layoutTitle={work.title}
-          galleryImageCount={work.gallery.length}
+          galleryImageCount={workGalleryItems.length}
+          showInlineCredits={false}
         />
       </div>
     ) : (
@@ -158,6 +166,18 @@ export default async function WorkPage({params}: Props) {
         </header>
 
         {galleryBlock}
+
+        {hasWorkTextSection && (
+          <section className={`${textColumnShellClass} mb-12 lg:mb-16`} aria-label="About this work">
+            <DetailMediaText
+              description={work.description}
+              supportText={work.supportText}
+              supportLogos={work.supportLogos}
+              mediaItems={workGalleryItems}
+              textMeasureClass={textMeasureClass}
+            />
+          </section>
+        )}
 
         {hasExhibitions
           ? relatedResearchSection && (

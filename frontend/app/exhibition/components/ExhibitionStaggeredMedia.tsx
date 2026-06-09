@@ -16,13 +16,7 @@ import {
   ExhibitionVimeoEmbed,
   ExhibitionVimeoPlaybackProvider,
 } from '@/app/exhibition/components/ExhibitionVimeoEmbed'
-
-function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
-  return {
-    caption: item.caption?.trim() ?? '',
-    credit: item.credit?.trim() ?? '',
-  }
-}
+import {resolveCaptionLines} from '@/app/exhibition/components/DetailMediaTextHelpers'
 
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */
 export type ExhibitionInstallationImage = NonNullable<
@@ -263,6 +257,7 @@ function GalleryMediaTile({
   sizes,
   orientation,
   playbackKey,
+  showInlineCredits,
 }: {
   item: ExhibitionInstallationImage
   altBase: string
@@ -270,6 +265,7 @@ function GalleryMediaTile({
   orientation: Orientation
   /** Stable id for single-active Vimeo playback within the gallery. */
   playbackKey?: string
+  showInlineCredits: boolean
 }) {
   const tier = getInstallationLayoutTier(item)
   const portraitMax = orientation === 'portrait' ? EXHIBITION_PORTRAIT_MAX[tier] : ''
@@ -341,7 +337,12 @@ function GalleryMediaTile({
     if (item.provider === 'vimeo') {
       const id = item.vimeo?.asset?.vimeoId
       if (!id) {
-        return <VideoFallback caption={item.caption} credit={item.credit} />
+        return (
+          <VideoFallback
+            caption={item.caption}
+            credit={showInlineCredits ? item.credit : null}
+          />
+        )
       }
       const vimeoWrap = `relative aspect-video w-full max-w-full overflow-hidden bg-black ${orientation === 'portrait' ? portraitMax : ''}`
       return (
@@ -359,7 +360,12 @@ function GalleryMediaTile({
     if (item.provider === 'youtube') {
       const id = item.youtube?.id
       if (!id) {
-        return <VideoFallback caption={item.caption} credit={item.credit} />
+        return (
+          <VideoFallback
+            caption={item.caption}
+            credit={showInlineCredits ? item.credit : null}
+          />
+        )
       }
       return (
         <div className="relative aspect-video w-full max-w-full overflow-hidden bg-black">
@@ -375,7 +381,7 @@ function GalleryMediaTile({
       )
     }
 
-    return <VideoFallback caption={item.caption} credit={item.credit} />
+    return <VideoFallback caption={item.caption} credit={showInlineCredits ? item.credit : null} />
   }
 
   return null
@@ -432,6 +438,7 @@ type StaggeredGridRowProps = {
   altBase: string
   layoutTitle: string
   galleryImageCount: number
+  showInlineCredits: boolean
 }
 
 function StaggeredGridRow({
@@ -440,10 +447,11 @@ function StaggeredGridRow({
   altBase,
   layoutTitle,
   galleryImageCount,
+  showInlineCredits,
 }: StaggeredGridRowProps) {
   const justify = justifyForIndex(index, layoutTitle, galleryImageCount)
   const orientation = getItemOrientation(item)
-  const {caption: capLine, credit: credLine} = resolveCaptionLines(item)
+  const {caption: capLine, credit: credLine} = resolveCaptionLines(item, {showInlineCredits})
   const hasCaption = capLine !== '' || credLine !== ''
   const captionTextAlign: 'left' | 'right' = justify === 'right' ? 'right' : 'left'
   const sizes = orientation === 'portrait' ? GRID_SIZES_PORTRAIT : GRID_SIZES_LANDSCAPE
@@ -470,6 +478,7 @@ function StaggeredGridRow({
         sizes={sizes}
         orientation={orientation}
         playbackKey={item._key}
+        showInlineCredits={showInlineCredits}
       />
     )
   const captionEl = hasCaption ? (
@@ -570,12 +579,20 @@ function StaggeredGridRow({
   )
 }
 
-function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; altBase: string}) {
+function MobileStack({
+  items,
+  altBase,
+  showInlineCredits,
+}: {
+  items: ExhibitionInstallationImage[]
+  altBase: string
+  showInlineCredits: boolean
+}) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-[clamp(2.5rem,2rem+4.5vw,4rem)] md:hidden">
       {items.map((item, i) => {
         const orientation = getItemOrientation(item)
-        const {caption: mCap, credit: mCred} = resolveCaptionLines(item)
+        const {caption: mCap, credit: mCred} = resolveCaptionLines(item, {showInlineCredits})
         const showMobileCaption = mCap !== '' || mCred !== ''
         return (
           <div key={item._key ?? i} className="min-w-0">
@@ -585,6 +602,7 @@ function MobileStack({items, altBase}: {items: ExhibitionInstallationImage[]; al
               sizes="100vw"
               orientation={orientation}
               playbackKey={item._key}
+              showInlineCredits={showInlineCredits}
             />
             {showMobileCaption ? (
               <div className="mt-3">
@@ -604,6 +622,7 @@ export function ExhibitionStaggeredMedia({
   layoutTitle,
   layoutIndexOffset = 0,
   galleryImageCount: galleryImageCountProp,
+  showInlineCredits = true,
 }: {
   items: ExhibitionInstallationImage[]
   altBase: string
@@ -617,6 +636,8 @@ export function ExhibitionStaggeredMedia({
    * Defaults to `items.length` for a single block (e.g. press archive).
    */
   galleryImageCount?: number
+  /** When false, only captions remain under media; credits are still passed to lightbox descriptions. */
+  showInlineCredits?: boolean
 }) {
   if (!items.length) return null
 
@@ -626,7 +647,7 @@ export function ExhibitionStaggeredMedia({
   return (
     <ExhibitionVimeoPlaybackProvider>
       <div className="w-full">
-        <MobileStack items={items} altBase={altBase} />
+        <MobileStack items={items} altBase={altBase} showInlineCredits={showInlineCredits} />
         <div className={`hidden w-full min-w-0 flex-col md:flex`}>
           {items.map((item, index) => (
             <StaggeredGridRow
@@ -636,6 +657,7 @@ export function ExhibitionStaggeredMedia({
               altBase={altBase}
               layoutTitle={seedSource}
               galleryImageCount={galleryImageCount}
+              showInlineCredits={showInlineCredits}
             />
           ))}
         </div>

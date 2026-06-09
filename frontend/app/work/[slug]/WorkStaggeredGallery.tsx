@@ -12,6 +12,7 @@ type WorkStaggeredGalleryProps = {
   layoutTitle: string
   layoutIndexOffset?: number
   galleryImageCount?: number
+  showInlineCredits?: boolean
 }
 
 /**
@@ -21,6 +22,7 @@ type WorkStaggeredGalleryProps = {
 export function WorkStaggeredGallery({
   items,
   galleryImageCount,
+  showInlineCredits,
   ...props
 }: WorkStaggeredGalleryProps) {
   if (!items.length) return null
@@ -29,6 +31,7 @@ export function WorkStaggeredGallery({
       {...props}
       items={items as ExhibitionInstallationImage[]}
       galleryImageCount={galleryImageCount ?? items.length}
+      showInlineCredits={showInlineCredits}
     />
   )
 }

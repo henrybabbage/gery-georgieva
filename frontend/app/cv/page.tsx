@@ -1,6 +1,7 @@
-import Link from 'next/link'
+import type {PortableTextBlock} from 'next-sanity'
 import type {Metadata} from 'next'
 
+import CustomPortableText from '@/app/components/PortableText'
 import SiteCopyright from '@/app/components/SiteCopyright'
 import {sanityFetch} from '@/sanity/lib/live'
 import {cvPageQuery} from '@/sanity/lib/queries'
@@ -77,9 +78,13 @@ function resolveSectionOrder(
 
 export default async function CVPage() {
   const {data} = await sanityFetch({query: cvPageQuery})
-  const entries = data?.entries
+  const cvPage = data as CvPageQueryResult | null
+  const entries = cvPage?.entries
+  const bio = Array.isArray(cvPage?.bio) ? (cvPage.bio as PortableTextBlock[]) : []
   const cvFileUrl =
-    typeof data?.cvFileUrl === 'string' && data.cvFileUrl.trim() ? data.cvFileUrl.trim() : null
+    typeof cvPage?.cvFileUrl === 'string' && cvPage.cvFileUrl.trim()
+      ? cvPage.cvFileUrl.trim()
+      : null
 
   if (!entries) return null
 
@@ -91,12 +96,16 @@ export default async function CVPage() {
   }, {})
 
   const sectionOrder = resolveSectionOrder(
-    data?.cvSectionOrder,
+    cvPage?.cvSectionOrder,
     new Set(Object.keys(grouped) as CvCategory[]),
   )
 
   return (
     <div className="px-5 py-8 pb-10">
+      {bio.length > 0 && (
+        <CustomPortableText className="mb-10 max-w-[72ch] text-base" value={bio} />
+      )}
+
       <ul className="flex flex-col gap-4 text-base mb-10">
         {cvFileUrl && (
           <li>
@@ -141,16 +150,7 @@ export default async function CVPage() {
                 >
                   <span className="tabular-nums">{entry.year}</span>
                   <span>
-                    {entry.internalRef && entry.internalRef.hidePublicPage !== true ? (
-                      <Link
-                        href={`/exhibition/${entry.internalRef.slug}`}
-                        className="cursor-pointer no-underline"
-                      >
-                        {entry.title}
-                      </Link>
-                    ) : (
-                      entry.title
-                    )}
+                    {entry.title}
                     {entry.institution && <span>, {entry.institution}</span>}
                     {entry.location && <span>, {entry.location}</span>}
                     {entry.role && <span className="ml-2">({entry.role})</span>}

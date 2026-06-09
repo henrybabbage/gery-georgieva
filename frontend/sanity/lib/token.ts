@@ -1,7 +1,10 @@
 import 'server-only'
 
-export const token = process.env.SANITY_API_READ_TOKEN
+export const token = process.env.SANITY_API_READ_TOKEN?.trim() || undefined
 
-if (!token) {
-  throw new Error('Missing SANITY_API_READ_TOKEN')
+export function requireToken(): string {
+  if (!token) {
+    throw new Error('Missing SANITY_API_READ_TOKEN')
+  }
+  return token
 }
