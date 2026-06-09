@@ -136,6 +136,10 @@ export function buildDepthGalleryPlaneConfig(
 		const wordHint = LABEL_WORD_HINTS[i % hintN]
 		const title =
 			slide.title.trim().length > 0 ? slide.title.trim() : 'Untitled'
+		const year =
+			slide.showHomepageYear && typeof slide.year === 'number'
+				? String(slide.year)
+				: ''
 		const mood = slide.moodColors
 
 		const moodTint =
@@ -159,7 +163,7 @@ export function buildDepthGalleryPlaneConfig(
 				word: wordHint,
 				title,
 				materials: '',
-				year: '',
+				year,
 				pms: '',
 			},
 		}

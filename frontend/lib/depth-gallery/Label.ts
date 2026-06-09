@@ -17,6 +17,7 @@ export class Label {
 	gallery: Gallery
 	overlayElement: HTMLElement | null = null
 	artworkTitleElement: HTMLElement | null = null
+	artworkYearElement: HTMLElement | null = null
 	activePlaneIndex = -1
 
 	constructor(gallery: Gallery) {
@@ -26,18 +27,21 @@ export class Label {
 	createElement(): {
 		element: HTMLElement
 		artworkTitleElement: HTMLElement | null
+		artworkYearElement: HTMLElement | null
 	} {
 		const element = document.createElement('section')
 		element.className = 'plane-label-overlay depth-gallery-plane-label'
 		element.innerHTML = `
       <div class="plane-label-overlay__left">
         <p class="plane-label-overlay__artwork-title"></p>
+        <p class="plane-label-overlay__artwork-year" hidden></p>
       </div>
     `
 
 		return {
 			element,
 			artworkTitleElement: element.querySelector('.plane-label-overlay__artwork-title'),
+			artworkYearElement: element.querySelector('.plane-label-overlay__artwork-year'),
 		}
 	}
 
@@ -47,10 +51,12 @@ export class Label {
 		const {
 			element,
 			artworkTitleElement,
+			artworkYearElement,
 		} = this.createElement()
 
 		this.overlayElement = element
 		this.artworkTitleElement = artworkTitleElement
+		this.artworkYearElement = artworkYearElement
 		this.overlayElement.style.opacity = '0'
 
 		const parent = mountParent ?? document.body
@@ -70,12 +76,19 @@ export class Label {
 
 		const labelData = (plane.userData.label || {}) as {
 			title?: string
+			year?: string
 		}
 
 		if (this.artworkTitleElement) {
 			const raw = labelData.title || 'Artwork title'
 			const head = raw.endsWith(',') ? raw.slice(0, -1).trim() : raw
 			this.artworkTitleElement.textContent = toLabelTitleCase(head)
+		}
+
+		if (this.artworkYearElement) {
+			const year = typeof labelData.year === 'string' ? labelData.year.trim() : ''
+			this.artworkYearElement.textContent = year
+			this.artworkYearElement.hidden = year.length === 0
 		}
 
 		this.activePlaneIndex = planeIndex
@@ -105,6 +118,7 @@ export class Label {
 		this.overlayElement?.remove()
 		this.overlayElement = null
 		this.artworkTitleElement = null
+		this.artworkYearElement = null
 		this.activePlaneIndex = -1
 	}
 }

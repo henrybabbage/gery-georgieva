@@ -217,6 +217,7 @@ export type Work = {
   >
   exhibition?: ExhibitionReference
   carouselImage?: MediaImage
+  showHomepageYear?: boolean
   medium?: string
   dimensions?: string
   duration?: string
@@ -291,6 +292,7 @@ export type Exhibition = {
   hidePublicPage?: boolean
   carouselImage?: MediaImage
   year?: number
+  showHomepageYear?: boolean
   installationImages?: Array<
     | ({
         _key: string

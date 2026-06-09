@@ -17,6 +17,8 @@ export interface HomepageCarouselSlide {
   imageUrl: string
   title: string
   href: string | null
+  year: number | null
+  showHomepageYear: boolean
   /** Sanity-derived blob background colors when asset metadata.palette exists. */
   moodColors?: HomepageCarouselSlideMood
 }
@@ -37,6 +39,8 @@ export interface HomepageCarouselQueryData {
       _id: string
       title?: string | null
       slug?: string | null
+      year?: number | null
+      showHomepageYear?: boolean | null
       hidePublicPage?: boolean | null
       carouselImage?: SanityImageSource | null
       firstGalleryImage?: SanityImageSource | null
@@ -46,6 +50,8 @@ export interface HomepageCarouselQueryData {
       _id: string
       title?: string | null
       slug?: string | null
+      year?: number | null
+      showHomepageYear?: boolean | null
       hidePublicPage?: boolean | null
       carouselImage?: SanityImageSource | null
       /** First still image in installationImages. */
@@ -57,6 +63,8 @@ export interface HomepageCarouselQueryData {
 interface CarouselExhibitionProjection {
   title?: string | null
   slug?: string | null
+  year?: number | null
+  showHomepageYear?: boolean | null
   hidePublicPage?: boolean | null
 }
 
@@ -116,6 +124,8 @@ function exhibitionHrefAndTitle(
 interface CarouselWorkProjection {
   title?: string | null
   slug?: string | null
+  year?: number | null
+  showHomepageYear?: boolean | null
   hidePublicPage?: boolean | null
 }
 
@@ -161,6 +171,8 @@ export function buildHomepageCarouselSlides(
         imageUrl,
         title,
         href,
+        year: typeof w.year === 'number' ? w.year : null,
+        showHomepageYear: w.showHomepageYear === true,
         ...(moodColors ? {moodColors} : {}),
       })
       continue
@@ -188,6 +200,8 @@ export function buildHomepageCarouselSlides(
         imageUrl,
         title,
         href,
+        year: typeof ex.year === 'number' ? ex.year : null,
+        showHomepageYear: ex.showHomepageYear === true,
         ...(moodColors ? {moodColors} : {}),
       })
     }

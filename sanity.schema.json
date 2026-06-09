@@ -1289,6 +1289,13 @@
         },
         "optional": true
       },
+      "showHomepageYear": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "medium": {
         "type": "objectAttribute",
         "value": {
@@ -1895,6 +1902,13 @@
         "type": "objectAttribute",
         "value": {
           "type": "number"
+        },
+        "optional": true
+      },
+      "showHomepageYear": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
         },
         "optional": true
       },
