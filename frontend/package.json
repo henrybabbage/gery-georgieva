@@ -15,6 +15,7 @@
   "prettier": "@sanity/prettier-config",
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@next/third-parties": "^16.2.7",
     "@paper-design/shaders-react": "^0.0.76",
     "@sanity/client": "^7.20.0",
     "@sanity/image-url": "^2.1.1",

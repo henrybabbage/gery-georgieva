@@ -2,6 +2,7 @@ import 'dialkit/styles.css'
 import 'lenis/dist/lenis.css'
 import './globals.css'
 
+import {GoogleTagManager} from '@next/third-parties/google'
 import {Analytics} from '@vercel/analytics/next'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import {DialRoot} from 'dialkit'
@@ -22,6 +23,7 @@ import type {AboutSiteMetadataQueryResult} from '@/sanity.types'
 
 const SITE_TITLE_DEFAULT = 'Gery Georgieva'
 const SITE_DESCRIPTION_DEFAULT = 'Artist'
+const GOOGLE_TAG_MANAGER_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data} = await sanityFetch({
@@ -119,6 +121,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       <head>
         <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
       </head>
+      {GOOGLE_TAG_MANAGER_ID && (
+        <GoogleTagManager gtmId={GOOGLE_TAG_MANAGER_ID} />
+      )}
       <body className="isolate min-h-screen text-base font-sans antialiased">
         <LenisRoot>
           <Toaster position="bottom-center" />
