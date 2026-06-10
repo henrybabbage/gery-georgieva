@@ -26,13 +26,7 @@ import {
   RIGHT_IMAGE_START,
   ROW_MARGIN_BOTTOM,
 } from '@/app/components/staggeredLayout'
-
-function resolveCaptionLines(item: ExhibitionInstallationImage): {caption: string; credit: string} {
-  return {
-    caption: item.caption?.trim() ?? '',
-    credit: item.credit?.trim() ?? '',
-  }
-}
+import {resolveCaptionLines} from '@/app/exhibition/components/DetailMediaTextHelpers'
 
 /** Matches `installationImages` from `exhibitionQuery` (TypeGen); allows `asset: null` from GROQ. */
 export type ExhibitionInstallationImage = NonNullable<
