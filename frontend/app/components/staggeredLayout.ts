@@ -141,79 +141,61 @@ export const ROW_MARGIN_BOTTOM = 'mb-[clamp(2.5rem,1.875rem+5.25vw,6.875rem)]'
 export const MOBILE_STACK_GAP = 'gap-[clamp(2.5rem,2rem+4.5vw,4rem)]'
 
 /* ------------------------------------------------------------------ *
- * Dense overview grid (Work index)
+ * Paired-row overview grid (Work index)
  *
  * The slug/detail pages reveal one image per row. The Work index is an
- * overview, so it reuses the same visual language — 12-column asymmetric
- * spans, natural aspect ratios, fluid spacing, caption typography — but
- * packs 2–3 shows per band so the page scans quickly instead of forcing a
- * long single-file scroll. The primitives below are additive; the
- * one-per-row exports above are untouched and still drive the slug pages.
+ * overview, so it keeps the same visual DNA — the 12-column grid, orientation
+ * sizing, natural proportions, `aria-hidden` spacer-column negative space, and
+ * quiet image-aligned captions — but places TWO shows per row with their tops
+ * aligned (no offsets), halving the scroll while reading as "the slug grid,
+ * two at a time." The primitives below are additive; the one-per-row exports
+ * above are untouched and still drive the slug pages.
  * ------------------------------------------------------------------ */
 
-/** Seeded sequence of band sizes (items per desktop band), cycled. Mostly 3 with an occasional 2. */
-export const DENSE_BAND_PATTERN: number[] = [3, 2, 3, 3, 2]
+/** Empty (`lead`/`gap`/`tail`) and filled (`left`/`right`) column counts for a paired row; sums to 12. */
+export type PairTemplate = {lead: number; left: number; gap: number; right: number; tail: number}
 
-/**
- * Slice `count` items into bands of 2–3 using `DENSE_BAND_PATTERN`, phase-shifted by `seed` so the
- * rhythm is deterministic per index. A trailing lonely single is merged into the previous band so
- * no band ever holds just one item.
- */
-export function denseBandSizes(count: number, seed: string): number[] {
-  if (count <= 0) return []
-  const phase = layoutSeedFromTitle(seed) % DENSE_BAND_PATTERN.length
-  const sizes: number[] = []
-  let remaining = count
-  let i = 0
-  while (remaining > 0) {
-    const next = DENSE_BAND_PATTERN[(phase + i) % DENSE_BAND_PATTERN.length]
-    const size = Math.min(next, remaining)
-    sizes.push(size)
-    remaining -= size
-    i++
-  }
-  // Avoid a lonely trailing single while keeping the max band size at 3:
-  // [..., 3, 1] → [..., 2, 2]; [..., 2, 1] → [..., 3].
-  if (sizes.length > 1 && sizes[sizes.length - 1] === 1) {
-    const prev = sizes[sizes.length - 2]
-    if (prev >= 3) {
-      sizes[sizes.length - 2] = prev - 1
-      sizes[sizes.length - 1] = 2
-    } else {
-      sizes[sizes.length - 2] = prev + 1
-      sizes.pop()
-    }
-  }
-  return sizes
-}
-
-/** Column-span variants per band size; each variant sums to 12 so a band fills the grid width. */
-export const DENSE_BAND_SPANS: Record<number, number[][]> = {
-  2: [
-    [6, 6],
-    [7, 5],
-    [5, 7],
+/** Orientation combos → seeded template variants (each summing to 12); portraits stay narrow, landscapes wide. */
+export const PAIR_TEMPLATES: Record<string, PairTemplate[]> = {
+  'portrait-landscape': [
+    {lead: 0, left: 4, gap: 1, right: 7, tail: 0},
+    {lead: 1, left: 4, gap: 1, right: 6, tail: 0},
   ],
-  3: [
-    [4, 4, 4],
-    [3, 4, 5],
-    [5, 4, 3],
-    [4, 3, 5],
+  'landscape-portrait': [
+    {lead: 0, left: 7, gap: 1, right: 4, tail: 0},
+    {lead: 0, left: 6, gap: 1, right: 4, tail: 1},
+  ],
+  'portrait-portrait': [
+    {lead: 1, left: 4, gap: 2, right: 4, tail: 1},
+    {lead: 0, left: 4, gap: 3, right: 4, tail: 1},
+  ],
+  'landscape-landscape': [
+    {lead: 0, left: 6, gap: 1, right: 5, tail: 0},
+    {lead: 0, left: 5, gap: 1, right: 6, tail: 0},
   ],
 }
 
-/** Pick a span distribution for a band deterministically from the seed + band index. */
-export function denseSpansForBand(size: number, bandIndex: number, seed: string): number[] {
-  const variants = DENSE_BAND_SPANS[size] ?? [Array(size).fill(Math.floor(12 / size))]
+/** Pick a paired-row template deterministically from the pair's orientations + index. */
+export function pairTemplate(
+  orientationLeft: Orientation,
+  orientationRight: Orientation,
+  pairIndex: number,
+  seed: string,
+): PairTemplate {
+  const variants =
+    PAIR_TEMPLATES[`${orientationLeft}-${orientationRight}`] ??
+    PAIR_TEMPLATES['landscape-landscape']
   const phase = layoutSeedFromTitle(seed)
-  return variants[(phase + bandIndex) % variants.length]
+  return variants[(phase + pairIndex) % variants.length]
 }
 
-/** Small per-item vertical offsets within a band to break the rigid baseline (slug-page depth feel). */
-export const DENSE_OFFSET_PATTERN: string[] = ['', 'md:translate-y-6', 'md:translate-y-3']
+/** A lone trailing item (odd count) renders centered, reusing the slug center-row spans. */
+export function featureTemplate(orientation: Orientation): {lead: number; img: number; tail: number} {
+  return getCenterRowSpans(orientation, 'md')
+}
 
-/** Fluid vertical gap between dense bands — a touch tighter than `ROW_MARGIN_BOTTOM` since density is the point. */
-export const DENSE_BAND_MARGIN = 'mb-[clamp(2rem,1.5rem+3vw,4rem)]'
+/** Fluid vertical gap between paired rows — a touch tighter than `ROW_MARGIN_BOTTOM` since this is an overview. */
+export const DENSE_ROW_MARGIN = 'mb-[clamp(2rem,1.5rem+3vw,4rem)]'
 
-/** Portrait height caps scaled down for the ~⅓-width dense tiles so a tall portrait can't blow out a band. */
-export const DENSE_PORTRAIT_MAX = 'max-h-[min(60vh,640px)]'
+/** Portrait height cap for the ~half-width paired tiles so a tall portrait can't dominate a row. */
+export const DENSE_PORTRAIT_MAX = 'max-h-[min(70vh,760px)]'
