@@ -1,4 +1,3 @@
-import type {ReactNode} from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -9,14 +8,12 @@ import {
 import {urlForImage} from '@/sanity/lib/utils'
 import {
   COL_SPAN,
-  getCenterRowSpans,
-  justifyForIndex,
-  leftRightImageColSpan,
-  MOBILE_STACK_GAP,
+  DENSE_BAND_MARGIN,
+  DENSE_OFFSET_PATTERN,
+  DENSE_PORTRAIT_MAX,
+  denseBandSizes,
+  denseSpansForBand,
   type Orientation,
-  PORTRAIT_MAX,
-  RIGHT_IMAGE_START,
-  ROW_MARGIN_BOTTOM,
   type RowJustify,
 } from '@/app/components/staggeredLayout'
 import type {
@@ -48,12 +45,13 @@ export type GridRow = {
 }
 
 /**
- * The Work index lays out works + exhibitions in the same staggered single-image-per-row rhythm as
- * the slug/detail pages (`ExhibitionStaggeredMedia`), so the index reads as the same visual system
- * as the pages it links into. All layout math comes from the shared `staggeredLayout` primitives.
+ * The Work index is an overview, so it packs works + exhibitions into dense bands of 2–3 shows per
+ * row rather than the one-image-per-row reveal of the slug/detail pages. It still shares the slug
+ * pages' visual language — the 12-column grid, asymmetric column spans, natural aspect ratios, fluid
+ * spacing, and caption typography all come from the shared `staggeredLayout` primitives — so the
+ * index reads as the same system while scanning quickly instead of forcing a long single-file scroll.
  *
- * A constant seed keeps the left/center/right rhythm deterministic across visits; because the index
- * always has more than three rows, the first three force left → center → right (via `justifyForIndex`).
+ * A constant seed keeps the band sizes, column spans, and offsets deterministic across visits.
  */
 const LAYOUT_SEED = 'Work'
 
@@ -81,9 +79,9 @@ function LeadImage({
   const d = lead.asset?.metadata?.dimensions
   const naturalW = d?.width && d.width > 0 ? d.width : preset.width
   const naturalH = d?.height && d.height > 0 ? d.height : preset.height
-  const portraitMax = orientation === 'portrait' ? PORTRAIT_MAX[tier] : ''
-  const sizes =
-    orientation === 'portrait' ? '(min-width: 768px) 30vw, 100vw' : '(min-width: 768px) 45vw, 100vw'
+  const portraitMax = orientation === 'portrait' ? DENSE_PORTRAIT_MAX : ''
+  // Dense tiles are ~⅓ width on desktop, half width on mobile.
+  const sizes = '(min-width: 768px) 33vw, 50vw'
 
   if (!url) {
     return <div className="aspect-[4/3] w-full bg-placeholder" />
@@ -130,55 +128,8 @@ function RowCaption({
   )
 }
 
-function DesktopRow({row, index, count}: {row: GridRow; index: number; count: number}) {
-  const justify = justifyForIndex(index, LAYOUT_SEED, count)
-  const orientation = row.lead ? leadOrientation(row.lead) : 'landscape'
-  const tier = (row.lead ? getEffectiveImageSizeOverride(row.lead) : undefined) ?? 'md'
-
-  const media = row.lead ? (
-    <LeadImage lead={row.lead} title={row.title} orientation={orientation} tier={tier} />
-  ) : (
-    <LeadPlaceholder title={row.title} />
-  )
-
-  const content = (
-    <>
-      {media}
-      <RowCaption title={row.title} metaLine={row.metaLine} justify={justify} />
-    </>
-  )
-
-  let cells: ReactNode
-  if (justify === 'left') {
-    const imgSpan = COL_SPAN[leftRightImageColSpan(orientation, tier)]
-    cells = <div className={`min-w-0 ${imgSpan}`}>{content}</div>
-  } else if (justify === 'right') {
-    const colN = leftRightImageColSpan(orientation, tier)
-    cells = (
-      <div className={`min-w-0 ${COL_SPAN[colN]} ${RIGHT_IMAGE_START[colN]}`}>{content}</div>
-    )
-  } else {
-    const spans = getCenterRowSpans(orientation, tier)
-    cells = (
-      <>
-        <div className={`min-w-0 ${COL_SPAN[spans.lead]}`} aria-hidden />
-        <div className={`min-w-0 ${COL_SPAN[spans.img]}`}>{content}</div>
-        <div className={`min-w-0 ${COL_SPAN[spans.tail]}`} aria-hidden />
-      </>
-    )
-  }
-
-  return (
-    <Link
-      href={row.href}
-      className={`block no-underline ${ROW_MARGIN_BOTTOM} last:mb-0`}
-    >
-      <div className="grid w-full grid-cols-12 gap-x-5">{cells}</div>
-    </Link>
-  )
-}
-
-function MobileRow({row}: {row: GridRow}) {
+/** One clickable show — image + caption. Shared by the desktop bands and the mobile grid. */
+function Tile({row}: {row: GridRow}) {
   const orientation = row.lead ? leadOrientation(row.lead) : 'landscape'
   const tier = (row.lead ? getEffectiveImageSizeOverride(row.lead) : undefined) ?? 'md'
   return (
@@ -193,18 +144,49 @@ function MobileRow({row}: {row: GridRow}) {
   )
 }
 
+/**
+ * A desktop band of 2–3 shows laid across the 12-column grid. Column spans and small vertical
+ * offsets come from the shared dense primitives, so the band keeps the slug pages' asymmetric,
+ * staggered rhythm while packing several shows into one viewport.
+ */
+function DesktopBand({items, bandIndex}: {items: GridRow[]; bandIndex: number}) {
+  const spans = denseSpansForBand(items.length, bandIndex, LAYOUT_SEED)
+  return (
+    <div className={`grid w-full grid-cols-12 items-start gap-x-5 ${DENSE_BAND_MARGIN} last:mb-0`}>
+      {items.map((row, i) => (
+        <div
+          key={row._id}
+          className={`min-w-0 ${COL_SPAN[spans[i]]} ${DENSE_OFFSET_PATTERN[i % DENSE_OFFSET_PATTERN.length]}`}
+        >
+          <Tile row={row} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function WorkIndexStaggered({rows}: {rows: GridRow[]}) {
   if (!rows.length) return null
+
+  // Slice the sorted rows into deterministic bands of 2–3 for the desktop grid.
+  const bandSizes = denseBandSizes(rows.length, LAYOUT_SEED)
+  const bands: GridRow[][] = []
+  let cursor = 0
+  for (const size of bandSizes) {
+    bands.push(rows.slice(cursor, cursor + size))
+    cursor += size
+  }
+
   return (
     <div className="w-full">
-      <div className={`flex w-full min-w-0 flex-col md:hidden ${MOBILE_STACK_GAP}`}>
+      <div className="grid w-full min-w-0 grid-cols-2 gap-x-4 gap-y-8 md:hidden">
         {rows.map((row) => (
-          <MobileRow key={row._id} row={row} />
+          <Tile key={row._id} row={row} />
         ))}
       </div>
       <div className="hidden w-full min-w-0 flex-col md:flex">
-        {rows.map((row, index) => (
-          <DesktopRow key={row._id} row={row} index={index} count={rows.length} />
+        {bands.map((items, bandIndex) => (
+          <DesktopBand key={items[0]._id} items={items} bandIndex={bandIndex} />
         ))}
       </div>
     </div>

@@ -139,3 +139,81 @@ export const ROW_MARGIN_BOTTOM = 'mb-[clamp(2.5rem,1.875rem+5.25vw,6.875rem)]'
 
 /** Fluid gap for the mobile single-column stack. */
 export const MOBILE_STACK_GAP = 'gap-[clamp(2.5rem,2rem+4.5vw,4rem)]'
+
+/* ------------------------------------------------------------------ *
+ * Dense overview grid (Work index)
+ *
+ * The slug/detail pages reveal one image per row. The Work index is an
+ * overview, so it reuses the same visual language — 12-column asymmetric
+ * spans, natural aspect ratios, fluid spacing, caption typography — but
+ * packs 2–3 shows per band so the page scans quickly instead of forcing a
+ * long single-file scroll. The primitives below are additive; the
+ * one-per-row exports above are untouched and still drive the slug pages.
+ * ------------------------------------------------------------------ */
+
+/** Seeded sequence of band sizes (items per desktop band), cycled. Mostly 3 with an occasional 2. */
+export const DENSE_BAND_PATTERN: number[] = [3, 2, 3, 3, 2]
+
+/**
+ * Slice `count` items into bands of 2–3 using `DENSE_BAND_PATTERN`, phase-shifted by `seed` so the
+ * rhythm is deterministic per index. A trailing lonely single is merged into the previous band so
+ * no band ever holds just one item.
+ */
+export function denseBandSizes(count: number, seed: string): number[] {
+  if (count <= 0) return []
+  const phase = layoutSeedFromTitle(seed) % DENSE_BAND_PATTERN.length
+  const sizes: number[] = []
+  let remaining = count
+  let i = 0
+  while (remaining > 0) {
+    const next = DENSE_BAND_PATTERN[(phase + i) % DENSE_BAND_PATTERN.length]
+    const size = Math.min(next, remaining)
+    sizes.push(size)
+    remaining -= size
+    i++
+  }
+  // Avoid a lonely trailing single while keeping the max band size at 3:
+  // [..., 3, 1] → [..., 2, 2]; [..., 2, 1] → [..., 3].
+  if (sizes.length > 1 && sizes[sizes.length - 1] === 1) {
+    const prev = sizes[sizes.length - 2]
+    if (prev >= 3) {
+      sizes[sizes.length - 2] = prev - 1
+      sizes[sizes.length - 1] = 2
+    } else {
+      sizes[sizes.length - 2] = prev + 1
+      sizes.pop()
+    }
+  }
+  return sizes
+}
+
+/** Column-span variants per band size; each variant sums to 12 so a band fills the grid width. */
+export const DENSE_BAND_SPANS: Record<number, number[][]> = {
+  2: [
+    [6, 6],
+    [7, 5],
+    [5, 7],
+  ],
+  3: [
+    [4, 4, 4],
+    [3, 4, 5],
+    [5, 4, 3],
+    [4, 3, 5],
+  ],
+}
+
+/** Pick a span distribution for a band deterministically from the seed + band index. */
+export function denseSpansForBand(size: number, bandIndex: number, seed: string): number[] {
+  const variants = DENSE_BAND_SPANS[size] ?? [Array(size).fill(Math.floor(12 / size))]
+  const phase = layoutSeedFromTitle(seed)
+  return variants[(phase + bandIndex) % variants.length]
+}
+
+/** Small per-item vertical offsets within a band to break the rigid baseline (slug-page depth feel). */
+export const DENSE_OFFSET_PATTERN: string[] = ['', 'md:translate-y-6', 'md:translate-y-3']
+
+/** Fluid vertical gap between dense bands — a touch tighter than `ROW_MARGIN_BOTTOM` since density is the point. */
+export const DENSE_BAND_MARGIN = 'mb-[clamp(2rem,1.5rem+3vw,4rem)]'
+
+/** Portrait height caps scaled down for the ~⅓-width dense tiles so a tall portrait can't blow out a band. */
+export const DENSE_PORTRAIT_MAX = 'max-h-[min(60vh,640px)]'
