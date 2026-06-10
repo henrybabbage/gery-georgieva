@@ -35,24 +35,28 @@ function buildGridRows(
   works: WorkPublicGridQueryResult,
 ): GridRow[] {
   const rows: GridRow[] = [
-    ...exhibitions.map((ex) => ({
-      _id: ex._id,
-      href: `/exhibition/${ex.slug}`,
-      title: ex.title,
-      metaLine: [ex.venue, ex.location, ex.year].filter((v) => v != null && v !== '').join(', '),
-      lead: leadMediaForExhibition(ex),
-      sortYear: ex.year ?? -1,
-      sortRank: ex.orderRank ?? '',
-    })),
-    ...works.map((work) => ({
-      _id: work._id,
-      href: `/work/${work.slug}`,
-      title: work.title,
-      metaLine: [work.year, work.medium].filter((v) => v != null && v !== '').join(', '),
-      lead: leadMediaForWork(work),
-      sortYear: work.year ?? -1,
-      sortRank: work.orderRank ?? '',
-    })),
+    ...exhibitions
+      .filter((ex) => ex.hidePublicPage !== true)
+      .map((ex) => ({
+        _id: ex._id,
+        href: `/exhibition/${ex.slug}`,
+        title: ex.title,
+        metaLine: [ex.venue, ex.location, ex.year].filter((v) => v != null && v !== '').join(', '),
+        lead: leadMediaForExhibition(ex),
+        sortYear: ex.year ?? -1,
+        sortRank: ex.orderRank ?? '',
+      })),
+    ...works
+      .filter((work) => work.hidePublicPage !== true)
+      .map((work) => ({
+        _id: work._id,
+        href: `/work/${work.slug}`,
+        title: work.title,
+        metaLine: [work.year, work.medium].filter((v) => v != null && v !== '').join(', '),
+        lead: leadMediaForWork(work),
+        sortYear: work.year ?? -1,
+        sortRank: work.orderRank ?? '',
+      })),
   ]
 
   rows.sort((a, b) => {

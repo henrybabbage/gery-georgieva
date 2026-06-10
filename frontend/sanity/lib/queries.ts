@@ -66,6 +66,20 @@ const workCardFields = /* groq */ `
   }
 `
 
+const supportLogoFields = /* groq */ `
+  _key,
+  _type,
+  crop,
+  hotspot,
+  "asset": asset-> {
+    _id,
+    _type,
+    url,
+    metadata,
+    altText
+  }
+`
+
 // ---------------------------------------------------------------------------
 // Site-wide defaults (About singleton)
 // ---------------------------------------------------------------------------
@@ -143,6 +157,8 @@ export const workQuery = defineQuery(`
     medium,
     dimensions,
     description,
+    supportText,
+    supportLogos[] { ${supportLogoFields} },
     carouselImage { ${galleryUnionFields} },
     coverImage {
       ...,
@@ -201,6 +217,7 @@ export const workPublicGridQuery = defineQuery(`
   *[_type == "work" && defined(slug.current) && hidePublicPage != true]
   | order(coalesce(year, -1) desc, orderRank asc, title asc) {
     ${workCardFields},
+    hidePublicPage,
     orderRank,
     "firstGalleryStill": gallery[_type == "mediaImage"][0] { ${galleryUnionFields} }
   }
@@ -222,6 +239,9 @@ export const exhibitionQuery = defineQuery(`
     endDate,
     exhibitionType,
     description,
+    supportText,
+    supportLogos[] { ${supportLogoFields} },
+    showMediaIndexList,
     showWorksSection,
     showEphemeraSection,
     externalDocumentationLink,
@@ -257,6 +277,7 @@ export const featureExhibitionListQuery = defineQuery(`
     year,
     venue,
     location,
+    hidePublicPage,
     orderRank,
     carouselImage { ${galleryUnionFields} },
     "firstInstallImage": installationImages[_type == "mediaImage"][0] { ${galleryUnionFields} }
@@ -355,6 +376,7 @@ export const cvPageQuery = defineQuery(`{
   "entries": *[_type == "cvEntry"] | order(year desc, title asc) {
     ${cvEntryFields}
   },
+  "bio": *[_type == "about" && _id == "about"][0].bio,
   "cvFileUrl": *[_type == "about" && _id == "about"][0].cvFile.asset->url,
   "cvSectionOrder": *[_type == "about" && _id == "about"][0].cvSectionOrder
 }`)

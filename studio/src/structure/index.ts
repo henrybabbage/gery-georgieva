@@ -10,6 +10,10 @@ import {
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import type {StructureResolver} from 'sanity/structure'
 
+import {WorkMigrationChecklist} from './WorkMigrationChecklist'
+
+export const ABOUT_DOCUMENT_ID = 'about'
+
 export const structure: StructureResolver = (S, context) =>
   S.list()
     .title('Content')
@@ -19,18 +23,32 @@ export const structure: StructureResolver = (S, context) =>
         .icon(House)
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
       S.listItem()
-        .title('About')
+        .title('CV page')
         .icon(UserCircle)
         .child(
           S.document()
             .schemaType('about')
-            .documentId('about')
-            .title('about'),
+            .documentId(ABOUT_DOCUMENT_ID)
+            .title('CV page'),
         ),
       S.listItem()
         .title('Work')
+        .icon(Asterisk)
+        .child(
+          S.documentTypeList('exhibition').defaultOrdering([{field: 'year', direction: 'desc'}]),
+        ),
+      S.listItem()
+        .title('Legacy Works (manual migration)')
         .icon(Spiral)
         .child(S.documentTypeList('work').defaultOrdering([{field: 'year', direction: 'desc'}])),
+      S.listItem()
+        .title('Work migration checklist')
+        .icon(ListDashes)
+        .child(
+          S.component(WorkMigrationChecklist)
+            .id('workMigrationChecklist')
+            .title('Work migration checklist'),
+        ),
       orderableDocumentListDeskItem({
         type: 'ephemera',
         title: 'Ephemera',
@@ -38,12 +56,6 @@ export const structure: StructureResolver = (S, context) =>
         S,
         context,
       }),
-      S.listItem()
-        .title('Exhibitions')
-        .icon(Asterisk)
-        .child(
-          S.documentTypeList('exhibition').defaultOrdering([{field: 'year', direction: 'desc'}]),
-        ),
       orderableDocumentListDeskItem({
         type: 'press',
         title: 'Press',

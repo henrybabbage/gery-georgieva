@@ -73,6 +73,11 @@
     font-size: inherit;
     color: var(--color-ink);
   }
+
+  .prose.prose-compact :where(p) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 }
 
 @layer utilities {
