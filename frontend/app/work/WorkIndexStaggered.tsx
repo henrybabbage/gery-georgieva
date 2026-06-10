@@ -96,7 +96,7 @@ function LeadImage({
         width={naturalW}
         height={naturalH}
         sizes={sizes}
-        className="block h-auto w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+        className="block h-auto w-full object-contain"
       />
     </div>
   )
@@ -171,7 +171,7 @@ function DesktopRow({row, index, count}: {row: GridRow; index: number; count: nu
   return (
     <Link
       href={row.href}
-      className={`group block no-underline ${ROW_MARGIN_BOTTOM} last:mb-0`}
+      className={`block no-underline ${ROW_MARGIN_BOTTOM} last:mb-0`}
     >
       <div className="grid w-full grid-cols-12 gap-x-5">{cells}</div>
     </Link>
@@ -182,7 +182,7 @@ function MobileRow({row}: {row: GridRow}) {
   const orientation = row.lead ? leadOrientation(row.lead) : 'landscape'
   const tier = (row.lead ? getEffectiveImageSizeOverride(row.lead) : undefined) ?? 'md'
   return (
-    <Link href={row.href} className="group block min-w-0 no-underline">
+    <Link href={row.href} className="block min-w-0 no-underline">
       {row.lead ? (
         <LeadImage lead={row.lead} title={row.title} orientation={orientation} tier={tier} />
       ) : (
