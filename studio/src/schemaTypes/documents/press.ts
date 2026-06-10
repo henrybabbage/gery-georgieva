@@ -204,16 +204,7 @@ export const press = defineType({
       title: 'Publication date',
       type: 'date',
       description:
-        'Original publication or review date (shown under the title on the archive page).',
-      hidden: ({document}) => inferKind(document as PressDoc) !== 'text',
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const doc = context.document as PressDoc | undefined
-          if (inferKind(doc) !== 'text') {
-            return true
-          }
-          return value ? true : 'Add the publication date'
-        }),
+        'Optional original publication or review date. When set, it appears on the Press list and archive page.',
     }),
     defineField({
       name: 'publication',
@@ -302,22 +293,28 @@ export const press = defineType({
         pdf.asset._ref,
       )
       let subtitle: string
+      const dateHint = typeof publishedAt === 'string' && publishedAt ? publishedAt : ''
       if (resolvedKind === 'text') {
         const slugCurrent =
           slug && typeof slug === 'object' && 'current' in slug
             ? (slug as {current?: string}).current
             : undefined
-        const dateHint = typeof publishedAt === 'string' && publishedAt ? publishedAt : ''
         subtitle = slugCurrent ? `/press/${slugCurrent}` : 'Article'
         if (dateHint) {
           subtitle = `${subtitle} · ${dateHint}`
         }
       } else if (resolvedKind === 'pdf' || (hasPdf && resolvedKind !== 'url')) {
         subtitle = 'PDF'
+        if (dateHint) {
+          subtitle = `${subtitle} · ${dateHint}`
+        }
       } else if (typeof url === 'string' && url) {
         subtitle = url.length > 64 ? `${url.slice(0, 61)}…` : url
+        if (dateHint) {
+          subtitle = `${subtitle} · ${dateHint}`
+        }
       } else {
-        subtitle = ''
+        subtitle = dateHint
       }
       return {
         title: linkText || 'Press',
@@ -361,9 +358,6 @@ export const press = defineType({
         }
         if (!d.slug?.current?.trim()) {
           return 'Set a page slug so this archive has a public URL'
-        }
-        if (!d.publishedAt) {
-          return 'Add the publication date'
         }
         if (!d.publication?.trim()) {
           return 'Add the publication or website'

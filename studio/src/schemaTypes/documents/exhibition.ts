@@ -5,6 +5,42 @@ import {defineField, defineType} from 'sanity'
 
 import {yearDescOrdering} from '../shared/yearDescOrdering'
 
+type ExhibitionPreviewInput = {
+  title?: string
+  venue?: string
+  year?: number
+  carouselImage?: unknown
+  installationImages?: unknown[]
+  hidePublicPage?: boolean
+}
+
+function prepareExhibitionPreview({
+  title,
+  venue,
+  year,
+  carouselImage,
+  installationImages,
+  hidePublicPage,
+}: ExhibitionPreviewInput): PreviewValue {
+  const raw =
+    carouselImage && typeof carouselImage === 'object' && '_type' in carouselImage
+      ? carouselImage
+      : installationImages?.[0]
+  const media =
+    raw && typeof raw === 'object' && '_type' in raw && raw._type === 'mediaImage'
+      ? (raw as Image)
+      : Asterisk
+  const visibility = hidePublicPage === true ? 'Hidden' : 'Live'
+  const yearStr = year != null ? String(year) : ''
+  const venueStr = venue ? String(venue) : ''
+  const parts = [venueStr, yearStr, visibility].filter((part) => part !== '')
+  return {
+    title,
+    subtitle: parts.join(' - '),
+    media: media as PreviewValue['media'],
+  }
+}
+
 export const exhibition = defineType({
   name: 'exhibition',
   title: 'Exhibition',
@@ -28,13 +64,11 @@ export const exhibition = defineType({
     }),
     defineField({
       name: 'hidePublicPage',
-      title: 'Hide page',
+      title: 'Visibility: hide public page',
       type: 'boolean',
       description:
-        'When on, there is no live /exhibition/… URL and the site will not link here from CV, work ' +
-        'pages (Exhibited in), ephemera, or when this exhibition is a home carousel exhibition ' +
-        'slide. Work carousel slides link to the work page, not here. The exhibition can still ' +
-        'appear on the CV when linked via Internal Link.',
+        'Off = Live: eligible for /work, public links, and direct /exhibition/... URLs. ' +
+        'On = Hidden: omitted from public listings and links, and direct URLs 404 outside draft mode.',
       initialValue: false,
     }),
     defineField({
@@ -87,6 +121,30 @@ export const exhibition = defineType({
       of: [{type: 'block'}],
     }),
     defineField({
+      name: 'supportText',
+      title: 'Support Text',
+      type: 'array',
+      description:
+        'Optional acknowledgements or support copy shown after the exhibition description.',
+      of: [{type: 'block'}],
+    }),
+    defineField({
+      name: 'supportLogos',
+      title: 'Support Logos',
+      type: 'array',
+      description: 'Optional supporter or partner logos shown after the support text.',
+      of: [{type: 'image'}],
+      options: {layout: 'grid'},
+    }),
+    defineField({
+      name: 'showMediaIndexList',
+      title: 'Show media index list',
+      type: 'boolean',
+      description:
+        'When on, show a numbered list of installation media captions and credits after the exhibition text.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'showWorksSection',
       title: 'Show related works on exhibition page',
       type: 'boolean',
@@ -124,40 +182,6 @@ export const exhibition = defineType({
       installationImages: 'installationImages',
       hidePublicPage: 'hidePublicPage',
     },
-    prepare({
-      title,
-      venue,
-      year,
-      carouselImage,
-      installationImages,
-      hidePublicPage,
-    }): PreviewValue {
-      const raw =
-        carouselImage && typeof carouselImage === 'object' && '_type' in carouselImage
-          ? carouselImage
-          : installationImages?.[0]
-      const media =
-        raw && typeof raw === 'object' && '_type' in raw && raw._type === 'mediaImage'
-          ? (raw as Image)
-          : Asterisk
-      const visibility = hidePublicPage === true ? 'Hidden' : 'Live'
-      const yearStr = year != null ? String(year) : ''
-      const venueStr = venue ? String(venue) : ''
-      let subtitle: string
-      if (venueStr && yearStr) {
-        subtitle = `${venueStr} — ${yearStr} · ${visibility}`
-      } else if (yearStr) {
-        subtitle = `${yearStr} · ${visibility}`
-      } else if (venueStr) {
-        subtitle = `${venueStr} · ${visibility}`
-      } else {
-        subtitle = visibility
-      }
-      return {
-        title,
-        subtitle,
-        media: media as PreviewValue['media'],
-      }
-    },
+    prepare: prepareExhibitionPreview,
   },
 })
