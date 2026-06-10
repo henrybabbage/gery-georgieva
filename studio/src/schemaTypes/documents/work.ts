@@ -1,9 +1,33 @@
 import {Spiral} from '@phosphor-icons/react'
 import {orderRankField, orderRankOrdering} from '@sanity/orderable-document-list'
+import type {PreviewValue} from '@sanity/types'
 import {defineField, defineType} from 'sanity'
 
 import {imageSizeOverrideOptions} from '../constants/imageSizeOverrideOptions'
 import {yearDescOrdering} from '../shared/yearDescOrdering'
+
+type WorkPreviewInput = {
+  title?: string
+  year?: number
+  media?: unknown
+  hidePublicPage?: boolean
+}
+
+function prepareWorkPreview({
+  title,
+  year,
+  media,
+  hidePublicPage,
+}: WorkPreviewInput): PreviewValue {
+  const visibility = hidePublicPage === true ? 'Hidden' : 'Live'
+  const yearStr = year != null ? String(year) : ''
+  const subtitle = [yearStr, visibility].filter((part) => part !== '').join(' - ')
+  return {
+    title,
+    subtitle,
+    media: (media || Spiral) as PreviewValue['media'],
+  }
+}
 
 export const work = defineType({
   name: 'work',
@@ -28,11 +52,11 @@ export const work = defineType({
     }),
     defineField({
       name: 'hidePublicPage',
-      title: 'Hide page',
+      title: 'Visibility: hide public page',
       type: 'boolean',
       description:
-        'When on, there is no live /work/… URL, this work does not appear on the Work grid ' +
-        'or the homepage carousel, and direct URLs 404 unless preview/draft is enabled.',
+        'Off = Live: eligible for /work, public links, and direct /work/... URLs. ' +
+        'On = Hidden: omitted from public listings and links, and direct URLs 404 outside draft mode.',
       initialValue: true,
     }),
     defineField({
@@ -105,6 +129,23 @@ export const work = defineType({
       of: [{type: 'block'}],
     }),
     defineField({
+      name: 'supportText',
+      title: 'Support Text',
+      type: 'array',
+      description:
+        'Compatibility field for legacy public work pages. Prefer exhibition support fields for new exhibition pages.',
+      of: [{type: 'block'}],
+    }),
+    defineField({
+      name: 'supportLogos',
+      title: 'Support Logos',
+      type: 'array',
+      description:
+        'Compatibility field for legacy public work pages. Prefer exhibition support logos for new exhibition pages.',
+      of: [{type: 'image'}],
+      options: {layout: 'grid'},
+    }),
+    defineField({
       name: 'artistStatement',
       title: 'Artist Statement',
       type: 'array',
@@ -153,16 +194,6 @@ export const work = defineType({
       media: 'coverImage',
       hidePublicPage: 'hidePublicPage',
     },
-    prepare({title, year, media, hidePublicPage}) {
-      const isHidden = hidePublicPage !== false
-      const visibility = isHidden ? 'Hidden' : 'Live'
-      const yearStr = year != null ? String(year) : ''
-      const subtitle = yearStr ? `${yearStr} · ${visibility}` : visibility
-      return {
-        title,
-        subtitle,
-        media: media || Spiral,
-      }
-    },
+    prepare: prepareWorkPreview,
   },
 })

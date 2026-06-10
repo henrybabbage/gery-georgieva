@@ -4,6 +4,7 @@ import {sanityFetch} from '@/sanity/lib/live'
 import {pressQuery} from '@/sanity/lib/queries'
 import type {PressQueryResult} from '@/sanity.types'
 import {PressRowLink} from '@/app/press/PressRowLink'
+import {formatPressPublicationDate} from '@/lib/FormatPressMeta'
 
 export const metadata: Metadata = {title: 'Press'}
 
@@ -28,6 +29,15 @@ const listMeasureClass = 'max-w-[72ch] text-base text-[var(--color-ink)]'
 
 /** Uniform row cursor; links also set !cursor-pointer on the anchor. */
 const rowClass = 'cursor-pointer'
+const dateClass = 'mt-1 text-sm text-[var(--color-ink)]'
+
+function PressRowDate({value}: {value: string | null | undefined}) {
+  const formatted = formatPressPublicationDate(value)
+  if (!formatted) {
+    return null
+  }
+  return <p className={dateClass}>{formatted}</p>
+}
 
 export default async function PressPage() {
   const {data: items} = await sanityFetch({query: pressQuery})
@@ -57,6 +67,7 @@ export default async function PressPage() {
                       >
                         {row.linkText}
                       </PressRowLink>
+                      <PressRowDate value={row.publishedAt} />
                     </li>
                   )
                 }
@@ -66,6 +77,7 @@ export default async function PressPage() {
                     <span className="ml-2 text-sm">
                       (add a slug in Studio to publish this page)
                     </span>
+                    <PressRowDate value={row.publishedAt} />
                   </li>
                 )
               }
@@ -81,6 +93,7 @@ export default async function PressPage() {
                     <PressRowLink variant="pdf" href={href} title="Opens PDF in a new tab">
                       {row.linkText}
                     </PressRowLink>
+                    <PressRowDate value={row.publishedAt} />
                   </li>
                 )
               }
@@ -94,6 +107,7 @@ export default async function PressPage() {
                   >
                     {row.linkText}
                   </PressRowLink>
+                  <PressRowDate value={row.publishedAt} />
                 </li>
               )
             })}

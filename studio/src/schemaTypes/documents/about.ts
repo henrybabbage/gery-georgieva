@@ -5,7 +5,7 @@ import {CV_CATEGORY_OPTIONS} from '../constants/cvCategoryOptions'
 
 export const about = defineType({
   name: 'about',
-  title: 'About',
+  title: 'CV page',
   type: 'document',
   icon: UserCircle,
   fields: [
@@ -19,6 +19,13 @@ export const about = defineType({
       options: {
         accept: 'application/pdf',
       },
+    }),
+    defineField({
+      name: 'bio',
+      title: 'Bio',
+      type: 'array',
+      description: 'Short biography shown at the top of the public CV page.',
+      of: [defineArrayMember({type: 'block'})],
     }),
     defineField({
       name: 'cvSectionOrder',
@@ -75,7 +82,7 @@ export const about = defineType({
   ],
   preview: {
     prepare() {
-      return {title: 'About'}
+      return {title: 'CV page'}
     },
   },
 })

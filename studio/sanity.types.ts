@@ -239,6 +239,32 @@ export type Work = {
     _type: 'block'
     _key: string
   }>
+  supportText?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  supportLogos?: Array<{
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }>
   artistStatement?: Array<{
     children?: Array<{
       marks?: Array<string>
@@ -266,6 +292,22 @@ export type Work = {
   tags?: Array<string>
   collaborators?: Array<string>
   commissionedBy?: string
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
 }
 
 export type MediaImage = {
@@ -327,6 +369,33 @@ export type Exhibition = {
     _type: 'block'
     _key: string
   }>
+  supportText?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  supportLogos?: Array<{
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }>
+  showMediaIndexList?: boolean
   showWorksSection?: boolean
   showEphemeraSection?: boolean
   relatedWorks?: Array<
@@ -335,22 +404,6 @@ export type Exhibition = {
     } & WorkReference
   >
   externalDocumentationLink?: string
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
 }
 
 export type MediaVideoLink = {
@@ -409,6 +462,24 @@ export type About = {
     media?: unknown
     _type: 'file'
   }
+  bio?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
   cvSectionOrder?: Array<
     | 'solo'
     | 'group'
@@ -751,10 +822,10 @@ export type AllSanitySchemaTypes =
   | SanityImageAssetReference
   | EphemeraReference
   | Work
-  | MediaImage
-  | Exhibition
   | SanityImageCrop
   | SanityImageHotspot
+  | MediaImage
+  | Exhibition
   | MediaVideoLink
   | YoutubeVideo
   | VimeoVideoReference
