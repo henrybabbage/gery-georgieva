@@ -47,7 +47,7 @@ export function buildGridRows(
       .filter((ex) => ex.hidePublicPage !== true)
       .map((ex) => ({
         _id: ex._id,
-        href: `/exhibition/${ex.slug}`,
+        href: `/work/${ex.slug}`,
         title: ex.title,
         metaLine: [ex.venue, ex.location, ex.year]
           .filter((v) => v != null && v !== '')

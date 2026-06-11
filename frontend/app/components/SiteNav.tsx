@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 
 const navLinks = [
-  {href: '/work', label: 'Work', matchPrefixes: ['/work', '/exhibition'] as const},
+  {href: '/work', label: 'Work', matchPrefixes: ['/work'] as const},
   {href: '/press', label: 'Press', matchPrefixes: ['/press'] as const},
   {href: '/cv', label: 'CV', matchPrefixes: ['/cv'] as const},
 ] as const

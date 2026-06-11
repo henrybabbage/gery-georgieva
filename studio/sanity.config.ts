@@ -50,7 +50,7 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
     case 'work':
       return slug ? `/work/${slug}` : undefined
     case 'exhibition':
-      return slug ? `/exhibition/${slug}` : undefined
+      return slug ? `/work/${slug}` : undefined
     case 'ephemera':
       return slug ? `/ephemera/${slug}` : undefined
     case 'press':
@@ -94,11 +94,7 @@ export default defineConfig({
           },
           {
             route: '/work/:slug',
-            filter: `_type == "work" && slug.current == $slug`,
-          },
-          {
-            route: '/exhibition/:slug',
-            filter: `_type == "exhibition" && slug.current == $slug`,
+            filter: `_type in ["work", "exhibition"] && slug.current == $slug`,
           },
           {
             route: '/ephemera/:slug',

@@ -1,17 +1,10 @@
-import {notFound} from 'next/navigation'
-import {draftMode} from 'next/headers'
 import {DetailPageHeader} from '@/app/components/DetailPageHeader'
 import {ExhibitionStaggeredMedia} from '@/app/exhibition/components/ExhibitionStaggeredMedia'
 import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
 import {ExhibitionRelatedPreviewLink} from '@/app/exhibition/ExhibitionRelatedPreviewLink'
 import {formatExhibitionRun, formatExhibitionVenueLine} from '@/lib/FormatExhibitionMeta'
 import {detailPagePinReferenceRootClass} from '@/lib/DetailPagePinReferenceClasses'
-import {sanityFetch} from '@/sanity/lib/live'
-import {exhibitionQuery, exhibitionSlugQuery} from '@/sanity/lib/queries'
-import type {Metadata} from 'next'
 import type {ExhibitionQueryResult} from '@/sanity.types'
-
-type Props = {params: Promise<{slug: string}>}
 
 /** Above this count, show 5 images → about → remaining images. */
 const INSTALLATION_GALLERY_SPLIT_THRESHOLD = 10
@@ -32,37 +25,11 @@ function ephemeraCategoryLabel(category: string): string {
   return EPHEMERA_CATEGORY_LABEL[category] ?? category
 }
 
-export async function generateStaticParams() {
-  const {data} = await sanityFetch({
-    query: exhibitionSlugQuery,
-    perspective: 'published',
-    stega: false,
-  })
-  return data ?? []
+type ExhibitionDetailProps = {
+  exhibition: NonNullable<ExhibitionQueryResult>
 }
 
-export async function generateMetadata({params}: Props): Promise<Metadata> {
-  const {slug} = await params
-  const {isEnabled: allowHidden} = await draftMode()
-  const {data} = await sanityFetch({
-    query: exhibitionQuery,
-    params: {slug, allowHidden},
-    stega: false,
-  })
-  return {title: data?.title}
-}
-
-export default async function ExhibitionPage({params}: Props) {
-  const {slug} = await params
-  const {isEnabled: allowHidden} = await draftMode()
-  const {data} = await sanityFetch({
-    query: exhibitionQuery,
-    params: {slug, allowHidden},
-  })
-  const exhibition = data as ExhibitionQueryResult
-
-  if (!exhibition) notFound()
-
+export function ExhibitionDetail({exhibition}: ExhibitionDetailProps) {
   const runLabel = formatExhibitionRun(exhibition.startDate, exhibition.endDate, exhibition.year)
   const venueLine = formatExhibitionVenueLine(exhibition.venue, exhibition.location)
   const hasDescription = (exhibition.description?.length ?? 0) > 0
@@ -75,7 +42,8 @@ export default async function ExhibitionPage({params}: Props) {
   const hasMediaText = installationImages.some(
     (item) => Boolean(item.caption?.trim()) || Boolean(item.credit?.trim()),
   )
-  const showAboutSection = hasDescription || hasAboutMeta || hasSupportText || hasSupportLogos || hasMediaText
+  const showAboutSection =
+    hasDescription || hasAboutMeta || hasSupportText || hasSupportLogos || hasMediaText
   const splitInstallationGallery = installationImages.length > INSTALLATION_GALLERY_SPLIT_THRESHOLD
   const leadInstallationImages = splitInstallationGallery
     ? installationImages.slice(0, INSTALLATION_GALLERY_LEAD_COUNT)

@@ -67,7 +67,7 @@ export const exhibition = defineType({
       title: 'Visibility: hide public page',
       type: 'boolean',
       description:
-        'Off = Live: eligible for /work, public links, and direct /exhibition/... URLs. ' +
+        'Off = Live: eligible for /work and public links. ' +
         'On = Hidden: omitted from public listings and links, and direct URLs 404 outside draft mode.',
       initialValue: false,
     }),

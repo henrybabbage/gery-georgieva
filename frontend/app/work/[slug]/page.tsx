@@ -1,209 +1,62 @@
 import {notFound} from 'next/navigation'
 import {draftMode} from 'next/headers'
-import Image from 'next/image'
-import Link from 'next/link'
-import {DetailPageHeader} from '@/app/components/DetailPageHeader'
-import {WorkStaggeredGallery} from '@/app/work/[slug]/WorkStaggeredGallery'
-import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
-import {detailPagePinReferenceRootClass} from '@/lib/DetailPagePinReferenceClasses'
+import {ExhibitionDetail} from '@/app/exhibition/ExhibitionDetail'
+import {WorkDetail} from '@/app/work/[slug]/WorkDetail'
 import {sanityFetch} from '@/sanity/lib/live'
-import {workQuery, workSlugQuery} from '@/sanity/lib/queries'
-import {urlForImage} from '@/sanity/lib/utils'
+import {
+  exhibitionQuery,
+  workAndExhibitionSlugQuery,
+  workQuery,
+} from '@/sanity/lib/queries'
 import type {Metadata} from 'next'
-import type {WorkQueryResult} from '@/sanity.types'
+import type {ExhibitionQueryResult, WorkQueryResult} from '@/sanity.types'
 
 type Props = {params: Promise<{slug: string}>}
 
-/** Match `frontend/app/exhibition/[slug]/page.tsx` so installation-style media uses the same width. */
-const installationGalleryShellClass = 'mb-12 w-full max-w-[1260px] mx-auto lg:mb-[100px]'
-
-const textColumnShellClass = 'w-full max-w-[1260px] mx-auto'
-const textMeasureClass = 'max-w-[72ch]'
-
-/**
- * Cover image is used on grids / carousel; the primary work media block is `gallery`.
- * When the gallery is empty, still show the cover so the page is not blank.
- */
-function WorkCoverOnly({
-  coverImage,
-  altBase,
-}: {
-  coverImage: NonNullable<NonNullable<WorkQueryResult>['coverImage']>
-  altBase: string
-}) {
-  const asset = coverImage.asset
-  if (!asset) return null
-  const url = urlForImage(coverImage)?.width(1200).auto('format').url()
-  if (!url) return null
-  const meta = asset.metadata?.dimensions
-  const ratio =
-    meta?.width && meta?.height && meta.width > 0 && meta.height > 0
-      ? meta.width / meta.height
-      : 4 / 3
-  const w = meta?.width && meta.width > 0 ? meta.width : 1200
-  const h = meta?.height && meta.height > 0 ? meta.height : Math.round(1200 / ratio)
-  const alt = asset.altText?.trim() || altBase
-
-  return (
-    <div className="relative w-full min-w-0 bg-placeholder">
-      <Image
-        src={url}
-        alt={alt}
-        width={w}
-        height={h}
-        sizes="(max-width: 768px) 100vw, 48rem"
-        className="block h-auto w-full max-w-full object-contain"
-      />
-    </div>
-  )
-}
-
 export async function generateStaticParams() {
-  const {data} = await sanityFetch({query: workSlugQuery, perspective: 'published', stega: false})
-  return data ?? []
+  const {data} = await sanityFetch({
+    query: workAndExhibitionSlugQuery,
+    perspective: 'published',
+    stega: false,
+  })
+  const slugs = [...new Set((data ?? []).map((row: {slug: string}) => row.slug))]
+  return slugs.map((slug) => ({slug}))
 }
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {slug} = await params
   const {isEnabled: allowHidden} = await draftMode()
-  const {data} = await sanityFetch({
-    query: workQuery,
-    params: {slug, allowHidden},
-    stega: false,
-  })
-  return {title: data?.title}
+  const [{data: exhibitionData}, {data: workData}] = await Promise.all([
+    sanityFetch({
+      query: exhibitionQuery,
+      params: {slug, allowHidden},
+      stega: false,
+    }),
+    sanityFetch({
+      query: workQuery,
+      params: {slug, allowHidden},
+      stega: false,
+    }),
+  ])
+  const title =
+    (exhibitionData as ExhibitionQueryResult | null)?.title ??
+    (workData as WorkQueryResult | null)?.title
+  return {title}
 }
 
-export default async function WorkPage({params}: Props) {
+export default async function WorkSlugPage({params}: Props) {
   const {slug} = await params
   const {isEnabled: allowHidden} = await draftMode()
-  const {data} = await sanityFetch({query: workQuery, params: {slug, allowHidden}})
-  const work = data as WorkQueryResult
+  const [{data: exhibitionData}, {data: workData}] = await Promise.all([
+    sanityFetch({query: exhibitionQuery, params: {slug, allowHidden}}),
+    sanityFetch({query: workQuery, params: {slug, allowHidden}}),
+  ])
 
-  if (!work) notFound()
+  const exhibition = exhibitionData as ExhibitionQueryResult
+  if (exhibition) return <ExhibitionDetail exhibition={exhibition} />
 
-  const isRelatedResearchVisible =
-    work.showRelatedResearchSection === true && (work.relatedEphemera?.length ?? 0) > 0
+  const work = workData as WorkQueryResult
+  if (work) return <WorkDetail work={work} />
 
-  const hasFooterSections =
-    isRelatedResearchVisible || (work.exhibitions && work.exhibitions.length > 0)
-
-  const hasExhibitions = Boolean(work.exhibitions && work.exhibitions.length > 0)
-  const workGalleryItems = work.gallery ?? []
-  const hasWorkMeta = Boolean(work.medium?.trim() || work.dimensions?.trim())
-  const hasDescription = (work.description?.length ?? 0) > 0
-  const hasWorkTextSection =
-    hasDescription ||
-    hasWorkMeta ||
-    (work.supportText?.length ?? 0) > 0 ||
-    (work.supportLogos?.some((logo) => Boolean(logo.asset?.url?.trim())) ?? false) ||
-    workGalleryItems.some((item) => Boolean(item.caption?.trim()) || Boolean(item.credit?.trim()))
-
-  const galleryBlock =
-    workGalleryItems.length > 0 ? (
-      <div className={installationGalleryShellClass}>
-        <WorkStaggeredGallery
-          items={workGalleryItems}
-          altBase={work.title}
-          layoutTitle={work.title}
-          galleryImageCount={workGalleryItems.length}
-          showInlineCredits={false}
-        />
-      </div>
-    ) : (
-      work.coverImage && (
-        <div className={installationGalleryShellClass}>
-          <WorkCoverOnly coverImage={work.coverImage} altBase={work.title} />
-        </div>
-      )
-    )
-
-  const relatedResearchSection = isRelatedResearchVisible && (
-    <section>
-      <h2 className={`${textMeasureClass} text-base tracking-widest mb-2 text-left`}>
-        Related research
-      </h2>
-      <ul className="space-y-1">
-        {(work.relatedEphemera ?? []).map((ep) => (
-          <li key={ep._id} className={`${textMeasureClass} text-base`}>
-            {ep.title}
-            {ep.category && <span className="ml-2">{ep.category}</span>}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-
-  const exhibitedInSection = hasExhibitions && (
-    <section>
-      <h2 className={`${textMeasureClass} text-base tracking-widest mb-2 text-left`}>
-        Exhibited in
-      </h2>
-      <ul className="space-y-1">
-        {(work.exhibitions ?? []).map((ex) => (
-          <li key={ex._id} className={`${textMeasureClass} text-base`}>
-            {ex.hidePublicPage === true ? (
-              <span>{ex.title}</span>
-            ) : (
-              <Link href={`/exhibition/${ex.slug}`}>{ex.title}</Link>
-            )}
-            {ex.venue && <span className="ml-2">{ex.venue}</span>}
-            {ex.year && <span className="ml-2">{ex.year}</span>}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-
-  const pageChromeClass = ['px-5', 'py-8', hasExhibitions ? detailPagePinReferenceRootClass : '']
-    .filter(Boolean)
-    .join(' ')
-
-  return (
-    <div className={pageChromeClass}>
-      <div className="min-h-0">
-        <DetailPageHeader
-          title={work.title}
-          year={work.year}
-          textColumnShellClass={textColumnShellClass}
-          textMeasureClass={textMeasureClass}
-        />
-
-        {galleryBlock}
-
-        {hasWorkTextSection && (
-          <section className={`${textColumnShellClass} mb-12 lg:mb-16`} aria-label="About this work">
-            {hasWorkMeta && (
-              <div
-                className={`${textMeasureClass} space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
-              >
-                {work.medium?.trim() && <p>{work.medium}</p>}
-                {work.dimensions?.trim() && <p>{work.dimensions}</p>}
-              </div>
-            )}
-            <DetailMediaText
-              description={work.description}
-              supportText={work.supportText}
-              supportLogos={work.supportLogos}
-              mediaItems={workGalleryItems}
-              textMeasureClass={textMeasureClass}
-            />
-          </section>
-        )}
-
-        {hasExhibitions
-          ? relatedResearchSection && (
-              <div className={`${textColumnShellClass} text-left`}>{relatedResearchSection}</div>
-            )
-          : hasFooterSections &&
-            relatedResearchSection && (
-              <div className={`${textColumnShellClass} text-left`}>{relatedResearchSection}</div>
-            )}
-      </div>
-
-      {hasExhibitions && (
-        <div className={`${textColumnShellClass} text-left`}>{exhibitedInSection}</div>
-      )}
-    </div>
-  )
+  notFound()
 }

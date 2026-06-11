@@ -22,8 +22,7 @@ The project is a small npm workspace monorepo:
 The public site is served from `frontend/app` and includes:
 
 - `/` - homepage carousel
-- `/work` and `/work/[slug]` - works and detail pages
-- `/exhibition/[slug]` - exhibition detail pages
+- `/work` and `/work/[slug]` - works, exhibitions, and detail pages
 - `/ephemera/[slug]` - ephemera/research detail pages
 - `/archive` - archive view
 - `/press` and `/press/[slug]` - press listing and detail pages

@@ -212,6 +212,12 @@ export const workSlugQuery = defineQuery(`
   *[_type == "work" && defined(slug.current) && hidePublicPage != true] { "slug": slug.current }
 `)
 
+export const workAndExhibitionSlugQuery = defineQuery(`
+  *[_type in ["work", "exhibition"] && defined(slug.current) && hidePublicPage != true] {
+    "slug": slug.current
+  }
+`)
+
 /** Public work grid on /work; omits works with Hide page on. Newest year first; orderRank ties. */
 export const workPublicGridQuery = defineQuery(`
   *[_type == "work" && defined(slug.current) && hidePublicPage != true]

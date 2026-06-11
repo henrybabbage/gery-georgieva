@@ -1,16 +1,15 @@
 import {type MetadataRoute} from 'next'
 import {headers} from 'next/headers'
 import {sanityFetch} from '@/sanity/lib/live'
-import {workSlugQuery, exhibitionSlugQuery, pressArticleSlugQuery} from '@/sanity/lib/queries'
+import {workAndExhibitionSlugQuery, pressArticleSlugQuery} from '@/sanity/lib/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headersList = await headers()
   const host = headersList.get('host') ?? 'localhost:3000'
   const base = `https://${host}`
 
-  const [{data: works}, {data: exhibitions}, {data: pressArticles}] = await Promise.all([
-    sanityFetch({query: workSlugQuery, perspective: 'published', stega: false}),
-    sanityFetch({query: exhibitionSlugQuery, perspective: 'published', stega: false}),
+  const [{data: workAndExhibitionSlugs}, {data: pressArticles}] = await Promise.all([
+    sanityFetch({query: workAndExhibitionSlugQuery, perspective: 'published', stega: false}),
     sanityFetch({query: pressArticleSlugQuery, perspective: 'published', stega: false}),
   ])
 
@@ -24,19 +23,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {url: `${base}/archive`, lastModified: new Date(), priority: 0.5, changeFrequency: 'yearly'},
   ]
 
-  const workRoutes: MetadataRoute.Sitemap = (works ?? []).map(({slug}: {slug: string}) => ({
+  const uniqueSlugs = [
+    ...new Set(
+      (workAndExhibitionSlugs ?? []).map((row: {slug: string}) => row.slug).filter(Boolean),
+    ),
+  ]
+
+  const workRoutes: MetadataRoute.Sitemap = uniqueSlugs.map((slug) => ({
     url: `${base}/work/${slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   }))
-
-  const exhibitionRoutes: MetadataRoute.Sitemap = (exhibitions ?? []).map(
-    ({slug}: {slug: string}) => ({
-      url: `${base}/exhibition/${slug}`,
-      changeFrequency: 'yearly' as const,
-      priority: 0.6,
-    }),
-  )
 
   const pressArticleRoutes: MetadataRoute.Sitemap = (pressArticles ?? [])
     .filter((row): row is {slug: string} => typeof row.slug === 'string' && Boolean(row.slug))
@@ -46,5 +43,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.55,
     }))
 
-  return [...staticRoutes, ...workRoutes, ...exhibitionRoutes, ...pressArticleRoutes]
+  return [...staticRoutes, ...workRoutes, ...pressArticleRoutes]
 }
