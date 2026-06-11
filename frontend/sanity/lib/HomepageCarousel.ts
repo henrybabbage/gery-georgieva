@@ -116,7 +116,7 @@ function exhibitionHrefAndTitle(
 ): {href: string | null; title: string} {
   const hidden = ex?.hidePublicPage === true
   const slug = ex?.slug
-  const href = !hidden && typeof slug === 'string' && slug.length > 0 ? `/exhibition/${slug}` : null
+  const href = !hidden && typeof slug === 'string' && slug.length > 0 ? `/work/${slug}` : null
   const title = (typeof ex?.title === 'string' ? ex.title.trim() : '') || fallbackTitle
   return {href, title}
 }

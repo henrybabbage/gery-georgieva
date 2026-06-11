@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
     return [
       {source: '/features', destination: '/', permanent: true},
       {source: '/shows', destination: '/work', permanent: true},
-      {source: '/shows/:slug', destination: '/exhibition/:slug', permanent: true},
+      {source: '/shows/:slug', destination: '/work/:slug', permanent: true},
       {source: '/exhibitions', destination: '/work', permanent: true},
+      {source: '/exhibition/:slug', destination: '/work/:slug', permanent: true},
     ]
   },
   env: {

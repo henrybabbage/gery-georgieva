@@ -22,8 +22,7 @@ The project is a small npm workspace monorepo:
 The public site is served from `frontend/app` and includes:
 
 - `/` - homepage carousel
-- `/work` and `/work/[slug]` - works and detail pages
-- `/exhibition/[slug]` - exhibition detail pages
+- `/work` and `/work/[slug]` - public work list and detail pages (Sanity `exhibition` documents; legacy `work` docs are migrated manually in Studio)
 - `/ephemera/[slug]` - ephemera/research detail pages
 - `/archive` - archive view
 - `/press` and `/press/[slug]` - press listing and detail pages
