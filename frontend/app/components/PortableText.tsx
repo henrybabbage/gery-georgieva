@@ -10,6 +10,95 @@
 
 import {PortableText, type PortableTextComponents, type PortableTextBlock} from 'next-sanity'
 import Image from '@/app/components/SanityImage'
+import {collapseNormalBlocks} from '@/lib/portable-text/collapseNormalBlocks'
+
+const components: PortableTextComponents = {
+  types: {
+    image: ({value}) => {
+      if (!value?.asset?._ref) {
+        return null
+      }
+
+      return (
+        <figure className="my-8">
+          <Image
+            id={value.asset._ref}
+            alt={value.alt || ''}
+            width={672}
+            crop={value.crop}
+            mode="cover"
+          />
+        </figure>
+      )
+    },
+  },
+  block: {
+    normal: ({children}) => <p className="m-0">{children}</p>,
+    h1: ({children, value}) => (
+      <h1 className="group relative">
+        {children}
+        <a
+          href={`#${value?._key}`}
+          className="absolute left-0 top-0 bottom-0 -ml-6 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+        </a>
+      </h1>
+    ),
+    h2: ({children, value}) => (
+      <h2 className="group relative">
+        {children}
+        <a
+          href={`#${value?._key}`}
+          className="absolute left-0 top-0 bottom-0 -ml-6 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+        </a>
+      </h2>
+    ),
+  },
+  marks: {
+    link: ({children, value: link}) => {
+      const href = link?.href ?? link?.url ?? '#'
+      return (
+        <a
+          href={href}
+          target={link?.openInNewTab ? '_blank' : undefined}
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      )
+    },
+  },
+  hardBreak: () => <br />,
+}
 
 export default function CustomPortableText({
   className,
@@ -18,101 +107,13 @@ export default function CustomPortableText({
   className?: string
   value: PortableTextBlock[]
 }) {
-  const components: PortableTextComponents = {
-    types: {
-      image: ({value}) => {
-        if (!value?.asset?._ref) {
-          return null
-        }
-
-        return (
-          <figure className="my-8">
-            <Image
-              id={value.asset._ref}
-              alt={value.alt || ''}
-              width={672}
-              crop={value.crop}
-              mode="cover"
-            />
-          </figure>
-        )
-      },
-    },
-    block: {
-      h1: ({children, value}) => (
-        // Add an anchor to the h1
-        <h1 className="group relative">
-          {children}
-          <a
-            href={`#${value?._key}`}
-            className="absolute left-0 top-0 bottom-0 -ml-6 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-              />
-            </svg>
-          </a>
-        </h1>
-      ),
-      h2: ({children, value}) => {
-        // Add an anchor to the h2
-        return (
-          <h2 className="group relative">
-            {children}
-            <a
-              href={`#${value?._key}`}
-              className="absolute left-0 top-0 bottom-0 -ml-6 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-            </a>
-          </h2>
-        )
-      },
-    },
-    marks: {
-      link: ({children, value: link}) => {
-        const href = link?.href ?? link?.url ?? '#'
-        return (
-          <a
-            href={href}
-            target={link?.openInNewTab ? '_blank' : undefined}
-            rel="noopener noreferrer"
-          >
-            {children}
-          </a>
-        )
-      },
-    },
-  }
+  const collapsedValue = collapseNormalBlocks(value)
 
   return (
     <div
       className={`prose prose-uniform prose-compact prose-a:underline prose-a:decoration-[color:var(--color-ink)] prose-a:underline-offset-2 ${className ?? ''}`}
     >
-      <PortableText components={components} value={value} />
+      <PortableText components={components} value={collapsedValue} />
     </div>
   )
 }
