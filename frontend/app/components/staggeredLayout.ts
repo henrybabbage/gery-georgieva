@@ -137,9 +137,6 @@ export function getCenterRowSpans(
  */
 export const ROW_MARGIN_BOTTOM = 'mb-[clamp(2.5rem,1.875rem+5.25vw,6.875rem)]'
 
-/** Fluid gap for the mobile single-column stack. */
-export const MOBILE_STACK_GAP = 'gap-[clamp(2.5rem,2rem+4.5vw,4rem)]'
-
 /* ------------------------------------------------------------------ *
  * Paired-row overview grid (Work index)
  *

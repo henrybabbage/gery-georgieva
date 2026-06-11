@@ -16,33 +16,7 @@ import {
   pairTemplate,
   type RowJustify,
 } from '@/app/components/staggeredLayout'
-import type {
-  FeatureExhibitionListQueryResult,
-  WorkPublicGridQueryResult,
-} from '@/sanity.types'
-
-type ExhibitionItem = FeatureExhibitionListQueryResult[number]
-type WorkItem = WorkPublicGridQueryResult[number]
-
-type ExhibitionLead =
-  | NonNullable<ExhibitionItem['carouselImage']>
-  | NonNullable<ExhibitionItem['firstInstallImage']>
-
-type WorkLead =
-  | NonNullable<WorkItem['coverImage']>
-  | NonNullable<WorkItem['firstGalleryStill']>
-
-export type TileLead = ExhibitionLead | WorkLead
-
-export type GridRow = {
-  _id: string
-  href: string
-  title: string
-  metaLine: string
-  lead: TileLead | null
-  sortYear: number
-  sortRank: string
-}
+import type {GridRow, TileLead} from '@/app/work/workIndexRows'
 
 /**
  * The Work index is an overview, so it places works + exhibitions TWO per row on the same 12-column
