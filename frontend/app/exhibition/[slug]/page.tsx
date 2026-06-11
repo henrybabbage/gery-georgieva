@@ -1,5 +1,6 @@
 import {notFound} from 'next/navigation'
 import {draftMode} from 'next/headers'
+import {DetailPageHeader} from '@/app/components/DetailPageHeader'
 import {ExhibitionStaggeredMedia} from '@/app/exhibition/components/ExhibitionStaggeredMedia'
 import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
 import {ExhibitionRelatedPreviewLink} from '@/app/exhibition/ExhibitionRelatedPreviewLink'
@@ -107,9 +108,12 @@ export default async function ExhibitionPage({params}: Props) {
 
   const mainColumn = (
     <>
-      <header className={`${textColumnShellClass} mb-10 sm:mb-12`}>
-        <h1 className={`${textMeasureClass} text-base font-normal`}>{exhibition.title}</h1>
-      </header>
+      <DetailPageHeader
+        title={exhibition.title}
+        year={exhibition.year}
+        textColumnShellClass={textColumnShellClass}
+        textMeasureClass={textMeasureClass}
+      />
 
       {leadInstallationImages.length > 0 && (
         <div className={installationGalleryShellClass}>

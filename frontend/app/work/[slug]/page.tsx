@@ -2,6 +2,7 @@ import {notFound} from 'next/navigation'
 import {draftMode} from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
+import {DetailPageHeader} from '@/app/components/DetailPageHeader'
 import {WorkStaggeredGallery} from '@/app/work/[slug]/WorkStaggeredGallery'
 import {DetailMediaText} from '@/app/exhibition/components/DetailMediaText'
 import {detailPagePinReferenceRootClass} from '@/lib/DetailPagePinReferenceClasses'
@@ -89,8 +90,11 @@ export default async function WorkPage({params}: Props) {
 
   const hasExhibitions = Boolean(work.exhibitions && work.exhibitions.length > 0)
   const workGalleryItems = work.gallery ?? []
+  const hasWorkMeta = Boolean(work.medium?.trim() || work.dimensions?.trim())
+  const hasDescription = (work.description?.length ?? 0) > 0
   const hasWorkTextSection =
-    (work.description?.length ?? 0) > 0 ||
+    hasDescription ||
+    hasWorkMeta ||
     (work.supportText?.length ?? 0) > 0 ||
     (work.supportLogos?.some((logo) => Boolean(logo.asset?.url?.trim())) ?? false) ||
     workGalleryItems.some((item) => Boolean(item.caption?.trim()) || Boolean(item.credit?.trim()))
@@ -158,17 +162,25 @@ export default async function WorkPage({params}: Props) {
   return (
     <div className={pageChromeClass}>
       <div className="min-h-0">
-        <header className={`${textColumnShellClass} mb-10 sm:mb-12`}>
-          <h1 className={`${textMeasureClass} text-base font-normal mb-1`}>{work.title}</h1>
-          <p className={`${textMeasureClass} text-base mb-6`}>
-            {[work.year, work.medium, work.dimensions].filter(Boolean).join(', ')}
-          </p>
-        </header>
+        <DetailPageHeader
+          title={work.title}
+          year={work.year}
+          textColumnShellClass={textColumnShellClass}
+          textMeasureClass={textMeasureClass}
+        />
 
         {galleryBlock}
 
         {hasWorkTextSection && (
           <section className={`${textColumnShellClass} mb-12 lg:mb-16`} aria-label="About this work">
+            {hasWorkMeta && (
+              <div
+                className={`${textMeasureClass} space-y-2 text-base text-[var(--color-ink)] ${hasDescription ? 'mb-8' : ''}`}
+              >
+                {work.medium?.trim() && <p>{work.medium}</p>}
+                {work.dimensions?.trim() && <p>{work.dimensions}</p>}
+              </div>
+            )}
             <DetailMediaText
               description={work.description}
               supportText={work.supportText}
