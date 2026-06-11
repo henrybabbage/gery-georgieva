@@ -48,7 +48,7 @@ const homeLocation = {
 function resolveHref(documentType?: string, slug?: string): string | undefined {
   switch (documentType) {
     case 'work':
-      return slug ? `/work/${slug}` : undefined
+      return undefined
     case 'exhibition':
       return slug ? `/work/${slug}` : undefined
     case 'ephemera':
@@ -94,7 +94,7 @@ export default defineConfig({
           },
           {
             route: '/work/:slug',
-            filter: `_type in ["work", "exhibition"] && slug.current == $slug`,
+            filter: `_type == "exhibition" && slug.current == $slug`,
           },
           {
             route: '/ephemera/:slug',
@@ -127,14 +127,8 @@ export default defineConfig({
           }),
           work: defineLocations({
             select: {title: 'title', slug: 'slug.current'},
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.title || 'Untitled',
-                  href: resolveHref('work', doc?.slug)!,
-                },
-                homeLocation,
-              ].filter(Boolean) as DocumentLocation[],
+            resolve: () => ({
+              locations: [homeLocation],
             }),
           }),
           exhibition: defineLocations({
