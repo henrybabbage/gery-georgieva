@@ -10,7 +10,6 @@ import {
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import type {StructureResolver} from 'sanity/structure'
 
-import {WorkMigrationChecklist} from './WorkMigrationChecklist'
 
 export const ABOUT_DOCUMENT_ID = 'about'
 
@@ -41,14 +40,6 @@ export const structure: StructureResolver = (S, context) =>
         .title('Legacy Works (manual migration)')
         .icon(Spiral)
         .child(S.documentTypeList('work').defaultOrdering([{field: 'year', direction: 'desc'}])),
-      S.listItem()
-        .title('Work migration checklist')
-        .icon(ListDashes)
-        .child(
-          S.component(WorkMigrationChecklist)
-            .id('workMigrationChecklist')
-            .title('Work migration checklist'),
-        ),
       orderableDocumentListDeskItem({
         type: 'ephemera',
         title: 'Ephemera',
