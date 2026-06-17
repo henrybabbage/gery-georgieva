@@ -52,11 +52,9 @@ export const work = defineType({
     }),
     defineField({
       name: 'hidePublicPage',
-      title: 'Visibility: hide public page',
+      title: 'Hide page',
       type: 'boolean',
-      description:
-        'Off = Live: eligible for /work, public links, and direct /work/... URLs. ' +
-        'On = Hidden: omitted from public listings and links, and direct URLs 404 outside draft mode.',
+      description: 'Off = Visible\nOn = Hidden',
       initialValue: true,
     }),
     defineField({
