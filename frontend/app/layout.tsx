@@ -47,6 +47,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s — ${SITE_TITLE_DEFAULT}`,
     },
     description,
+    appleWebApp: {
+      title: SITE_TITLE_DEFAULT,
+    },
     openGraph: {
       type: 'website',
       title,
@@ -118,9 +121,6 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       className={rillus.variable}
       suppressHydrationWarning
     >
-      <head>
-        <meta name="apple-mobile-web-app-title" content="Gery Georgieva" />
-      </head>
       {GOOGLE_TAG_MANAGER_ID && (
         <GoogleTagManager gtmId={GOOGLE_TAG_MANAGER_ID} />
       )}
