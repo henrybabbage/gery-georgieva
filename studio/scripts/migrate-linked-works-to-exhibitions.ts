@@ -22,7 +22,7 @@ import {getCliClient} from 'sanity/cli'
  *      the new exhibition (same array `_key`, so carousel order is preserved),
  *      and repoints any `cvEntry.internalRef`.
  *
- * The original `work` documents are left UNTOUCHED (kept in "Legacy Works").
+ * The original `work` documents are left UNTOUCHED (kept in "Legacy works").
  * Re-running is safe: existing migrated exhibitions are not overwritten, and
  * carousel members already pointing at an exhibition are skipped.
  *

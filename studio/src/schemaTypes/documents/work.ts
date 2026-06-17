@@ -21,7 +21,7 @@ function prepareWorkPreview({
 }: WorkPreviewInput): PreviewValue {
   const visibility = hidePublicPage === true ? 'Hidden' : 'Live'
   const yearStr = year != null ? String(year) : ''
-  const subtitle = [yearStr, visibility].filter((part) => part !== '').join(' - ')
+  const subtitle = [visibility, yearStr].filter((part) => part !== '').join(' - ')
   return {
     title,
     subtitle,
@@ -31,7 +31,7 @@ function prepareWorkPreview({
 
 export const work = defineType({
   name: 'work',
-  title: 'Work',
+  title: 'Legacy works',
   type: 'document',
   icon: Spiral,
   orderings: [yearDescOrdering, orderRankOrdering],
