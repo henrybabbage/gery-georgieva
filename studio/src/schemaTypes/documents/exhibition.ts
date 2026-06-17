@@ -146,10 +146,11 @@ export const exhibition = defineType({
     }),
     defineField({
       name: 'showWorksSection',
-      title: 'Show related works on exhibition page',
+      title: 'Show related works',
       type: 'boolean',
       description:
-        'Off: the Works grid stays hidden at the bottom of the public exhibition page. On: show it when Related Works has items.',
+        'Off: related works stay hidden from the bottom of the page. ' +
+        'On: related works are shown if they exist and are referenced by this work.',
       initialValue: false,
     }),
     defineField({
@@ -157,7 +158,7 @@ export const exhibition = defineType({
       title: 'Show research & ephemera on exhibition page',
       type: 'boolean',
       description:
-        'Off: the Research & Ephemera grid stays hidden at the bottom of the public exhibition page. On: show linked ephemera when any exist.',
+        'Off: ephemera stays hidden from the bottom of the page. On: ephemera is shown if it exists and is referenced by this work.',
       initialValue: false,
     }),
     defineField({
