@@ -54,7 +54,7 @@ export const work = defineType({
       name: 'hidePublicPage',
       title: 'Hide page',
       type: 'boolean',
-      description: 'Off = Visible\nOn = Hidden',
+      description: 'Off = visible.\nOn = hidden',
       initialValue: true,
     }),
     defineField({
