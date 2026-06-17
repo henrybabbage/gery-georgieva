@@ -31,7 +31,7 @@ function prepareWorkPreview({
 
 export const work = defineType({
   name: 'work',
-  title: 'Legacy works',
+  title: 'Legacy Works',
   type: 'document',
   icon: Spiral,
   orderings: [yearDescOrdering, orderRankOrdering],
@@ -54,7 +54,7 @@ export const work = defineType({
       name: 'hidePublicPage',
       title: 'Hide page',
       type: 'boolean',
-      description: 'Off = Visible\nOn = Hidden',
+      description: 'Off = visible.\nOn = hidden',
       initialValue: true,
     }),
     defineField({

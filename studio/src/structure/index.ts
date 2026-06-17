@@ -22,13 +22,13 @@ export const structure: StructureResolver = (S, context) =>
         .icon(House)
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
       S.listItem()
-        .title('CV page')
+        .title('CV Page')
         .icon(UserCircle)
         .child(
           S.document()
             .schemaType('about')
             .documentId(ABOUT_DOCUMENT_ID)
-            .title('CV page'),
+            .title('CV Page'),
         ),
       S.listItem()
         .title('Work')
@@ -37,7 +37,7 @@ export const structure: StructureResolver = (S, context) =>
           S.documentTypeList('exhibition').defaultOrdering([{field: 'year', direction: 'desc'}]),
         ),
       S.listItem()
-        .title('Legacy works')
+        .title('Legacy Works')
         .icon(Spiral)
         .child(S.documentTypeList('work').defaultOrdering([{field: 'year', direction: 'desc'}])),
       orderableDocumentListDeskItem({
