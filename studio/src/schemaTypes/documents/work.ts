@@ -31,7 +31,7 @@ function prepareWorkPreview({
 
 export const work = defineType({
   name: 'work',
-  title: 'Legacy works',
+  title: 'Legacy Works',
   type: 'document',
   icon: Spiral,
   orderings: [yearDescOrdering, orderRankOrdering],
