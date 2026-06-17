@@ -37,7 +37,7 @@ export const structure: StructureResolver = (S, context) =>
           S.documentTypeList('exhibition').defaultOrdering([{field: 'year', direction: 'desc'}]),
         ),
       S.listItem()
-        .title('Legacy Works')
+        .title('Legacy Works (Hidden)')
         .icon(Spiral)
         .child(S.documentTypeList('work').defaultOrdering([{field: 'year', direction: 'desc'}])),
       orderableDocumentListDeskItem({
