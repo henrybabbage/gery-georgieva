@@ -29,7 +29,7 @@ const listMeasureClass = 'max-w-[72ch] text-base text-[var(--color-ink)]'
 
 /** Uniform row cursor; links also set !cursor-pointer on the anchor. */
 const rowClass = 'cursor-pointer'
-const dateClass = 'mt-1 text-sm text-[var(--color-ink)]'
+const dateClass = 'mt-1 text-base text-[var(--color-ink)]'
 
 function PressRowDate({value}: {value: string | null | undefined}) {
   const formatted = formatPressPublicationDate(value)
