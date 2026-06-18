@@ -68,43 +68,13 @@ export async function generateMetadata(): Promise<Metadata> {
 const rillus = localFont({
   src: [
     {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-extralight.otf',
-      weight: '200',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-light.otf',
-      weight: '300',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-semilight.otf',
-      weight: '350',
-      style: 'normal',
-    },
-    {
       path: '../public/fonts/Rillus/for-rillusunlicensedtrial-regular.otf',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-medium.otf',
-      weight: '500',
-      style: 'normal',
-    },
-    {
       path: '../public/fonts/Rillus/for-rillusunlicensedtrial-bold.otf',
       weight: '700',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-extrabold.otf',
-      weight: '800',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/Rillus/for-rillusunlicensedtrial-black.otf',
-      weight: '900',
       style: 'normal',
     },
   ],

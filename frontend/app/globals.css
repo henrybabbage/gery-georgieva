@@ -29,6 +29,40 @@
 }
 
 @layer components {
+  .site-nav-link {
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    line-height: 1.2;
+    outline-offset: 0.25rem;
+  }
+
+  .site-nav-link__track {
+    display: grid;
+    transition: transform 150ms ease;
+    will-change: transform;
+  }
+
+  .site-nav-link[data-active='true'] .site-nav-link__track {
+    transform: translateY(-50%);
+  }
+
+  .site-nav-link:focus-visible .site-nav-link__track {
+    transform: translateY(-50%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav-link:hover .site-nav-link__track {
+      transform: translateY(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-nav-link__track {
+      transition: none;
+    }
+  }
+
   /* Chain `.prose` so these beat `@tailwindcss/typography` defaults (same layer, later / higher specificity). */
   .prose.prose-uniform {
     font-size: 1rem;

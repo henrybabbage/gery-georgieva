@@ -16,7 +16,7 @@ export default function SiteNav() {
     <nav className="fixed left-0 right-0 top-0 z-50 flex items-baseline justify-between bg-transparent px-5 py-4 text-base">
       <Link
         href="/"
-        className="shrink-0 whitespace-nowrap text-xl leading-none font-semibold tracking-tight"
+        className="shrink-0 whitespace-nowrap text-xl leading-none font-bold tracking-tight"
       >
         Gery Georgieva
       </Link>
@@ -30,14 +30,15 @@ export default function SiteNav() {
             <Link
               key={href}
               href={href}
-              className={
-                isActive
-                  ? 'text-[var(--color-ink)] font-medium'
-                  : 'text-[var(--color-ink)]'
-              }
+              className="site-nav-link text-[var(--color-ink)]"
+              data-active={isActive ? 'true' : undefined}
               aria-current={isActive ? 'page' : undefined}
             >
-              {label}
+              <span className="site-nav-link__track" aria-hidden="true">
+                <span>{label}</span>
+                <span>{label}</span>
+              </span>
+              <span className="sr-only">{label}</span>
             </Link>
           )
         })}
