@@ -171,20 +171,20 @@ export class Gallery {
     const fallback = {
       word: `tone ${String(index + 1).padStart(2, '0')}`,
       title: 'Artwork title',
-      year: '2026',
+      year: '',
       materials: 'Materials',
       pms: 'N/A',
       color: '',
     }
-    const label = planeDefinition.label || fallback
+    const label = planeDefinition.label ?? fallback
 
     return {
-      word: label.word || fallback.word,
-      title: label.title || fallback.title,
-      year: label.year || fallback.year,
-      materials: label.materials || fallback.materials,
-      pms: label.pms || fallback.pms,
-      color: label.color || fallback.color,
+      word: label.word ?? fallback.word,
+      title: label.title ?? fallback.title,
+      year: label.year ?? fallback.year,
+      materials: label.materials ?? fallback.materials,
+      pms: label.pms ?? fallback.pms,
+      color: label.color ?? fallback.color,
     }
   }
 
